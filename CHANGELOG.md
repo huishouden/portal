@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.0](https://github.com/huishouden/portal/compare/v2.9.1...v2.10.0) (2026-10-03)
+
+
+### Features
+
+* Huishouden Health tile; Today, Calendar and To-do show items for named people (kit 0.56.0) ([#64](https://github.com/huishouden/portal/issues/64)) ([d968e9c](https://github.com/huishouden/portal/commit/d968e9cd80a4faa0f496d134879ac1b5c6bef389))
+
 ## [2.9.1](https://github.com/huishouden/portal/compare/v2.9.0...v2.9.1) (2026-10-03)
 
 
