@@ -69,6 +69,23 @@
     "redirect": true
   },
   {
+    "name": "Health",
+    "description": "Medicines and care for everyone at home",
+    "repo": "health",
+    "site": "huishouden-health",
+    "path": "/health/",
+    "webApp": "Health",
+    "glyph": "pill",
+    "contactRoles": [
+      "Doctor",
+      "Pharmacy",
+      "Specialist",
+      "Dentist",
+      "Home care"
+    ],
+    "redirect": true
+  },
+  {
     "name": "Car",
     "description": "Keeping the cars on the road",
     "repo": "car",
