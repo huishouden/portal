@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/huishouden/portal/compare/v2.9.0...v2.9.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **todos:** Done on a set-dates job resolves its next due date at the tap (kit v0.55.0) ([#62](https://github.com/huishouden/portal/issues/62)) ([e11b7e9](https://github.com/huishouden/portal/commit/e11b7e90d8b7422b3d244b3a716f00a71d5dec17))
+
 ## [2.9.0](https://github.com/huishouden/portal/compare/v2.8.0...v2.9.0) (2026-10-03)
 
 
