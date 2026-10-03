@@ -174,15 +174,16 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
     setAgenda(undefined);
     if (!householdId) return;
     const { from, to } = agendaRange(Date.now(), AGENDA_DAYS, 7);
-    return watchAgenda(db, householdId, { from, to, restricted, onError: () => setAgenda([]) }, setAgenda);
-  }, [householdId, today, restricted]);
+    // With `me`, the items for named people only that name this member (Health's medicines).
+    return watchAgenda(db, householdId, { from, to, restricted, me: email, onError: () => setAgenda([]) }, setAgenda);
+  }, [householdId, today, restricted, email]);
 
   // Every app's open things to do; helpers and kids ask for the open ones only.
   useEffect(() => {
     setTodos(undefined);
     if (!householdId) return;
-    return watchTodos(db, householdId, { restricted, onError: () => setTodos([]) }, setTodos);
-  }, [householdId, restricted]);
+    return watchTodos(db, householdId, { restricted, me: email, onError: () => setTodos([]) }, setTodos);
+  }, [householdId, restricted, email]);
 
   const state = useMemo((): HubState => {
     if (user === undefined) return { auth: 'starting', layout, remembered };
