@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.1](https://github.com/huishouden/portal/compare/v2.15.0...v2.15.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* **monitoring:** kit v0.71.1 (pipeline cloud rules, page views per app); publish settings after a late failure ([#81](https://github.com/huishouden/portal/issues/81)) ([f57694e](https://github.com/huishouden/portal/commit/f57694e93f44e88878dd9c77914fcb003342c4aa))
+
 ## [2.15.0](https://github.com/huishouden/portal/compare/v2.14.0...v2.15.0) (2026-10-04)
 
 
