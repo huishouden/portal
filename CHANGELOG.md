@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.4](https://github.com/huishouden/portal/compare/v2.15.3...v2.15.4) (2026-10-04)
+
+
+### Bug Fixes
+
+* **calendar:** Connect Google Calendar never fails silently; a way back to Google's window ([#92](https://github.com/huishouden/portal/issues/92)) ([2a58cba](https://github.com/huishouden/portal/commit/2a58cba0aac7b846bcfd2e8e8702a8f3b5d5a943))
+
 ## [2.15.3](https://github.com/huishouden/portal/compare/v2.15.2...v2.15.3) (2026-10-04)
 
 
