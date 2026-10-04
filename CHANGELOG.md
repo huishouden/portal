@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.0](https://github.com/huishouden/portal/compare/v2.11.0...v2.12.0) (2026-10-04)
+
+
+### Features
+
+* the hub in Spanish and Dutch ([#68](https://github.com/huishouden/portal/issues/68)) ([4f8b000](https://github.com/huishouden/portal/commit/4f8b000399b65242b8ad3cd395c4927451dce9c8))
+
 ## [2.11.0](https://github.com/huishouden/portal/compare/v2.10.0...v2.11.0) (2026-10-04)
 
 
