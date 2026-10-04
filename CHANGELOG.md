@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.0](https://github.com/huishouden/portal/compare/v2.10.0...v2.11.0) (2026-10-04)
+
+
+### Features
+
+* dark mode that follows the suite's theme ([#66](https://github.com/huishouden/portal/issues/66)) ([f77a583](https://github.com/huishouden/portal/commit/f77a5830fa578f691e9652d84e3be885f46ff83f))
+
 ## [2.10.0](https://github.com/huishouden/portal/compare/v2.9.1...v2.10.0) (2026-10-03)
 
 
