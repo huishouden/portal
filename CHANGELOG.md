@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.13.0](https://github.com/huishouden/portal/compare/v2.12.1...v2.13.0) (2026-10-04)
+
+
+### Features
+
+* **apps:** Home's Landlord contact role, in Spanish and Dutch ([#72](https://github.com/huishouden/portal/issues/72)) ([b5970f0](https://github.com/huishouden/portal/commit/b5970f0f3ebad8d21db7cf47efa663870c654f00))
+
 ## [2.12.1](https://github.com/huishouden/portal/compare/v2.12.0...v2.12.1) (2026-10-04)
 
 
