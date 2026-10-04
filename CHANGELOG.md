@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.15.3](https://github.com/huishouden/portal/compare/v2.15.2...v2.15.3) (2026-10-04)
+
+
+### Bug Fixes
+
+* **calendar:** say when Huishouden has used today's allowance, not "couldn't reach" ([#85](https://github.com/huishouden/portal/issues/85)) ([46ef1b1](https://github.com/huishouden/portal/commit/46ef1b13958517036c235caddcfac301c4f82cca))
+* kit v0.71.2 to 0.82.1, contacts' pay details for admins and members only ([#91](https://github.com/huishouden/portal/issues/91)) ([9b238a6](https://github.com/huishouden/portal/commit/9b238a6de02ef8e527bffb32d52ee06d5175ee3d))
+
 ## [2.15.2](https://github.com/huishouden/portal/compare/v2.15.1...v2.15.2) (2026-10-04)
 
 
