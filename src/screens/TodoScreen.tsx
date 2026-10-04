@@ -56,7 +56,8 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
     try {
       const done = await actions.runTodo(item, which);
       done.written.catch((e) => fail(message(e)));
-      notify(actedLine(action.label, words.title, words[which]), () => void done.undo().catch((e) => fail(message(e))));
+      // The button's English word names the past tense; an app writing in another language keeps it in `texts.en`.
+      notify(actedLine(item.texts?.en?.[which] ?? action.label, words.title, words[which]), () => void done.undo().catch((e) => fail(message(e))));
     } catch (e) {
       fail(message(e));
     }
