@@ -15,7 +15,11 @@ import { clearSharedContact, readSharedContact, type ParsedContact } from '@huis
 import { TodayScreen } from './screens/TodayScreen';
 import { TodoScreen } from './screens/TodoScreen';
 import { PrivacyScreen } from './screens/PrivacyScreen';
-import { PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
+import { ASSISTANT_PATH, PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
+import { CONNECT_PATH } from '@huishouden/pwa-kit/signin-handoff';
+import { AssistantScreen } from './screens/AssistantScreen';
+import { ConnectScreen } from './screens/ConnectScreen';
+import { auth } from './firebase';
 import { trackView } from '@huishouden/pwa-kit/observability';
 import { useNow } from './now';
 import { t, useT } from './i18n';
@@ -42,7 +46,10 @@ function tabsFor(state: HubState): Tab[] {
   ];
 }
 
-const onPrivacyPage = () => location.pathname.replace(/\/$/, '') === PRIVACY_PATH;
+/** Pages outside the tabs: Privacy, and using Huishouden from an AI assistant (its page and its sign-in). */
+type Page = 'privacy' | 'assistant' | 'connect';
+const PAGES: Record<string, Page> = { [PRIVACY_PATH]: 'privacy', [ASSISTANT_PATH]: 'assistant', [CONNECT_PATH]: 'connect' };
+const pageFromPath = (): Page | null => PAGES[location.pathname.replace(/\/$/, '')] ?? null;
 
 const tabFromPath = (): TabId | undefined => {
   const id = location.pathname.replace(/^\/|\/$/g, '');
@@ -58,7 +65,9 @@ export default function App() {
   const [signingIn, setSigningIn] = useState(false);
   const [signInError, setSignInError] = useState<string>();
   const [chosen, setChosen] = useState<TabId | undefined>(tabFromPath);
-  const [privacy, setPrivacy] = useState(onPrivacyPage);
+  const [page, setPage] = useState<Page | null>(pageFromPath);
+  // Privacy and the assistant pages replace the tabs' content.
+  const onPage = page !== null;
   // A contact card from the Share menu (Contacts → Share → Huishouden): kept until a member's
   // Contacts tab can open it as a new contact, filled in.
   const [sharedCards, setSharedCards] = useState<ParsedContact[] | null>(null);
@@ -89,20 +98,20 @@ export default function App() {
   useEffect(() => {
     const onPop = () => {
       setChosen(tabFromPath());
-      setPrivacy(onPrivacyPage());
+      setPage(pageFromPath());
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  const shown = privacy ? 'privacy' : tab;
+  const shown = page ?? tab;
   useEffect(() => {
     trackView(shown);
   }, [shown]);
 
   const choose = (id: string) => {
     setChosen(id as TabId);
-    setPrivacy(false);
+    setPage(null);
     history.pushState(null, '', `/${id}`);
     window.scrollTo(0, 0);
   };
@@ -139,11 +148,28 @@ export default function App() {
     <div className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
       {/* i18n-ignore: the suite's name, never translated */}
       <AppBar app="Huishouden" glyph="home" portalUrl="/" version={VERSION} user={user} signingIn={signingIn} onSignIn={signIn} onSignOut={() => void actions.signOut()}>
-        <SectionTabs tabs={tabs} tab={privacy ? '' : tab} onTab={choose} />
+        <SectionTabs tabs={tabs} tab={onPage ? '' : tab} onTab={choose} />
       </AppBar>
       <main className="mx-auto w-full max-w-[1200px] px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-8">
-        {privacy && <PrivacyScreen />}
-        {!privacy && tab === 'apps' && (
+        {page === 'privacy' && <PrivacyScreen />}
+        {page === 'assistant' && (
+          <AssistantScreen
+            user={state.auth === 'starting' ? undefined : signedIn ? auth.currentUser : null}
+            householdId={signedIn?.household.status === 'ready' ? signedIn.household.id : undefined}
+            me={signedIn?.me}
+            notify={notify}
+            fail={fail}
+          />
+        )}
+        {page === 'connect' && (
+          <ConnectScreen
+            user={state.auth === 'starting' ? undefined : signedIn ? auth.currentUser : null}
+            householdId={signedIn?.household.status === 'ready' ? signedIn.household.id : undefined}
+            onSignIn={() => void signIn()}
+            signingIn={signingIn}
+          />
+        )}
+        {!onPage && tab === 'apps' && (
           <AppsScreen
             state={state}
             actions={actions}
@@ -156,7 +182,7 @@ export default function App() {
             fail={fail}
           />
         )}
-        {tab === 'today' && (
+        {!onPage && tab === 'today' && (
           <TodayScreen
             agenda={signedIn?.agenda}
             apps={ordered}
@@ -165,11 +191,11 @@ export default function App() {
             profiles={signedIn?.household.status === 'ready' ? signedIn.household.profiles : undefined}
           />
         )}
-        {tab === 'todo' && (
+        {!onPage && tab === 'todo' && (
           <TodoScreen todos={signedIn?.todos} apps={ordered} now={now} me={signedIn?.me} role={role} actions={actions} notify={notify} fail={fail} />
         )}
-        {tab === 'calendar' && <CalendarScreen agenda={signedIn?.agenda} apps={ordered} now={now} />}
-        {tab === 'contacts' && (
+        {!onPage && tab === 'calendar' && <CalendarScreen agenda={signedIn?.agenda} apps={ordered} now={now} />}
+        {!onPage && tab === 'contacts' && (
           <ContactsScreen
             contacts={signedIn?.contacts}
             apps={ordered}
@@ -190,7 +216,7 @@ export default function App() {
           onClick={(e) => {
             e.preventDefault();
             history.pushState(null, '', PRIVACY_PATH);
-            setPrivacy(true);
+            setPage('privacy');
             window.scrollTo(0, 0);
           }}
         >

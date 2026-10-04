@@ -195,3 +195,19 @@ test("members keep the household's food preferences, with every member listed", 
 test('sends the security headers and leaves sign-in un-framed', ({ request }) => expectSecurityHeaders(request, '/', { camera: true }));
 
 test('follows the suite theme: dark on a dark device, readable', ({ page }) => expectThemeConsistent(page, { path: './' }));
+
+// Using Huishouden from an AI assistant (huishouden/connector): its page, linked from the account
+// menu, shows the connector's address and the steps; /connect hands a sign-in only to that connector.
+test('the AI-assistant page shows the connector address and the steps', async ({ page }) => {
+  await expectCleanLoad(page, '/assistant');
+  await expect(page.getByRole('heading', { name: 'Use Huishouden from your AI assistant' })).toBeVisible();
+  const address = page.getByRole('textbox', { name: 'Connector address' });
+  await expect(address).toHaveValue(/^https:\/\/huishouden-connector[a-z-]*\.[a-z0-9-]+\.workers\.dev\/mcp$/);
+  await expect(page.getByRole('heading', { name: 'Claude (claude.ai, desktop and mobile)' })).toBeVisible();
+  await expect(page.getByText('"httpUrl"')).toBeVisible();
+});
+
+test('a connect link for anything but the connector is refused', async ({ page }) => {
+  await page.goto('/connect?service=https://evil.example&state=state-0123456789abcdef&client=Claude', { waitUntil: 'networkidle' });
+  await expect(page.getByRole('heading', { name: "This link can't be used" })).toBeVisible();
+});
