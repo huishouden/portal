@@ -10,7 +10,9 @@ import {
   normalizeEmail,
   removeMember,
   saveMyProfile,
+  clearHouseholdHome,
   setHouseholdCurrency,
+  setHouseholdHome,
   watchHousehold,
   watchProfiles,
   type HouseholdState,
@@ -205,6 +207,7 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
         joined: h.joined,
         roles: h.roles ?? {},
         ...(h.currency ? { currency: h.currency } : {}),
+        ...(h.home ? { home: h.home } : {}),
         profiles: Object.fromEntries([...profiles].map(([k, p]) => [k, { name: p.name, photoURL: p.photoURL }])),
       };
     }
@@ -322,6 +325,20 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
           throw words(e, t('error.currency'));
         });
         track('set currency');
+      },
+      async setHome(home) {
+        const { id, me } = need();
+        await setHouseholdHome(db, id, home, me).catch((e) => {
+          throw words(e, t('error.home'));
+        });
+        track('set home', { approximate: home.approximate === true });
+      },
+      async clearHome() {
+        const { id } = need();
+        await clearHouseholdHome(db, id).catch((e) => {
+          throw words(e, t('error.home'));
+        });
+        track('clear home');
       },
       async saveFood(input) {
         const { id, me } = need();

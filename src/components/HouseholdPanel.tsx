@@ -6,6 +6,7 @@ import { RoleList, RoleNote, RoleSelect } from '@huishouden/pwa-kit/react/roles'
 import { MAX_NAME, type HubActions, type HubState, type ReadyHousehold } from '../hub';
 import { useT } from '../i18n';
 import { CurrencyPicker } from './CurrencyPicker';
+import { HomeEditor } from '@huishouden/pwa-kit/react/home';
 
 type SignedIn = Extract<HubState, { auth: 'signed-in' }>;
 
@@ -379,6 +380,13 @@ function Household({
       )}
       {admin && !solo && <p className="text-sm text-muted">{t('household.inviteNote')}</p>}
       <CurrencyPicker value={h.currency} canChange={can(role, 'change-settings')} onChange={(code) => run(() => actions.setCurrency(code))} />
+      <HomeEditor
+        home={h.home}
+        canChange={can(role, 'change-settings')}
+        nameOf={nameOf}
+        onSave={(home) => run(() => actions.setHome(home), t('home.saved'))}
+        onRemove={() => run(() => actions.clearHome(), t('home.removed'))}
+      />
     </>
   );
 }

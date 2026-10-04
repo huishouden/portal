@@ -2,6 +2,7 @@ import { useMemo, useSyncExternalStore } from 'react';
 import type { Contact } from '@huishouden/pwa-kit/contacts';
 import { foodDoc } from '@huishouden/pwa-kit/food';
 import { setCurrency } from '@huishouden/pwa-kit/money';
+import { homeDoc, setHome } from '@huishouden/pwa-kit/home';
 import type { HubActions, HubState } from '../hub';
 
 /**
@@ -15,6 +16,8 @@ const listeners = new Set<() => void>();
 
 function setPreview(next: HubState | null) {
   preview = next;
+  // Distances and nearby searches follow the previewed household's home, as `watchHousehold` does live.
+  if (next?.auth === 'signed-in' && next.household.status === 'ready') setHome(next.household.home);
   listeners.forEach((l) => l());
 }
 
@@ -102,6 +105,12 @@ function previewActions(): HubActions {
     async setCurrency(currency) {
       setCurrency(currency);
       updateHousehold(() => ({ currency }));
+    },
+    async setHome(candidate) {
+      update((s) => (s.household.status === 'ready' ? { household: { ...s.household, home: homeDoc(candidate, s.me) } } : {}));
+    },
+    async clearHome() {
+      updateHousehold(() => ({ home: undefined }));
     },
     async saveFood(input) {
       update((s) => ({ food: foodDoc(input, s.me) }));

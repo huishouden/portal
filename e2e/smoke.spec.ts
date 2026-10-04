@@ -191,8 +191,8 @@ test("members keep the household's food preferences, with every member listed", 
   await expect(food.getByRole('list', { name: 'Kitchen basics' })).not.toContainText('butter');
 });
 
-// Contacts reads place screenshots, so the camera is allowed; location and microphone are not.
-test('sends the security headers and leaves sign-in un-framed', ({ request }) => expectSecurityHeaders(request, '/', { camera: true }));
+// Contacts reads place screenshots, so the camera is allowed; the household's Home section asks for the location; the microphone is off.
+test('sends the security headers and leaves sign-in un-framed', ({ request }) => expectSecurityHeaders(request, '/', { camera: true, geolocation: true }));
 
 test('follows the suite theme: dark on a dark device, readable', ({ page }) => expectThemeConsistent(page, { path: './' }));
 

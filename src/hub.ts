@@ -1,3 +1,4 @@
+import type { HomeCandidate, HouseholdHome } from '@huishouden/pwa-kit/home';
 import type { AgendaItem } from '@huishouden/pwa-kit/agenda';
 import type { Contact, ContactInput } from '@huishouden/pwa-kit/contacts';
 import type { FoodInput, FoodPreferences } from '@huishouden/pwa-kit/food';
@@ -31,6 +32,8 @@ export interface ReadyHousehold {
   profiles: Record<string, MemberProfile>;
   /** The currency every app shows amounts in (ISO 4217); US dollars when unset. */
   currency?: string;
+  /** Where the household lives (`@huishouden/pwa-kit/home`); every member sees it. */
+  home?: HouseholdHome;
 }
 
 export type HouseholdView =
@@ -96,6 +99,10 @@ export interface HubActions {
   saveFood(input: FoodInput): Promise<void>;
   /** The household's currency for every app (`setHouseholdCurrency`); admins and members. */
   setCurrency(code: string): Promise<void>;
+  /** Where the household lives (`setHouseholdHome`); admins and members. */
+  setHome(home: HomeCandidate): Promise<void>;
+  /** Forgets the household's home (`clearHouseholdHome`); admins and members. */
+  clearHome(): Promise<void>;
   /** Runs an item's Done or Cancel in its app's data, as the signed-in member (`applyTodo`). */
   runTodo(item: TodoItem, which: 'done' | 'cancel'): Promise<TodoRun>;
 }
