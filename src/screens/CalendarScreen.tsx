@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { agendaDays, agendaStatus, agendaTime, type AgendaItem } from '@huishouden/pwa-kit/agenda';
 import { dueText, toYmd } from '@huishouden/pwa-kit/time';
-import { Chip, cardClass, overline } from '@huishouden/pwa-kit/react/ui';
+import { CalendarPlus } from 'lucide-react';
+import { Chip, cardClass, overline, secondaryButton } from '@huishouden/pwa-kit/react/ui';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { ItemIcon, inMyLanguage, itemMeta, kindWord } from '../components/ItemIcon';
 import { t, useT } from '../i18n';
@@ -11,10 +12,12 @@ interface Props {
   /** Every app in the household's order. */
   apps: HouseholdApp[];
   now: number;
+  /** Opens "In your own calendar" (signed in only). */
+  onOwnCalendar?: () => void;
 }
 
 /** Every app's dated things by day, from today on, with overdue ones first; each opens its app. */
-export function CalendarScreen({ agenda, apps, now }: Props) {
+export function CalendarScreen({ agenda, apps, now, onOwnCalendar }: Props) {
   const t = useT();
   const [only, setOnly] = useState<string | null>(null);
   const today = toYmd(now);
@@ -31,7 +34,15 @@ export function CalendarScreen({ agenda, apps, now }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-ink">{t('calendar.title')}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-2xl font-semibold text-ink">{t('calendar.title')}</h2>
+        {onOwnCalendar && (
+          <button type="button" className={secondaryButton} onClick={onOwnCalendar}>
+            <CalendarPlus className="size-5" aria-hidden />
+            {t('calendar.ownCalendar')}
+          </button>
+        )}
+      </div>
       {withItems.length > 1 && (
         <div className="flex flex-wrap gap-2" role="group" aria-label={t('calendar.showFrom')}>
           <Chip active={only === null} onClick={() => setOnly(null)}>

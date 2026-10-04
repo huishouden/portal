@@ -355,3 +355,25 @@ test('a helper’s to-do list', ({ page }) =>
       await expect(p.getByRole('listitem', { name: 'Return library books', exact: true })).toBeVisible();
     }),
   }));
+
+/** The calendar Worker's answer for a member with a calendar link and Google Calendar connected. */
+const calendarStatus = {
+  feed: { url: 'https://huishouden-calendar.example.workers.dev/feed/Zk3pQ8wR2mV7xN4sT9bL1cYe.ics', webcal: 'webcal://huishouden-calendar.example.workers.dev/feed/Zk3pQ8wR2mV7xN4sT9bL1cYe.ics', createdAt: 0 },
+  signedOut: false,
+  googleAvailable: true,
+  google: { account: 'sam@example.com', connectedAt: 0, lastSync: Date.parse('2026-10-01T08:58:00'), lastOk: Date.parse('2026-10-01T08:58:00'), error: null, notice: null, counts: { events: 42 } },
+  lastError: null,
+};
+
+test('in your own calendar', ({ page }) =>
+  captureScreenshot(page, 'my-calendar', {
+    fixedTime,
+    prepare: preview(member(), async (p) => {
+      await p.route('**/api/status**', (r) => r.fulfill({ json: calendarStatus }));
+      await p.evaluate(() => {
+        history.pushState(null, '', '/my-calendar');
+        dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await expect(p.getByRole('heading', { name: 'In your own calendar' })).toBeVisible();
+    }),
+  }));

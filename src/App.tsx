@@ -1,5 +1,6 @@
 import { CalendarDays, Contact as ContactIcon, LayoutGrid, ListChecks, Sun } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import type { User } from 'firebase/auth';
 import { AppBar } from '@huishouden/pwa-kit/react/app-bar';
 import { SectionTabs, Toast, useToast, type Tab } from '@huishouden/pwa-kit/react/ui';
 import { APPS, arrangeTiles, type PortalLayout } from './apps';
@@ -15,10 +16,11 @@ import { clearSharedContact, readSharedContact, type ParsedContact } from '@huis
 import { TodayScreen } from './screens/TodayScreen';
 import { TodoScreen } from './screens/TodoScreen';
 import { PrivacyScreen } from './screens/PrivacyScreen';
-import { ASSISTANT_PATH, PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
+import { ASSISTANT_PATH, CALENDAR_SETTINGS_PATH, PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
 import { CONNECT_PATH } from '@huishouden/pwa-kit/signin-handoff';
 import { AssistantScreen } from './screens/AssistantScreen';
 import { ConnectScreen } from './screens/ConnectScreen';
+import { MyCalendarScreen } from './screens/MyCalendarScreen';
 import { auth } from './firebase';
 import { trackView } from '@huishouden/pwa-kit/observability';
 import { useNow } from './now';
@@ -46,9 +48,9 @@ function tabsFor(state: HubState): Tab[] {
   ];
 }
 
-/** Pages outside the tabs: Privacy, and using Huishouden from an AI assistant (its page and its sign-in). */
-type Page = 'privacy' | 'assistant' | 'connect';
-const PAGES: Record<string, Page> = { [PRIVACY_PATH]: 'privacy', [ASSISTANT_PATH]: 'assistant', [CONNECT_PATH]: 'connect' };
+/** Pages outside the tabs: Privacy, the household in the person's own calendar, and using Huishouden from an AI assistant (its page and its sign-in). */
+type Page = 'privacy' | 'assistant' | 'connect' | 'my-calendar';
+const PAGES: Record<string, Page> = { [PRIVACY_PATH]: 'privacy', [ASSISTANT_PATH]: 'assistant', [CONNECT_PATH]: 'connect', [CALENDAR_SETTINGS_PATH]: 'my-calendar' };
 const pageFromPath = (): Page | null => PAGES[location.pathname.replace(/\/$/, '')] ?? null;
 
 const tabFromPath = (): TabId | undefined => {
@@ -116,6 +118,12 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  const openPage = (path: string, next: Page) => {
+    history.pushState(null, '', path);
+    setPage(next);
+    window.scrollTo(0, 0);
+  };
+
   const signIn = useCallback(async () => {
     setSigningIn(true);
     setSignInError(undefined);
@@ -143,6 +151,8 @@ export default function App() {
   const visibleApps = isMember(state) && !can(role, 'see-money') ? APPS.filter((a) => !MONEY_APPS.includes(a.repo)) : APPS;
   const ordered = arrangeTiles(visibleApps, state.layout).all;
   const signedIn = state.auth === 'signed-in' ? state : undefined;
+  // A preview (screenshots, smoke tests) has no Firebase user; calls it makes go nowhere real.
+  const previewUser = preview ? ({ getIdToken: async () => 'preview', refreshToken: 'preview' } as unknown as User) : null;
 
   return (
     <div className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
@@ -157,6 +167,17 @@ export default function App() {
             user={state.auth === 'starting' ? undefined : signedIn ? auth.currentUser : null}
             householdId={signedIn?.household.status === 'ready' ? signedIn.household.id : undefined}
             me={signedIn?.me}
+            notify={notify}
+            fail={fail}
+          />
+        )}
+        {page === 'my-calendar' && (
+          <MyCalendarScreen
+            user={state.auth === 'starting' ? undefined : signedIn ? (auth.currentUser ?? previewUser) : null}
+            householdId={signedIn?.household.status === 'ready' ? signedIn.household.id : undefined}
+            me={signedIn?.me}
+            role={role}
+            apps={ordered}
             notify={notify}
             fail={fail}
           />
@@ -194,7 +215,7 @@ export default function App() {
         {!onPage && tab === 'todo' && (
           <TodoScreen todos={signedIn?.todos} apps={ordered} now={now} me={signedIn?.me} role={role} actions={actions} notify={notify} fail={fail} />
         )}
-        {!onPage && tab === 'calendar' && <CalendarScreen agenda={signedIn?.agenda} apps={ordered} now={now} />}
+        {!onPage && tab === 'calendar' && <CalendarScreen agenda={signedIn?.agenda} apps={ordered} now={now} onOwnCalendar={signedIn ? () => openPage(CALENDAR_SETTINGS_PATH, 'my-calendar') : undefined} />}
         {!onPage && tab === 'contacts' && (
           <ContactsScreen
             contacts={signedIn?.contacts}
