@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.0](https://github.com/huishouden/portal/compare/v2.14.0...v2.15.0) (2026-10-04)
+
+
+### Features
+
+* provision New Relic from CI (monitoring workflow); kit v0.69.0 ([#78](https://github.com/huishouden/portal/issues/78)) ([d34c822](https://github.com/huishouden/portal/commit/d34c82230c99b7e9f6a5f2f8d706695ff4f12818))
+
 ## [2.14.0](https://github.com/huishouden/portal/compare/v2.13.0...v2.14.0) (2026-10-04)
 
 
