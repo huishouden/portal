@@ -108,7 +108,8 @@ describe('in another language', () => {
     expect(contactRoleLabel('Plumber')).toBe('Plumber');
     await setLangForTests('es');
     expect(contactRoleLabel('Plumber')).toBe('Plomero');
-    expect(contactRoleLabel('Landlord')).toBe('Landlord');
+    expect(contactRoleLabel('Landlord')).toBe('Arrendador');
+    expect(contactRoleLabel('Night nanny')).toBe('Night nanny');
     await setLangForTests('nl');
     expect(contactRoleLabel('Vet')).toBe('Dierenarts');
   });

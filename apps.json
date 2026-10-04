@@ -65,7 +65,8 @@
           "Pool service": "Mantenimiento de piscina",
           "Handyman": "Reparaciones",
           "Insurance": "Seguro",
-          "HOA": "Asociación de vecinos"
+          "HOA": "Asociación de vecinos",
+          "Landlord": "Arrendador"
         }
       },
       "nl": {
@@ -81,7 +82,8 @@
           "Pool service": "Zwembadonderhoud",
           "Handyman": "Klusjesman",
           "Insurance": "Verzekering",
-          "HOA": "VvE"
+          "HOA": "VvE",
+          "Landlord": "Verhuurder"
         }
       }
     },
@@ -100,7 +102,8 @@
       "Pool service",
       "Handyman",
       "Insurance",
-      "HOA"
+      "HOA",
+      "Landlord"
     ],
     "redirect": true
   },
