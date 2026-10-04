@@ -113,3 +113,10 @@ Rotating the key:
 4. Delete the old key in one.newrelic.com > API keys.
 
 Details: pwa-kit [docs/observability.md](https://github.com/huishouden/pwa-kit/blob/main/docs/observability.md).
+
+## License
+
+Source available under [PolyForm Shield 1.0.0](LICENSE): you may use, study and modify this code
+for any purpose except providing a product that competes with Huishouden.
+
+Huishouden and its logo are the project's brand; please don't use them for other products.
