@@ -53,7 +53,7 @@ const timeZone = () => {
 /** The person, their language and zone: what the Worker acts with. The refresh token never goes anywhere else. */
 const identity = (user: User) => ({ refreshToken: user.refreshToken, lang: getLang(), ...(timeZone() ? { timeZone: timeZone() } : {}) });
 
-async function call(user: User, path: string, body?: Record<string, unknown>, fetchImpl: typeof fetch = fetch, base = CALENDAR_URL): Promise<CalendarStatus> {
+export async function calendarCall(user: User, path: string, body?: Record<string, unknown>, fetchImpl: typeof fetch = fetch, base = CALENDAR_URL): Promise<CalendarStatus> {
   if (!base) throw new CalendarCallError('not-configured');
   const idToken = await user.getIdToken();
   let res: Response;
@@ -72,14 +72,14 @@ async function call(user: User, path: string, body?: Record<string, unknown>, fe
 }
 
 export const calendarApi = {
-  status: (user: User, household: string, f?: typeof fetch) => call(user, `/api/status?household=${encodeURIComponent(household)}`, undefined, f),
-  makeFeed: (user: User, household: string, f?: typeof fetch) => call(user, '/api/feed', { household, ...identity(user) }, f),
-  rotateFeed: (user: User, household: string, f?: typeof fetch) => call(user, '/api/feed/rotate', { household, ...identity(user) }, f),
-  revokeFeed: (user: User, household: string, f?: typeof fetch) => call(user, '/api/feed/revoke', { household }, f),
-  connectGoogle: (user: User, household: string, code: string, f?: typeof fetch) => call(user, '/api/google/connect', { household, code, ...identity(user) }, f),
-  syncNow: (user: User, household: string, f?: typeof fetch) => call(user, '/api/google/sync', { household }, f),
-  disconnectGoogle: (user: User, household: string, deleteCalendar: boolean, f?: typeof fetch) => call(user, '/api/google/disconnect', { household, deleteCalendar }, f),
-  clearNotice: (user: User, household: string, f?: typeof fetch) => call(user, '/api/notice/clear', { household }, f),
+  status: (user: User, household: string, f?: typeof fetch) => calendarCall(user, `/api/status?household=${encodeURIComponent(household)}`, undefined, f),
+  makeFeed: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/feed', { household, ...identity(user) }, f),
+  rotateFeed: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/feed/rotate', { household, ...identity(user) }, f),
+  revokeFeed: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/feed/revoke', { household }, f),
+  connectGoogle: (user: User, household: string, code: string, f?: typeof fetch) => calendarCall(user, '/api/google/connect', { household, code, ...identity(user) }, f),
+  syncNow: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/google/sync', { household }, f),
+  disconnectGoogle: (user: User, household: string, deleteCalendar: boolean, f?: typeof fetch) => calendarCall(user, '/api/google/disconnect', { household, deleteCalendar }, f),
+  clearNotice: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/notice/clear', { household }, f),
 };
 
 /** Links that add the feed to each calendar app. Google's takes the webcal address, Outlook's the https one. */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { addLinks, calendarApi, CalendarCallError, toCalendarChange, undoAllowed } from './myCalendar';
+import { addLinks, calendarCall, CalendarCallError, toCalendarChange, undoAllowed } from './myCalendar';
 
 const FEED = { url: 'https://huishouden-calendar.example.workers.dev/feed/abcdefghijklmnopqrstuvwx.ics', webcal: 'webcal://huishouden-calendar.example.workers.dev/feed/abcdefghijklmnopqrstuvwx.ics' };
 
@@ -12,11 +12,18 @@ describe('the calendar link', () => {
     expect(new URL(links.outlook).searchParams.get('name')).toBe('Huishouden');
   });
 
-  test('without a calendar service in this build, calls say so', async () => {
-    const user = { getIdToken: async () => 'id', refreshToken: 'rt' } as never;
-    const error = await calendarApi.status(user, 'h1').catch((e) => e);
-    expect(error).toBeInstanceOf(CalendarCallError);
-    expect(error.code).toBe('not-configured');
+  test('calls carry the ID token; the Worker’s error code comes back; no service, no call', async () => {
+    const user = { getIdToken: async () => 'id-token', refreshToken: 'rt' } as never;
+    const seen: { url: string; auth: string | null }[] = [];
+    const fake = (async (url: string, init?: RequestInit) => {
+      seen.push({ url, auth: new Headers(init?.headers).get('Authorization') });
+      return new Response(JSON.stringify({ error: 'not-member' }), { status: 403 });
+    }) as typeof fetch;
+    const refused = await calendarCall(user, '/api/status?household=h1', undefined, fake, 'https://calendar.example').catch((e) => e);
+    expect(refused).toBeInstanceOf(CalendarCallError);
+    expect(refused.code).toBe('not-member');
+    expect(seen).toEqual([{ url: 'https://calendar.example/api/status?household=h1', auth: 'Bearer id-token' }]);
+    expect((await calendarCall(user, '/api/status', undefined, fake, '').catch((e) => e)).code).toBe('not-configured');
   });
 });
 
