@@ -17,7 +17,8 @@
     "bootstrap": "node_modules/@huishouden/pwa-kit/infra/bootstrap.sh infra/apps.conf",
     "bootstrap:staging": "node_modules/@huishouden/pwa-kit/infra/bootstrap.sh --staging infra/apps.conf",
     "screenshots": "playwright test e2e/screenshots.spec.ts",
-    "env:pull": "gh variable list --json name,value -q '.[] | select(.name|startswith(\"VITE_\")) | \"\\(.name)=\\(.value)\"' > .env.local && echo 'wrote .env.local'"
+    "env:pull": "gh variable list --json name,value -q '.[] | select(.name|startswith(\"VITE_\")) | \"\\(.name)=\\(.value)\"' > .env.local && echo 'wrote .env.local'",
+    "e2e:emulator": "playwright test e2e/signed-in.spec.ts --grep-invert @staging"
   },
   "devDependencies": {
     "@huishouden/pwa-kit": "github:huishouden/pwa-kit#v0.88.0",

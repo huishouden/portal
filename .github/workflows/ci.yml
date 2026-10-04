@@ -3,6 +3,10 @@ name: ci
 on:
   push:
     branches: [main]
+  # The nightly run sweeps staging of test households and users that cancelled runs left behind,
+  # after its daily quota resets (07:00 UTC in PDT, 08:00 in PST).
+  schedule:
+    - cron: '20 8 * * *'
   workflow_dispatch:
     inputs:
       staging-ref:
@@ -11,8 +15,9 @@ on:
         default: ''
 
 concurrency:
-  # A manual staging deploy from main must not cancel main's production deploy.
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.staging-ref }}
+  # A manual staging deploy from main must not cancel main's production deploy, nor the nightly
+  # sweep a push's deploy (github.event.schedule is empty for every other event).
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.staging-ref }}-${{ github.event.schedule }}
   cancel-in-progress: true
 
 permissions:
@@ -29,6 +34,7 @@ jobs:
       base: /
       site-url: https://huishouden-piekstra.web.app/
       staging-ref: ${{ inputs.staging-ref }}
+      staging-sweep: ${{ github.event_name == 'schedule' }}
 
   release:
     uses: huishouden/pwa-kit/.github/workflows/release.yml@v0
