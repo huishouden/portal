@@ -70,15 +70,15 @@ export function DutchWord({ word, say, means }: { word: string; say: string; mea
         id={id}
         role="note"
         hidden={!open}
-        className="absolute top-[calc(100%+8px)] left-0 z-30 w-max max-w-[min(320px,80vw)] flex-col gap-1.5 rounded-xl bg-white px-4 py-3.5 text-base leading-snug font-normal text-stone-800 shadow-xl [&:not([hidden])]:flex"
+        className="absolute top-[calc(100%+8px)] left-0 z-30 w-max max-w-[min(320px,80vw)] flex-col gap-1.5 rounded-xl bg-surface px-4 py-3.5 text-base leading-snug font-normal text-ink shadow-xl [&:not([hidden])]:flex"
       >
-        <span className="font-semibold text-forest-700">Say it: {say}</span>
+        <span className="font-semibold text-link">Say it: {say}</span>
         <span>Means: {means}</span>
-        {/g/i.test(word) && <span className="text-sm text-stone-600">{HINT}</span>}
+        {/g/i.test(word) && <span className="text-sm text-muted">{HINT}</span>}
         {canSpeak && (
           <button
             type="button"
-            className="mt-1 inline-flex min-h-11 items-center gap-2 self-start rounded-full bg-forest-50 px-3.5 font-semibold text-forest-700 hover:bg-forest-100"
+            className="mt-1 inline-flex min-h-11 items-center gap-2 self-start rounded-full bg-tint px-3.5 font-semibold text-link hover:bg-tint-strong"
             onClick={(e) => {
               e.stopPropagation();
               speak(word);
@@ -114,7 +114,7 @@ const GREETINGS = [
 export function Greeting({ hour, compact, children }: { hour: number; compact?: boolean; children?: ReactNode }) {
   const g = GREETINGS.find((x) => hour < x.until)!;
   return (
-    <h2 className={`${compact ? 'text-2xl sm:text-[clamp(1.75rem,4vw,2.25rem)]' : 'text-[clamp(1.75rem,4vw,2.25rem)]'} font-bold text-forest-700`}>
+    <h2 className={`${compact ? 'text-2xl sm:text-[clamp(1.75rem,4vw,2.25rem)]' : 'text-[clamp(1.75rem,4vw,2.25rem)]'} font-bold text-link`}>
       <DutchWord word={g.word} say={g.say} means={g.means} />
       {children}
     </h2>

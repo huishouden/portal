@@ -66,7 +66,7 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold text-stone-800">Contacts</h2>
+        <h2 className="text-2xl font-semibold text-ink">Contacts</h2>
         <button type="button" className={primaryButton} onClick={() => setEditing('new')}>
           <UserPlus size={20} aria-hidden="true" /> Add contact
         </button>
@@ -90,13 +90,13 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
         </div>
       )}
 
-      {contacts === undefined && <p className="text-lg text-stone-600">Loading contacts.</p>}
+      {contacts === undefined && <p className="text-lg text-muted">Loading contacts.</p>}
       {contacts !== undefined && list.length === 0 && (
-        <p className={`${cardClass} p-6 text-lg text-stone-600`}>
+        <p className={`${cardClass} p-6 text-lg text-muted`}>
           No contacts yet. Add the people and businesses the household calls, like the vet, the plumber or the pediatrician.
         </p>
       )}
-      {list.length > 0 && shown.length === 0 && <p className="text-lg text-stone-600">No contacts here yet.</p>}
+      {list.length > 0 && shown.length === 0 && <p className="text-lg text-muted">No contacts here yet.</p>}
 
       <div className="grid items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
         {groups.flatMap((g) =>
@@ -115,21 +115,21 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
                     : undefined
                 }
               />
-              <div className="rounded-b-2xl border border-t-0 border-stone-200 bg-white px-5 pb-2 shadow-sm">
-                <div className="flex flex-wrap items-center gap-2 border-t border-stone-200 pt-2">
+              <div className="rounded-b-2xl border border-t-0 border-line bg-surface px-5 pb-2 shadow-sm">
+                <div className="flex flex-wrap items-center gap-2 border-t border-line pt-2">
                 <span className="flex min-w-0 flex-1 flex-wrap gap-1.5" aria-label={`Apps that show ${c.name}`}>
                   {c.apps.length === 0 ? (
-                    <span className="text-sm text-stone-600">Not shown in any app</span>
+                    <span className="text-sm text-muted">Not shown in any app</span>
                   ) : (
                     c.apps.map((repo) => (
-                      <span key={repo} className="rounded-full bg-forest-50 px-2.5 py-0.5 text-sm font-medium text-forest-700">
+                      <span key={repo} className="rounded-full bg-tint px-2.5 py-0.5 text-sm font-medium text-link">
                         {nameOf.get(repo) ?? repo}
                       </span>
                     ))
                   )}
                 </span>
                 {mayChange(c) && (
-                  <button type="button" className={`${ghostButton} text-forest-700`} onClick={() => setChoosing(c)} aria-label={`Choose apps for ${c.name}`}>
+                  <button type="button" className={`${ghostButton} text-link`} onClick={() => setChoosing(c)} aria-label={`Choose apps for ${c.name}`}>
                     <LayoutGrid size={18} aria-hidden="true" /> Apps
                   </button>
                 )}
@@ -212,7 +212,7 @@ function AppPicker({ contact, apps, onSave, onClose }: { contact: Contact; apps:
         </>
       }
     >
-      <p className="mb-3 text-stone-600">Each app you tick lists it on its Contacts tab. It stays here either way.</p>
+      <p className="mb-3 text-muted">Each app you tick lists it on its Contacts tab. It stays here either way.</p>
       <div className="grid gap-1">
         {apps.map((a) => (
           <Checkbox
@@ -225,7 +225,7 @@ function AppPicker({ contact, apps, onSave, onClose }: { contact: Contact; apps:
               setChosen(next);
             }}
           >
-            <span className="font-medium">{a.name}</span> <span className="text-stone-600">· {a.description}</span>
+            <span className="font-medium">{a.name}</span> <span className="text-muted">· {a.description}</span>
           </Checkbox>
         ))}
       </div>

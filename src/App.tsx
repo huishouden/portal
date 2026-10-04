@@ -134,7 +134,7 @@ export default function App() {
   const signedIn = state.auth === 'signed-in' ? state : undefined;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-cream font-sans text-stone-800 antialiased">
+    <div className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
       <AppBar app="Huishouden" glyph="home" portalUrl="/" version={VERSION} user={user} signingIn={signingIn} onSignIn={signIn} onSignOut={() => void actions.signOut()}>
         <SectionTabs tabs={tabs} tab={privacy ? '' : tab} onTab={choose} />
       </AppBar>
@@ -180,9 +180,9 @@ export default function App() {
           />
         )}
       </main>
-      <footer className="mx-auto w-full max-w-[1200px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-sm text-stone-600 sm:px-6">
+      <footer className="mx-auto w-full max-w-[1200px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-sm text-muted sm:px-6">
         <a
-          className="inline-flex min-h-11 items-center font-medium text-forest-700 underline-offset-4 hover:underline"
+          className="inline-flex min-h-11 items-center font-medium text-link underline-offset-4 hover:underline"
           href={PRIVACY_PATH}
           onClick={(e) => {
             e.preventDefault();

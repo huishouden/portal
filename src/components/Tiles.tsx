@@ -12,20 +12,20 @@ interface Props {
   onSave: (layout: PortalLayout, previous: PortalLayout) => void;
 }
 
-const tileBase = 'flex flex-col gap-1.5 rounded-3xl bg-white text-stone-800 shadow-sm';
+const tileBase = 'flex flex-col gap-1.5 rounded-3xl bg-surface text-ink shadow-sm';
 
 function Tile({ app }: { app: HouseholdApp }) {
   return (
     <a
       href={app.url}
       data-app={app.repo}
-      className={`${tileBase} min-h-[180px] border border-stone-200 px-6 py-7 no-underline transition-[box-shadow,transform] duration-150 ease-out hover:shadow-md focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-terracotta active:scale-[0.98]`}
+      className={`${tileBase} min-h-[180px] border border-line px-6 py-7 no-underline transition-[box-shadow,transform] duration-150 ease-out hover:shadow-md focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-terracotta active:scale-[0.98]`}
     >
       <span className="mb-2">
         <Icon app={app} size={56} />
       </span>
-      <span className="text-[1.375rem] font-semibold text-forest-700">{app.name}</span>
-      <span className="text-stone-600">{app.description}</span>
+      <span className="text-[1.375rem] font-semibold text-link">{app.name}</span>
+      <span className="text-muted">{app.description}</span>
     </a>
   );
 }
@@ -35,7 +35,7 @@ function SmallTile({ app }: { app: HouseholdApp }) {
     <a
       href={app.url}
       data-app={app.repo}
-      className="flex min-h-14 items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 font-semibold text-forest-700 shadow-sm hover:shadow-md"
+      className="flex min-h-14 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 font-semibold text-link shadow-sm hover:shadow-md"
     >
       <Icon app={app} size={36} />
       {app.name}
@@ -109,9 +109,9 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
           <div className="mt-3 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
             {more.length > 0 && (
               <details className="group flex-1">
-                <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl px-1 font-medium text-forest-700 [&::-webkit-details-marker]:hidden">
+                <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl px-1 font-medium text-link [&::-webkit-details-marker]:hidden">
                   <ChevronRight size={18} aria-hidden="true" className="transition-transform duration-150 group-open:rotate-90" />
-                  More apps <span className="text-stone-600">({more.length})</span>
+                  More apps <span className="text-muted">({more.length})</span>
                 </summary>
                 <nav aria-label="More apps" className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
                   {more.map((a) => (
@@ -142,10 +142,10 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <div>
-          <h2 tabIndex={-1} data-key="title" className="text-xl font-semibold text-forest-700 outline-none">
+          <h2 tabIndex={-1} data-key="title" className="text-xl font-semibold text-link outline-none">
             Arrange apps
           </h2>
-          <p className="text-stone-600">Move apps, or hide the ones your household doesn't use. Everyone in the household sees this layout.</p>
+          <p className="text-muted">Move apps, or hide the ones your household doesn't use. Everyone in the household sees this layout.</p>
         </div>
         <div className="flex gap-2">
           <button type="button" className={ghostButton} onClick={() => stop(false)}>
@@ -191,19 +191,19 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
               {...drag}
               className={`${tileBase} px-5 pt-5 pb-3 ${fine ? 'cursor-grab' : ''} ${dragging === app.repo ? 'opacity-50' : ''} ${
                 dropTarget === app.repo ? 'outline-3 outline-offset-3 outline-forest-500 outline-dashed' : ''
-              } ${hidden ? 'border border-dashed border-stone-300 bg-transparent shadow-none' : 'border border-stone-200'}`}
+              } ${hidden ? 'border border-dashed border-stone-300 bg-transparent dark:border-forest-500 shadow-none' : 'border border-line'}`}
             >
               <span className={`mb-2 ${hidden ? 'opacity-45' : ''}`}>
                 <Icon app={app} size={56} />
               </span>
-              <span className="text-[1.375rem] font-semibold text-forest-700">
+              <span className="text-[1.375rem] font-semibold text-link">
                 {app.name}
                 {hidden && (
-                  <span className="ml-1.5 rounded-full bg-stone-200 px-2 py-0.5 align-middle text-xs font-medium text-stone-600">Hidden</span>
+                  <span className="ml-1.5 rounded-full bg-stone-200 px-2 py-0.5 align-middle dark:bg-forest-700 text-xs font-medium text-muted">Hidden</span>
                 )}
               </span>
-              <span className="mb-2 text-stone-600">{hidden ? 'Under More apps' : app.description}</span>
-              <span className="mt-auto flex items-center gap-1 border-t border-stone-200 pt-2">
+              <span className="mb-2 text-muted">{hidden ? 'Under More apps' : app.description}</span>
+              <span className="mt-auto flex items-center gap-1 border-t border-line pt-2">
                 <MoveButton
                   dir="up"
                   app={app}
@@ -226,7 +226,7 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
                   type="button"
                   data-key={`toggle:${app.repo}`}
                   aria-label={`${hidden ? 'Show' : 'Hide'} ${app.name}`}
-                  className={`${ghostButton} ml-auto text-forest-700`}
+                  className={`${ghostButton} ml-auto text-link`}
                   onClick={() => {
                     const next = new Set(draftHidden);
                     if (next.delete(app.repo)) setAnnounce(`${app.name} shown.`);
@@ -262,7 +262,7 @@ function MoveButton({ dir, app, disabled, onClick }: { dir: 'up' | 'down'; app: 
       title={dir === 'up' ? 'Move earlier' : 'Move later'}
       disabled={disabled}
       onClick={onClick}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-forest-700 hover:bg-forest-50 disabled:text-stone-300 disabled:hover:bg-transparent"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-link hover:bg-tint disabled:text-stone-300 dark:disabled:text-forest-500 disabled:hover:bg-transparent"
     >
       {/* One column (phones): earlier is up, later is down. */}
       <Arrow size={20} strokeWidth={2.2} aria-hidden="true" className="@max-[499px]:rotate-90" />

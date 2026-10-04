@@ -36,13 +36,13 @@ export function ItemIcon({ item, app, size }: { item: AgendaItem; app?: Househol
     <span className="relative inline-flex shrink-0" style={{ width: size, height: size }} aria-hidden="true">
       {/* With a badge, the kind icon sits toward the top left so the badge doesn't cover it. */}
       <span
-        className="flex h-full w-full items-center justify-center rounded-xl bg-forest-50 text-forest-700"
+        className="flex h-full w-full items-center justify-center rounded-xl bg-tint text-link"
         style={app ? { paddingRight: Math.round(size * 0.16), paddingBottom: Math.round(size * 0.16) } : undefined}
       >
         <Icon size={Math.round(size * 0.55)} strokeWidth={2} />
       </span>
       {app && (
-        <span className="absolute -right-1 -bottom-1 rounded-md ring-2 ring-white">
+        <span className="absolute -right-1 -bottom-1 rounded-md ring-2 ring-surface">
           <AppIcon app={app} size={badge} />
         </span>
       )}

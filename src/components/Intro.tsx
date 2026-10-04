@@ -11,14 +11,14 @@ export function Intro({ onSignIn, error }: { onSignIn: () => void; error?: strin
   return (
     <section id="household" aria-label="About Huishouden" className={`${cardClass} grid gap-x-12 gap-y-4 p-6 md:grid-cols-2`}>
       <div>
-        <h2 className="mb-3 text-xl font-semibold text-forest-700">Simple shared apps for running a home together</h2>
+        <h2 className="mb-3 text-xl font-semibold text-link">Simple shared apps for running a home together</h2>
         <p className="mb-3">Huishouden keeps the everyday running of a home in one place, shared by everyone who lives there. It's free.</p>
-        <p className="mb-3 text-sm text-stone-600">A household's information is visible only to its members.</p>
+        <p className="mb-3 text-sm text-muted">A household's information is visible only to its members.</p>
         <button type="button" className={primaryButton} onClick={onSignIn}>
           Sign in with Google
         </button>
         {error && (
-          <p role="alert" className="mt-3 text-red-700">
+          <p role="alert" className="mt-3 text-error">
             {error}
           </p>
         )}
@@ -29,7 +29,7 @@ export function Intro({ onSignIn, error }: { onSignIn: () => void; error?: strin
           {STEPS.map((step) => (
             <li
               key={step}
-              className="flex items-baseline gap-3 [counter-increment:step] before:inline-flex before:h-7 before:w-7 before:shrink-0 before:items-center before:justify-center before:rounded-full before:bg-forest-50 before:text-sm before:font-semibold before:text-forest-700 before:content-[counter(step)]"
+              className="flex items-baseline gap-3 [counter-increment:step] before:inline-flex before:h-7 before:w-7 before:shrink-0 before:items-center before:justify-center before:rounded-full before:bg-tint before:text-sm before:font-semibold before:text-link before:content-[counter(step)]"
             >
               {step}
             </li>

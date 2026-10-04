@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-2">
-      <h2 className="text-xl font-semibold text-stone-800">{title}</h2>
+      <h2 className="text-xl font-semibold text-ink">{title}</h2>
       {children}
     </section>
   );
@@ -23,9 +23,9 @@ export function PrivacyScreen() {
     };
   }, []);
   return (
-    <article className={`${cardClass} mx-auto max-w-[720px] space-y-6 p-6 text-base leading-relaxed text-stone-800 sm:p-8`}>
+    <article className={`${cardClass} mx-auto max-w-[720px] space-y-6 p-6 text-base leading-relaxed text-ink sm:p-8`}>
       <header className="space-y-2">
-        <h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold text-stone-800 outline-none">
+        <h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold text-ink outline-none">
           Privacy
         </h1>
         <p>Huishouden is a set of free apps for running a household. This is what they keep, what they send and why.</p>
@@ -71,9 +71,9 @@ export function PrivacyScreen() {
         </ul>
       </Section>
 
-      <p className="text-stone-600">
+      <p className="text-muted">
         The apps' code is public, including{' '}
-        <a className="font-medium text-forest-700 underline underline-offset-4" href="https://github.com/huishouden/pwa-kit/blob/main/docs/observability.md">
+        <a className="font-medium text-link underline underline-offset-4" href="https://github.com/huishouden/pwa-kit/blob/main/docs/observability.md">
           exactly what the reports contain
         </a>
         .
