@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'bun:test';
+import { afterEach, describe, expect, it } from 'bun:test';
+import { setLangForTests } from '@huishouden/pwa-kit/i18n';
 import type { AgendaItem } from '@huishouden/pwa-kit/agenda';
 import fixture from './__fixtures__/agenda.json';
 import doneFixture from './__fixtures__/today-done.json';
@@ -40,5 +41,21 @@ describe("today's board", () => {
   it("lists today's done items and those marked done today, most recent first, with who and when", () => {
     const done = board.done.map((e) => ({ id: e.item.id, line: doneLine(e.item, now, doneFixture.me, doneFixture.profiles) }));
     expect(done).toEqual(doneFixture.expected.done);
+  });
+});
+
+describe('who did it, in Spanish and Dutch', () => {
+  // Back to English, keeping the app's catalogue (resetI18nForTests would drop it for later files).
+  afterEach(() => setLangForTests('en'));
+  const now = new Date(2026, 9, 1, 9, 0).getTime();
+  const item = { by: 'alex@example.com', updatedAt: new Date(2026, 9, 1, 8, 12).getTime() };
+  const profiles = { 'alex@example.com': { name: 'Alex Example' } };
+
+  it('reads as a whole sentence', async () => {
+    await setLangForTests('es', ['es-MX']);
+    expect(doneLine(item, now, 'sam@example.com', profiles)).toMatch(/^Hecho por Alex a las 8:12/);
+    expect(doneLine({ ...item, by: 'sam@example.com' }, now, 'sam@example.com', profiles)).toMatch(/^Hecho por ti a las/);
+    await setLangForTests('nl', ['nl-NL']);
+    expect(doneLine(item, now, 'sam@example.com', profiles)).toBe('Gedaan door Alex om 8:12');
   });
 });

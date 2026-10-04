@@ -5,8 +5,9 @@ import { ContactCard, ContactDialog } from '@huishouden/pwa-kit/react/contacts';
 import { can, type Role } from '@huishouden/pwa-kit/roles';
 import { Checkbox, Chip, Dialog, cardClass, ghostButton, primaryButton } from '@huishouden/pwa-kit/react/ui';
 import { auth } from '../firebase';
-import type { HouseholdApp } from '../apps';
+import { contactRoleLabel, type HouseholdApp } from '../apps';
 import type { HubActions } from '../hub';
+import { useT } from '../i18n';
 
 interface Props {
   contacts: Contact[] | undefined;
@@ -32,6 +33,7 @@ const unique = (list: string[]) => [...new Map(list.map((r) => [r.toLowerCase(),
  * and added or edited with the same dialog the apps use. New contacts show in no app until chosen.
  */
 export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role = 'member', shared, onSharedOpened }: Props) {
+  const t = useT();
   const mayChange = (c: Contact) => can(role, 'edit-others') || (!!me && c.by === me);
   const contactApps = useMemo(() => apps.filter((a) => a.contactRoles.length > 0), [apps]);
   const nameOf = useMemo(() => new Map(apps.map((a) => [a.repo, a.name])), [apps]);
@@ -66,16 +68,16 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold text-ink">Contacts</h2>
+        <h2 className="text-2xl font-semibold text-ink">{t('contacts.title')}</h2>
         <button type="button" className={primaryButton} onClick={() => setEditing('new')}>
-          <UserPlus size={20} aria-hidden="true" /> Add contact
+          <UserPlus size={20} aria-hidden="true" /> {t('contacts.add')}
         </button>
       </div>
 
       {list.length > 0 && (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Show contacts from">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t('contacts.showFrom')}>
           <Chip active={filter.kind === 'all'} onClick={() => setFilter({ kind: 'all' })}>
-            All
+            {t('contacts.all')}
           </Chip>
           {contactApps.map((a) => (
             <Chip key={a.repo} active={filter.kind === 'app' && filter.repo === a.repo} onClick={() => setFilter({ kind: 'app', repo: a.repo })}>
@@ -84,19 +86,19 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
           ))}
           {unassigned > 0 && (
             <Chip active={filter.kind === 'none'} onClick={() => setFilter({ kind: 'none' })}>
-              Not in an app
+              {t('contacts.notInApp')}
             </Chip>
           )}
         </div>
       )}
 
-      {contacts === undefined && <p className="text-lg text-muted">Loading contacts.</p>}
+      {contacts === undefined && <p className="text-lg text-muted">{t('contacts.loading')}</p>}
       {contacts !== undefined && list.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
-          No contacts yet. Add the people and businesses the household calls, like the vet, the plumber or the pediatrician.
+          {t('contacts.empty')}
         </p>
       )}
-      {list.length > 0 && shown.length === 0 && <p className="text-lg text-muted">No contacts here yet.</p>}
+      {list.length > 0 && shown.length === 0 && <p className="text-lg text-muted">{t('contacts.emptyFilter')}</p>}
 
       <div className="grid items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
         {groups.flatMap((g) =>
@@ -104,22 +106,22 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
             <div key={c.id} className="flex flex-col [&>section]:rounded-b-none [&>section]:border-b-0 [&>section]:shadow-none">
               <ContactCard
                 contact={c}
-                role={g.role}
+                role={contactRoleLabel(g.role)}
                 onEdit={mayChange(c) ? () => setEditing(c) : undefined}
                 onDelete={
                   mayChange(c)
                     ? () => {
                         void run(actions.deleteContact(c));
-                        notify(`Deleted ${c.name}`, () => void run(actions.restoreContact(c)));
+                        notify(t('common.deleted', { name: c.name }), () => void run(actions.restoreContact(c)));
                       }
                     : undefined
                 }
               />
               <div className="rounded-b-2xl border border-t-0 border-line bg-surface px-5 pb-2 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2 border-t border-line pt-2">
-                <span className="flex min-w-0 flex-1 flex-wrap gap-1.5" aria-label={`Apps that show ${c.name}`}>
+                <span className="flex min-w-0 flex-1 flex-wrap gap-1.5" aria-label={t('contacts.appsThatShow', { name: c.name })}>
                   {c.apps.length === 0 ? (
-                    <span className="text-sm text-muted">Not shown in any app</span>
+                    <span className="text-sm text-muted">{t('contacts.notShown')}</span>
                   ) : (
                     c.apps.map((repo) => (
                       <span key={repo} className="rounded-full bg-tint px-2.5 py-0.5 text-sm font-medium text-link">
@@ -129,8 +131,8 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
                   )}
                 </span>
                 {mayChange(c) && (
-                  <button type="button" className={`${ghostButton} text-link`} onClick={() => setChoosing(c)} aria-label={`Choose apps for ${c.name}`}>
-                    <LayoutGrid size={18} aria-hidden="true" /> Apps
+                  <button type="button" className={`${ghostButton} text-link`} onClick={() => setChoosing(c)} aria-label={t('contacts.chooseApps', { name: c.name })}>
+                    <LayoutGrid size={18} aria-hidden="true" /> {t('contacts.apps')}
                   </button>
                 )}
                 </div>
@@ -145,7 +147,8 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
           contact={editing === 'new' ? null : editing}
           app=""
           roles={rolesFor(editing)}
-          namePlaceholder="Example Plumbing"
+          roleLabel={(r) => contactRoleLabel(r)}
+          namePlaceholder={t('contacts.namePlaceholder')}
           auth={auth}
           sharedContacts={editing === 'new' ? sharedCards : undefined}
           canMarkPrivate={can(role, 'see-private')}
@@ -153,7 +156,7 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
             if (editing === 'new') {
               const apps = filter.kind === 'app' ? [filter.repo] : [];
               void run(actions.addContact({ ...input, apps }));
-              notify(apps.length ? `Added ${input.name} to ${nameOf.get(apps[0])}` : `Added ${input.name}`);
+              notify(apps.length ? t('contacts.addedTo', { name: input.name, app: nameOf.get(apps[0]) ?? apps[0] }) : t('common.added', { name: input.name }));
             } else void run(actions.updateContact(editing.id, { ...input, apps: editing.apps }));
           }}
           onDelete={
@@ -161,7 +164,7 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
               ? undefined
               : () => {
                   void run(actions.deleteContact(editing));
-                  notify(`Deleted ${editing.name}`, () => void run(actions.restoreContact(editing)));
+                  notify(t('common.deleted', { name: editing.name }), () => void run(actions.restoreContact(editing)));
                 }
           }
           onClose={() => {
@@ -187,15 +190,16 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
 
 /** Which apps show a contact; it stays in the household's contacts either way. */
 function AppPicker({ contact, apps, onSave, onClose }: { contact: Contact; apps: HouseholdApp[]; onSave: (apps: string[]) => void; onClose: () => void }) {
+  const t = useT();
   const [chosen, setChosen] = useState(() => new Set(contact.apps));
   return (
     <Dialog
-      title={`Show ${contact.name} in`}
+      title={t('contacts.showIn', { name: contact.name })}
       onClose={onClose}
       footer={
         <>
           <button type="button" className={ghostButton} onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="button"
@@ -207,12 +211,12 @@ function AppPicker({ contact, apps, onSave, onClose }: { contact: Contact; apps:
               onClose();
             }}
           >
-            Save
+            {t('common.save')}
           </button>
         </>
       }
     >
-      <p className="mb-3 text-muted">Each app you tick lists it on its Contacts tab. It stays here either way.</p>
+      <p className="mb-3 text-muted">{t('contacts.pickerNote')}</p>
       <div className="grid gap-1">
         {apps.map((a) => (
           <Checkbox

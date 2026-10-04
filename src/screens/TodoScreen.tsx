@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, Check, ExternalLink, X } from 'lucide-react';
-import { addedText, canDo, olderThan, todoDueText, todoOverdue, type TodoItem } from '@huishouden/pwa-kit/todos';
+import { addedText, canDo, olderThan, todoDueText, todoOverdue, todoWords, type TodoItem } from '@huishouden/pwa-kit/todos';
+import { formatList } from '@huishouden/pwa-kit/i18n';
 import { isRestricted, type Role } from '@huishouden/pwa-kit/roles';
 import { RoleNote } from '@huishouden/pwa-kit/react/roles';
 import { Chip, Dialog, cardClass, ghostButton, primaryButton, secondaryButton, selectClass } from '@huishouden/pwa-kit/react/ui';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { AppIcon } from '../components/AppIcon';
 import type { HubActions } from '../hub';
+import { t, useT } from '../i18n';
 import { actedLine, appsWithTodos, bulkLine, cancellable, DEFAULT_VIEW, OLD_DAYS, shownTodos, summaryLine, type TodoView } from '../todo';
 
 interface Props {
@@ -31,6 +33,7 @@ const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
  * can't do is left out; the source app's rules decide every write.
  */
 export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }: Props) {
+  const t = useT();
   const [view, setView] = useState<TodoView>(DEFAULT_VIEW);
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -49,10 +52,11 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
 
   const run = async (item: TodoItem, which: 'done' | 'cancel') => {
     const action = item[which]!;
+    const words = todoWords(item);
     try {
       const done = await actions.runTodo(item, which);
       done.written.catch((e) => fail(message(e)));
-      notify(actedLine(action.label, item.title), () => void done.undo().catch((e) => fail(message(e))));
+      notify(actedLine(action.label, words.title, words[which]), () => void done.undo().catch((e) => fail(message(e))));
     } catch (e) {
       fail(message(e));
     }
@@ -92,7 +96,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-ink">To-do</h2>
+          <h2 className="text-2xl font-semibold text-ink">{t('todo.title')}</h2>
           {todos !== undefined && (
             <p className="text-base text-muted" aria-live="polite">
               {summaryLine(items, now)}
@@ -109,7 +113,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
               setSelected(new Set());
             }}
           >
-            {selecting ? 'Done selecting' : 'Select'}
+            {selecting ? t('todo.doneSelecting') : t('todo.select')}
           </button>
         )}
       </div>
@@ -117,16 +121,16 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
       {items.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:hidden">
           <label className="block">
-            <span className="mb-1 block text-sm font-medium text-muted">Sort</span>
+            <span className="mb-1 block text-sm font-medium text-muted">{t('todo.sort')}</span>
             <select className={selectClass} value={view.sort} onChange={(e) => setSort(e.target.value as TodoView['sort'])}>
-              <option value="newest">Newest added</option>
-              <option value="oldest">Oldest added</option>
-              <option value="due">Due date</option>
-              <option value="app">App</option>
+              <option value="newest">{t('todo.sortNewest')}</option>
+              <option value="oldest">{t('todo.sortOldest')}</option>
+              <option value="due">{t('todo.sortDue')}</option>
+              <option value="app">{t('todo.sortApp')}</option>
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-sm font-medium text-muted">Show</span>
+            <span className="mb-1 block text-sm font-medium text-muted">{t('todo.show')}</span>
             <select
               className={selectClass}
               value={view.old ? 'old' : (view.app ?? '')}
@@ -135,41 +139,41 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
                 setView((cur) => ({ ...cur, app: v && v !== 'old' ? v : null, old: v === 'old' }));
               }}
             >
-              <option value="">All apps</option>
+              <option value="">{t('filter.allApps')}</option>
               {withItems.map((repo) => (
                 <option key={repo} value={repo}>
                   {appName(repo)}
                 </option>
               ))}
-              {oldCount > 0 && <option value="old">Older than {OLD_DAYS} days ({oldCount})</option>}
+              {oldCount > 0 && <option value="old">{t('todo.olderThan', { days: OLD_DAYS, count: oldCount })}</option>}
             </select>
           </label>
         </div>
       )}
       {items.length > 0 && (
         <div className="hidden space-y-2 sm:block">
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Sort">
-            <span className="mr-1 text-sm font-medium text-muted">Sort</span>
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('todo.sort')}>
+            <span className="mr-1 text-sm font-medium text-muted">{t('todo.sort')}</span>
             <Chip
               active={byDate}
               onClick={() => setSort(view.sort === 'newest' ? 'oldest' : 'newest')}
-              label={`Date added, ${view.sort === 'oldest' ? 'oldest' : 'newest'} first`}
+              label={view.sort === 'oldest' ? t('todo.dateAddedOldest') : t('todo.dateAddedNewest')}
             >
-              Date added
+              {t('todo.dateAdded')}
               {view.sort === 'oldest' ? <ArrowUp size={16} aria-hidden="true" /> : <ArrowDown size={16} aria-hidden="true" />}
             </Chip>
             <Chip active={view.sort === 'due'} onClick={() => setSort('due')}>
-              Due
+              {t('todo.chipDue')}
             </Chip>
             <Chip active={view.sort === 'app'} onClick={() => setSort('app')}>
-              App
+              {t('todo.sortApp')}
             </Chip>
           </div>
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Show">
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('todo.show')}>
             {withItems.length > 1 && (
               <>
                 <Chip active={view.app === null} onClick={() => setView((v) => ({ ...v, app: null }))}>
-                  All apps
+                  {t('filter.allApps')}
                 </Chip>
                 {withItems.map((repo) => (
                   <Chip key={repo} active={view.app === repo} onClick={() => setView((v) => ({ ...v, app: v.app === repo ? null : repo }))}>
@@ -180,7 +184,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
             )}
             {oldCount > 0 && (
               <Chip active={view.old} onClick={() => setView((v) => ({ ...v, old: !v.old }))}>
-                Older than {OLD_DAYS} days ({oldCount})
+                {t('todo.olderThan', { days: OLD_DAYS, count: oldCount })}
               </Chip>
             )}
           </div>
@@ -190,11 +194,11 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
       {todos === undefined && <Skeleton />}
       {todos !== undefined && shown.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
-          {items.length === 0 ? 'Nothing to do in any app. To-dos, jobs, checklists and reminders show here as they come up.' : 'Nothing here with these choices.'}
+          {items.length === 0 ? t('todo.empty') : t('todo.emptyFilter')}
         </p>
       )}
       {shown.length > 0 && (
-        <ul className={`${cardClass} divide-y divide-line`} aria-label="To-do list">
+        <ul className={`${cardClass} divide-y divide-line`} aria-label={t('todo.list')}>
           {shown.map((item) => (
             <Row
               key={item.id}
@@ -218,7 +222,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
         <div className="fixed inset-x-0 bottom-(--hh-bottom-nav) z-40 border-t border-line bg-surface px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-2">
             <span className="text-base font-medium text-ink tabular-nums" aria-live="polite">
-              {selectedItems.length} selected
+              {t('todo.selected', { count: selectedItems.length })}
             </span>
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -226,10 +230,10 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
                 className={ghostButton}
                 onClick={() => setSelected(selectedItems.length === canCancelShown.length ? new Set() : new Set(canCancelShown.map((i) => i.id)))}
               >
-                {selectedItems.length === canCancelShown.length ? 'Select none' : `Select all ${canCancelShown.length}`}
+                {selectedItems.length === canCancelShown.length ? t('todo.selectNone') : t('todo.selectAll', { count: canCancelShown.length })}
               </button>
               <button type="button" className={primaryButton} disabled={selectedItems.length === 0 || busy} onClick={() => setConfirm(selectedItems)}>
-                Cancel {selectedItems.length || ''}
+                {selectedItems.length ? t('todo.cancelCount', { count: selectedItems.length }) : t('common.cancel')}
               </button>
             </div>
           </div>
@@ -281,12 +285,13 @@ function Row({
   const overdue = todoOverdue(item, now);
   const info = item.status === 'info';
   const appLabel = app?.name ?? item.app;
-  const meta = [item.who, item.detail].filter(Boolean).join(' · ');
+  const words = todoWords(item);
+  const meta = [item.who, words.detail].filter(Boolean).join(' · ');
   return (
-    <li aria-label={item.title} className={`flex gap-3 px-4 py-3 sm:items-center sm:gap-4 sm:px-5 ${checked ? 'bg-tint' : ''}`}>
+    <li aria-label={words.title} className={`flex gap-3 px-4 py-3 sm:items-center sm:gap-4 sm:px-5 ${checked ? 'bg-tint' : ''}`}>
       {selecting && (
         <span className="flex h-11 w-8 shrink-0 items-center justify-center">
-          {mayCancel && <input type="checkbox" className="h-5 w-5 accent-forest-700 dark:accent-forest-400" checked={checked} onChange={onToggle} aria-label={`Select ${item.title}`} />}
+          {mayCancel && <input type="checkbox" className="h-5 w-5 accent-forest-700 dark:accent-forest-400" checked={checked} onChange={onToggle} aria-label={t('todo.selectItem', { title: words.title })} />}
         </span>
       )}
       {app && (
@@ -296,10 +301,15 @@ function Row({
       )}
       <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-lg font-semibold text-ink [overflow-wrap:break-word]">{item.title}</p>
+          <p data-hh-data className="text-lg font-semibold text-ink [overflow-wrap:break-word]">{words.title}</p>
           <p className="text-sm text-muted [overflow-wrap:break-word]">
             <span className="font-medium">{appLabel}</span>
-            {meta && ` · ${meta}`}
+            {meta && (
+              <>
+                {' · '}
+                <span data-hh-data>{meta}</span>
+              </>
+            )}
             {due && (
               <>
                 {' · '}
@@ -312,24 +322,24 @@ function Row({
         {!selecting && (
           <div className="mt-2 flex flex-wrap items-center gap-1 sm:mt-0 sm:shrink-0 sm:justify-end">
             {mayDone && item.done && (
-              <button type="button" className={`${secondaryButton} px-3`} data-todo-action="done" aria-label={`${item.done.label}: ${item.title}`} onClick={onDone}>
+              <button type="button" className={`${secondaryButton} px-3`} data-todo-action="done" aria-label={t('todo.actionOn', { action: words.done ?? item.done.label, title: words.title })} onClick={onDone}>
                 <Check size={18} aria-hidden="true" />
-                {item.done.label}
+                {words.done ?? item.done.label}
               </button>
             )}
             {mayCancel && item.cancel && (
-              <button type="button" className={ghostButton} data-todo-action="cancel" aria-label={`${item.cancel.label}: ${item.title}`} onClick={onCancel}>
+              <button type="button" className={ghostButton} data-todo-action="cancel" aria-label={t('todo.actionOn', { action: words.cancel ?? item.cancel.label, title: words.title })} onClick={onCancel}>
                 <X size={18} aria-hidden="true" />
-                {item.cancel.label}
+                {words.cancel ?? item.cancel.label}
               </button>
             )}
             <a
               href={suiteLink(item.url)}
               className={`${ghostButton} min-w-11 text-link`}
-              aria-label={`Open ${item.title} in ${appLabel}`}
+              aria-label={t('todo.openIn', { title: words.title, app: appLabel })}
             >
               <ExternalLink size={18} aria-hidden="true" />
-              <span className="hidden sm:inline">Open</span>
+              <span className="hidden sm:inline">{t('todo.open')}</span>
             </a>
           </div>
         )}
@@ -339,9 +349,12 @@ function Row({
 }
 
 function ConfirmCancel({ items, appName, onClose, onConfirm }: { items: TodoItem[]; appName: (repo: string) => string; onClose: () => void; onConfirm: () => void }) {
+  const t = useT();
   const one = items.length === 1 ? items[0] : null;
-  const label = one ? one.cancel!.label : `Cancel ${items.length}`;
-  const title = one ? `${one.cancel!.label} “${one.title}”?` : `Cancel ${items.length} things?`;
+  const words = one ? todoWords(one) : null;
+  const oneLabel = words ? (words.cancel ?? one!.cancel!.label) : '';
+  const label = one ? oneLabel : t('todo.cancelCount', { count: items.length });
+  const title = one ? t('todo.confirmOne', { action: oneLabel, title: words!.title }) : t('todo.confirmMany', { count: items.length });
   const apps = [...new Set(items.map((i) => appName(i.app)))];
   return (
     <Dialog
@@ -350,7 +363,7 @@ function ConfirmCancel({ items, appName, onClose, onConfirm }: { items: TodoItem
       footer={
         <>
           <button type="button" className={secondaryButton} onClick={onClose}>
-            Keep {one ? 'it' : 'them'}
+            {one ? t('todo.keepIt') : t('todo.keepThem')}
           </button>
           <button type="button" className={primaryButton} data-todo-confirm="" onClick={onConfirm}>
             {label}
@@ -359,13 +372,13 @@ function ConfirmCancel({ items, appName, onClose, onConfirm }: { items: TodoItem
       }
     >
       {one ? (
-        <p className="text-base text-ink-soft">It stays in {appName(one.app)}'s history, where it can be brought back.</p>
+        <p className="text-base text-ink-soft">{t('todo.staysOne', { app: appName(one.app) })}</p>
       ) : (
         <>
-          <p className="text-base text-ink-soft">Each stays in its app's history ({apps.join(', ')}), where it can be brought back.</p>
+          <p className="text-base text-ink-soft">{t('todo.staysMany', { apps: formatList(apps) })}</p>
           <ul className="mt-3 max-h-60 list-disc space-y-1 overflow-y-auto pl-5 text-base text-ink-soft">
             {items.map((i) => (
-              <li key={i.id}>{i.title}</li>
+              <li key={i.id}>{todoWords(i).title}</li>
             ))}
           </ul>
         </>
@@ -378,8 +391,8 @@ const pulse = 'animate-pulse rounded bg-sunken motion-reduce:animate-none';
 
 function Skeleton() {
   return (
-    <section aria-busy="true" aria-label="Loading">
-      <p className="sr-only">Loading the household's to-dos.</p>
+    <section aria-busy="true" aria-label={t('common.loading')}>
+      <p className="sr-only">{t('todo.loading')}</p>
       <ul className={`${cardClass} divide-y divide-line`} aria-hidden="true">
         {[0, 1, 2].map((i) => (
           <li key={i} className="flex min-h-20 items-center gap-3 px-4 py-3 sm:px-5">

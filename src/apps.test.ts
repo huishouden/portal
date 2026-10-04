@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'bun:test';
+import { afterEach, describe, expect, it } from 'bun:test';
+import { setLangForTests } from '@huishouden/pwa-kit/i18n';
 import registry from '../apps.json';
+import './i18n';
 import fixtures from './__fixtures__/portal-layouts.json';
-import { APPS, appHref, arrangeTiles, layoutOf, parseLayout, sameLayout, suiteLink, tilesFrom, type RegistryEntry } from './apps';
+import { APPS, appHref, contactRoleLabel, arrangeTiles, layoutOf, parseLayout, sameLayout, suiteLink, tilesFrom, type RegistryEntry } from './apps';
 
 const repos = (apps: { repo: string }[]) => apps.map((a) => a.repo);
 
@@ -76,5 +78,38 @@ describe('one site (pwa-kit docs/one-site.md)', () => {
     expect(suiteLink('https://example-baby.web.app/#appointments', entries)).toBe('https://example-baby.web.app/#appointments');
     expect(suiteLink('https://example-pet.web.app.evil.example.com/', entries)).toBe('https://example-pet.web.app.evil.example.com/');
     expect(suiteLink('not a url', entries)).toBe('not a url');
+  });
+});
+
+describe('in another language', () => {
+  // Back to English, keeping the app's catalogue (resetI18nForTests would drop it for later files).
+  afterEach(() => setLangForTests('en'));
+
+  it('tiles read their name and description in it, and follow a change', async () => {
+    const tasks = APPS.find((a) => a.repo === 'tasks')!;
+    expect([tasks.name, tasks.description]).toEqual(['Tasks', 'Shared to-dos and chores']);
+    await setLangForTests('es');
+    expect([tasks.name, tasks.description]).toEqual(['Tareas', 'Pendientes y tareas compartidas']);
+    await setLangForTests('nl');
+    expect(tasks.name).toBe('Taken');
+  });
+
+  it('every tile has a name and description in Spanish and Dutch', () => {
+    for (const e of (registry as RegistryEntry[]).filter((a) => a.tile !== false)) {
+      for (const lang of ['es', 'nl'] as const) {
+        expect(e.i18n?.[lang]?.name, `${e.repo} ${lang}`).toBeTruthy();
+        expect(e.i18n?.[lang]?.description, `${e.repo} ${lang}`).toBeTruthy();
+        expect(Object.keys(e.i18n?.[lang]?.contactRoles ?? {}).sort(), `${e.repo} ${lang}`).toEqual([...(e.contactRoles ?? [])].sort());
+      }
+    }
+  });
+
+  it("shows an app's contact roles in it; typed ones stay as typed", async () => {
+    expect(contactRoleLabel('Plumber')).toBe('Plumber');
+    await setLangForTests('es');
+    expect(contactRoleLabel('Plumber')).toBe('Plomero');
+    expect(contactRoleLabel('Landlord')).toBe('Landlord');
+    await setLangForTests('nl');
+    expect(contactRoleLabel('Vet')).toBe('Dierenarts');
   });
 });

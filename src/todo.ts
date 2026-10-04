@@ -1,5 +1,6 @@
 import { canDo, olderThan, sortTodos, type TodoItem, type TodoSort } from '@huishouden/pwa-kit/todos';
 import type { Role } from '@huishouden/pwa-kit/roles';
+import { t } from './i18n';
 
 /** The To-do tab's choices: how it sorts, which app it shows (null: all), and only old things. */
 export interface TodoView {
@@ -26,14 +27,12 @@ export function appsWithTodos(items: readonly TodoItem[], appOrder: readonly str
   return present.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
 }
 
-const things = (n: number) => `${n} ${n === 1 ? 'thing' : 'things'}`;
-
 /** "12 things to do · 4 added over 30 days ago", or the empty sentence. Summary lines don't count. */
 export function summaryLine(items: readonly TodoItem[], now: number): string {
   const open = items.filter((i) => i.status === 'open');
-  if (open.length === 0) return 'Nothing to do in any app.';
+  if (open.length === 0) return t('todo.nothing');
   const old = open.filter((i) => olderThan(i, now, OLD_DAYS)).length;
-  return old ? `${things(open.length)} to do · ${old} added over ${OLD_DAYS} days ago` : `${things(open.length)} to do`;
+  return old ? t('todo.summaryOld', { count: open.length, old, days: OLD_DAYS }) : t('todo.summary', { count: open.length });
 }
 
 /** The items `me` may cancel: what bulk select offers. */
@@ -41,22 +40,27 @@ export function cancellable(items: readonly TodoItem[], role: Role | null | unde
   return items.filter((i) => canDo(i, 'cancel', role, me));
 }
 
-const PAST: Record<string, string> = {
-  done: 'Done',
-  cancel: 'Cancelled',
-  pause: 'Paused',
-  skip: 'Skipped',
-  dismiss: 'Dismissed',
-  given: 'Given',
-  renewed: 'Renewed',
-  'mark paid': 'Marked paid',
-  'mark handled': 'Marked handled',
-};
+/** The past tense of the apps' usual button words (stored in English), for the toast. */
+const PAST = {
+  done: 'todo.past.done',
+  cancel: 'todo.past.cancel',
+  pause: 'todo.past.pause',
+  skip: 'todo.past.skip',
+  dismiss: 'todo.past.dismiss',
+  given: 'todo.past.given',
+  renewed: 'todo.past.renewed',
+  'mark paid': 'todo.past.markPaid',
+  'mark handled': 'todo.past.markHandled',
+} as const;
 
-/** The toast for an action: "Done: Fix the porch light", "Paused: Change HVAC filter". */
-export function actedLine(label: string, title: string): string {
-  return `${PAST[label.trim().toLowerCase()] ?? label}: ${title}`;
+/**
+ * The toast for an action: "Done: Fix the porch light", "Paused: Change HVAC filter". `label` is the
+ * button's stored (English) word; `shown` the word the reader saw, used when it has no past tense here.
+ */
+export function actedLine(label: string, title: string, shown: string = label): string {
+  const key = PAST[label.trim().toLowerCase() as keyof typeof PAST];
+  return t('todo.acted', { action: key ? t(key) : shown, title });
 }
 
 /** The toast for a bulk cancel: "Cancelled 5 things." */
-export const bulkLine = (n: number) => `Cancelled ${things(n)}.`;
+export const bulkLine = (n: number) => t('todo.bulkCancelled', { count: n });

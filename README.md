@@ -17,6 +17,8 @@ Every app is listed once, in `apps.json`: the tiles come from it, `contactRoles`
 contacts (and the roles they offer), and `infra/apps.conf` reads it to provision hosting. Its order is
 the default tile order: simple everyday apps first, Spending (which needs setup) after them, Baby (not
 for every household) last.
+`i18n.es` and `i18n.nl` give each app's name, description and contact roles in Spanish and Dutch
+(contacts keep the English role; the hub shows it in the reader's language).
 
 ## Tabs
 

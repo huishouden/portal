@@ -2,6 +2,7 @@ import { agendaStatus, todayItems, type AgendaItem, type TodayEntry } from '@hui
 import { addDays, formatTime, startOfDay, toYmd } from '@huishouden/pwa-kit/time';
 import type { HouseholdApp } from './apps';
 import type { MemberProfile } from './hub';
+import { t } from './i18n';
 
 /** Per app: how many of its things are overdue and how many are coming up this week. */
 /** In the household's app order; apps with nothing overdue or coming up this week are left out. */
@@ -29,7 +30,7 @@ export function todayBoard(agenda: AgendaItem[], now: number): { open: TodayEntr
   const today = toYmd(now);
   const seen = new Set(done.map((e) => e.item.id));
   for (const item of agenda) {
-    if (!seen.has(item.id) && item.status === 'done' && toYmd(item.updatedAt) === today) done.push({ item, group: 'done', when: 'Done' });
+    if (!seen.has(item.id) && item.status === 'done' && toYmd(item.updatedAt) === today) done.push({ item, group: 'done', when: t('today.done') });
   }
   done.sort((a, b) => b.item.updatedAt - a.item.updatedAt);
   return { open, done };
@@ -40,7 +41,10 @@ export function todayBoard(agenda: AgendaItem[], now: number): { open: TodayEntr
  * The time only when that was today; the name from their profile (first name), "you" for `me`.
  */
 export function doneLine(item: Pick<AgendaItem, 'by' | 'updatedAt'>, now: number, me: string, profiles: Record<string, MemberProfile>): string {
-  const by = item.by === me ? 'you' : profiles[item.by]?.name?.trim().split(/\s+/)[0];
+  const you = item.by === me;
+  const by = you ? undefined : profiles[item.by]?.name?.trim().split(/\s+/)[0];
   const at = item.updatedAt > 0 && toYmd(item.updatedAt) === toYmd(now) ? formatTime(item.updatedAt) : undefined;
-  return ['Done', by && `by ${by}`, at && `at ${at}`].filter(Boolean).join(' ');
+  if (you) return at ? t('today.doneByYouAt', { time: at }) : t('today.doneByYou');
+  if (by) return at ? t('today.doneByAt', { name: by, time: at }) : t('today.doneBy', { name: by });
+  return at ? t('today.doneAt', { time: at }) : t('today.done');
 }

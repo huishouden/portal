@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { inviteMailto, type Invitation } from '@huishouden/pwa-kit/invite';
 import { cardClass, ghostButton, inputClass, linkClass, primaryButton } from '@huishouden/pwa-kit/react/ui';
-import { ROLE_DESCRIPTIONS, ROLE_LABELS, can, householdRole, type Role } from '@huishouden/pwa-kit/roles';
+import { can, householdRole, roleDescription, roleLabel, type Role } from '@huishouden/pwa-kit/roles';
 import { RoleList, RoleNote, RoleSelect } from '@huishouden/pwa-kit/react/roles';
 import { MAX_NAME, type HubActions, type HubState, type ReadyHousehold } from '../hub';
+import { useT } from '../i18n';
+import { CurrencyPicker } from './CurrencyPicker';
 
 type SignedIn = Extract<HubState, { auth: 'signed-in' }>;
 
@@ -22,6 +24,7 @@ const textLink = 'min-h-11 font-medium text-link underline underline-offset-4 ho
  * all of them at once. Only admins invite, remove and set roles; the rules refuse anyone else.
  */
 export function HouseholdPanel({ state, actions, notify, fail }: Props) {
+  const t = useT();
   const h = state.household;
   // Right after starting a household, land on the invite field.
   const [created, setCreated] = useState(false);
@@ -35,16 +38,16 @@ export function HouseholdPanel({ state, actions, notify, fail }: Props) {
   };
 
   return (
-    <section id="household" aria-label="Household" aria-live="polite" className={`${cardClass} max-w-2xl p-6`}>
+    <section id="household" aria-label={t('household.title')} aria-live="polite" className={`${cardClass} max-w-2xl p-6`}>
       {h.status === 'loading' && (
         <>
-          <h2 className="mb-3 text-xl font-semibold text-link">Household</h2>
-          <p className="text-muted">Loading…</p>
+          <h2 className="mb-3 text-xl font-semibold text-link">{t('household.title')}</h2>
+          <p className="text-muted">{t('common.loading')}</p>
         </>
       )}
       {h.status === 'error' && (
         <>
-          <h2 className="mb-3 text-xl font-semibold text-link">Household</h2>
+          <h2 className="mb-3 text-xl font-semibold text-link">{t('household.title')}</h2>
           <p className="text-error">{h.error}</p>
         </>
       )}
@@ -59,9 +62,9 @@ export function HouseholdPanel({ state, actions, notify, fail }: Props) {
       )}
       {h.status === 'ready' && <Household key={h.id} me={state.me} household={h} actions={actions} run={run} focusInvite={created} />}
       <p className="mt-4 text-sm text-muted">
-        Signed in as {state.me} ·{' '}
+        <span translate="no">{t('household.signedInAs', { email: state.me })}</span> ·{' '}
         <button type="button" className="font-medium text-link underline underline-offset-4" onClick={() => void actions.signOut()}>
-          Sign out
+          {t('household.signOut')}
         </button>
       </p>
     </section>
@@ -69,6 +72,7 @@ export function HouseholdPanel({ state, actions, notify, fail }: Props) {
 }
 
 function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName: string; create: (name: string) => Promise<void> }) {
+  const t = useT();
   const [naming, setNaming] = useState(false);
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState(suggestedName);
@@ -82,19 +86,22 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
     }
   }, [naming]);
 
+  const [waitBefore, waitAfter = ''] = t('household.waiting', { email: '\u0000' }).split('\u0000');
   const waiting = (
     <p className="mt-3 text-sm text-muted">
-      Waiting for an invite? Ask a member to invite <strong>{me}</strong>.
+      {waitBefore}
+      <strong translate="no">{me}</strong>
+      {waitAfter}
     </p>
   );
 
   if (!naming) {
     return (
       <>
-        <h2 className="mb-3 text-xl font-semibold text-link">Household</h2>
-        <p className="mb-3">Start a household for the people you live with. You'll invite them next.</p>
+        <h2 className="mb-3 text-xl font-semibold text-link">{t('household.title')}</h2>
+        <p className="mb-3">{t('household.startHint')}</p>
         <button ref={startButton} type="button" className={primaryButton} onClick={() => setNaming(true)}>
-          Start a household
+          {t('household.start')}
         </button>
         {waiting}
       </>
@@ -112,10 +119,10 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
 
   return (
     <>
-      <h2 className="mb-3 text-xl font-semibold text-link">Start a household</h2>
+      <h2 className="mb-3 text-xl font-semibold text-link">{t('household.start')}</h2>
       <form onSubmit={submit} className="mb-3">
         <label htmlFor="hh-new-name" className="mb-1.5 block font-medium">
-          Name
+          {t('common.name')}
         </label>
         <div className="flex flex-wrap gap-2">
           <input
@@ -129,14 +136,14 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
             onChange={(e) => setName(e.target.value)}
           />
           <button type="submit" className={primaryButton} disabled={creating}>
-            {creating ? 'Starting…' : 'Start'}
+            {creating ? t('household.starting') : t('household.startShort')}
           </button>
           <button type="button" className={ghostButton} disabled={creating} onClick={() => setNaming(false)}>
-            Cancel
+            {t('common.cancel')}
           </button>
         </div>
       </form>
-      <p className="text-sm text-muted">Only you are in it at first. You can rename it any time.</p>
+      <p className="text-sm text-muted">{t('household.onlyYou')}</p>
       {waiting}
     </>
   );
@@ -155,6 +162,7 @@ function Household({
   actions: HubActions;
   run: (task: () => Promise<void>, done?: string) => Promise<void>;
 }) {
+  const t = useT();
   const [renaming, setRenaming] = useState(false);
   const [newName, setNewName] = useState(h.name);
   const [email, setEmail] = useState('');
@@ -199,7 +207,7 @@ function Household({
           }}
         >
           <label htmlFor="hh-rename-name" className="mb-1.5 block font-medium">
-            Household name
+            {t('household.nameLabel')}
           </label>
           <div className="flex flex-wrap gap-2">
             <input
@@ -213,16 +221,16 @@ function Household({
               onChange={(e) => setNewName(e.target.value)}
             />
             <button type="submit" className={primaryButton}>
-              Save
+              {t('common.save')}
             </button>
             <button type="button" className={ghostButton} onClick={stopRenaming}>
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
       ) : (
         <div className="mb-1 flex items-baseline gap-3">
-          <h2 className="text-xl font-semibold text-link">{h.name}</h2>
+          <h2 className="text-xl font-semibold text-link" translate="no">{h.name}</h2>
           {can(role, 'change-settings') && (
             <button
               ref={renameButton}
@@ -233,7 +241,7 @@ function Household({
                 setRenaming(true);
               }}
             >
-              Rename
+              {t('household.rename')}
             </button>
           )}
         </div>
@@ -254,35 +262,35 @@ function Household({
                   {(p?.name ?? m).charAt(0).toUpperCase()}
                 </span>
               )}
-              <span className="flex min-w-0 flex-1 flex-col [overflow-wrap:anywhere]">
+              <span className="flex min-w-0 flex-1 basis-48 flex-col [overflow-wrap:anywhere]">
                 <span className="font-semibold">
-                  {p?.name ?? m}
-                  {self && <span className="font-normal text-muted"> (you)</span>}
+                  <span translate="no">{p?.name ?? m}</span>
+                  {self && <span className="font-normal text-muted"> {t('household.you')}</span>}
                 </span>
-                {p?.name && <span className="text-sm text-muted">{m}</span>}
-                {!(admin && !self) && <span className="text-sm text-muted">{ROLE_LABELS[theirs]}</span>}
+                {p?.name && <span className="text-sm text-muted" translate="no">{m}</span>}
+                {!(admin && !self) && <span className="text-sm text-muted">{roleLabel(theirs)}</span>}
               </span>
               {admin && !self && (
                 <RoleSelect
                   value={theirs}
-                  label={`Role for ${nameOf(m)}`}
-                  onChange={(next) => void run(() => actions.setRole(m, next), `${nameOf(m)} is now ${next === 'admin' ? 'an' : 'a'} ${ROLE_LABELS[next].toLowerCase()}.`)}
+                  label={t('household.roleFor', { name: nameOf(m) })}
+                  onChange={(next) => void run(() => actions.setRole(m, next), t('household.roleChanged', { name: nameOf(m), role: next }))}
                 />
               )}
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${joined ? 'bg-tint-strong text-link' : 'bg-attention-tint text-attention'}`}
               >
-                {joined ? 'Signed in' : 'Invited'}
+                {joined ? t('household.joined') : t('household.invited')}
               </span>
               {admin && !self && (
                 <button
                   type="button"
                   className={textLink}
                   onClick={() => {
-                    if (confirm(`Remove ${m} from ${h.name}? They lose access to every household app.`)) void run(() => actions.removeMember(m));
+                    if (confirm(t('household.removeConfirm', { email: m, household: h.name }))) void run(() => actions.removeMember(m));
                   }}
                 >
-                  Remove
+                  {t('common.remove')}
                 </button>
               )}
             </li>
@@ -292,7 +300,7 @@ function Household({
 
       {invited && (
         <div role="status" className="mb-4 rounded-xl bg-tint p-4">
-          <p className="mb-2">{invited.to} is invited. Let them know by email:</p>
+          <p className="mb-2">{t('household.invitedNote', { email: invited.to })}</p>
           <div className="mb-2 flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -303,26 +311,26 @@ function Household({
                 await run(async () => {
                   await actions.sendInviteEmail(invited);
                   setInvited(undefined);
-                }, 'Invite email sent.');
+                }, t('household.inviteSent'));
                 setSending(false);
               }}
             >
-              {sending ? 'Sending…' : 'Send invite email'}
+              {sending ? t('household.sending') : t('household.sendInvite')}
             </button>
             <a className={linkClass} href={inviteMailto(invited)}>
-              Write it in my mail app
+              {t('household.mailApp')}
             </a>
             <button type="button" className={`${textLink} inline-flex items-center`} onClick={() => setInvited(undefined)}>
-              Not now
+              {t('household.notNow')}
             </button>
           </div>
-          <p className="text-sm text-muted">Sent from your Gmail. Google asks once to let Huishouden send email; it only sends invitations.</p>
+          <p className="text-sm text-muted">{t('household.gmailNote')}</p>
         </div>
       )}
 
       {admin ? (
         <details className="mb-4">
-          <summary className={`${textLink} inline-flex cursor-pointer items-center`}>What each role can do</summary>
+          <summary className={`${textLink} inline-flex cursor-pointer items-center`}>{t('household.whatRoles')}</summary>
           <div className="mt-2">
             <RoleList />
           </div>
@@ -330,13 +338,13 @@ function Household({
       ) : (
         role && (
           <p className="mb-4 text-sm text-muted">
-            You’re {role === 'admin' ? 'an' : 'a'} {ROLE_LABELS[role].toLowerCase()}: {ROLE_DESCRIPTIONS[role].charAt(0).toLowerCase() + ROLE_DESCRIPTIONS[role].slice(1)}
+            {t('household.yourRole', { role, description: roleDescription(role) })}
           </p>
         )
       )}
 
       {!admin && <RoleNote action="manage-people" />}
-      {admin && solo && <p className="mb-3">Invite the people you live with. They'll get every app when they sign in.</p>}
+      {admin && solo && <p className="mb-3">{t('household.inviteHint')}</p>}
       {admin && (
       <form
         className="mb-3 flex flex-wrap gap-2"
@@ -356,20 +364,21 @@ function Household({
           ref={inviteInput}
           type="email"
           className={`${inputClass} min-w-[220px] flex-1`}
-          placeholder="Their Google account email"
-          aria-label="Their Google account email"
+          placeholder={t('household.inviteEmail')}
+          aria-label={t('household.inviteEmail')}
           required
           autoComplete="off"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <RoleSelect value={inviteRole} label="Their role" onChange={setInviteRole} />
+        <RoleSelect value={inviteRole} label={t('household.theirRole')} onChange={setInviteRole} />
         <button type="submit" className={primaryButton}>
-          Invite
+          {t('household.invite')}
         </button>
       </form>
       )}
-      {admin && !solo && <p className="text-sm text-muted">An invite gives them every household app the next time they sign in with that account.</p>}
+      {admin && !solo && <p className="text-sm text-muted">{t('household.inviteNote')}</p>}
+      <CurrencyPicker value={h.currency} canChange={can(role, 'change-settings')} onChange={(code) => run(() => actions.setCurrency(code))} />
     </>
   );
 }
