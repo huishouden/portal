@@ -211,3 +211,11 @@ test('a connect link for anything but the connector is refused', async ({ page }
   await page.goto('/connect?service=https://evil.example&state=state-0123456789abcdef&client=Claude', { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: "This link can't be used" })).toBeVisible();
 });
+
+// The household in the person's own calendar (huishouden/calendar): its page, linked from the
+// account menu and the Calendar tab. Signed out it explains and asks to sign in.
+test('the own-calendar page loads and asks a signed-out visitor to sign in', async ({ page }) => {
+  await expectCleanLoad(page, '/my-calendar');
+  await expect(page.getByRole('heading', { name: 'In your own calendar' })).toBeVisible();
+  await expect(page.getByText('Sign in to set up your calendar.')).toBeVisible();
+});
