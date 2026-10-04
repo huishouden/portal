@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.15.2](https://github.com/huishouden/portal/compare/v2.15.1...v2.15.2) (2026-10-04)
+
+
+### Bug Fixes
+
+* **monitoring:** kit v0.71.2, page views reported before the geography rules ([#83](https://github.com/huishouden/portal/issues/83)) ([40349cf](https://github.com/huishouden/portal/commit/40349cf709afaff084ad009fc01dd1143f0c7e0d))
+
 ## [2.15.1](https://github.com/huishouden/portal/compare/v2.15.0...v2.15.1) (2026-10-04)
 
 
