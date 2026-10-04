@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.14.0](https://github.com/huishouden/portal/compare/v2.13.0...v2.14.0) (2026-10-04)
+
+
+### Features
+
+* In your own calendar: a calendar link for any app, Google Calendar both ways, changes with Undo ([#76](https://github.com/huishouden/portal/issues/76)) ([88a21f9](https://github.com/huishouden/portal/commit/88a21f9f61f7770441b0f93472f14d02b235d14d))
+* use Huishouden from your AI assistant (/assistant, /connect) ([#74](https://github.com/huishouden/portal/issues/74)) ([4ab8cd4](https://github.com/huishouden/portal/commit/4ab8cd4999f1e8ab19ea4e30dc0d33f6dedbd342))
+
 ## [2.13.0](https://github.com/huishouden/portal/compare/v2.12.1...v2.13.0) (2026-10-04)
 
 
