@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { setLangForTests } from '@huishouden/pwa-kit/i18n';
 import { actedLine, appsWithTodos, bulkLine, cancellable, DEFAULT_VIEW, shownTodos, summaryLine } from './todo';
 import { helperTodos, TODO_NOW, todos } from './__fixtures__/todos';
 
@@ -53,5 +54,15 @@ describe('the To-do tab', () => {
     expect(actedLine('Snooze', 'X')).toBe('Snooze: X');
     expect(bulkLine(1)).toBe('Cancelled 1 thing.');
     expect(bulkLine(5)).toBe('Cancelled 5 things.');
+  });
+});
+
+describe('the toast for a to-do written in another language', () => {
+  test('names the past tense from the English word and falls back to the word the reader saw', async () => {
+    await setLangForTests('es');
+    expect(actedLine('Done', 'Arreglar la luz', 'Listo')).toBe('Listo: Arreglar la luz');
+    expect(actedLine('Mark paid', 'Agua', 'Marcar pagada')).toBe('Marcada como pagada: Agua');
+    expect(actedLine('Posponer', 'Agua')).toBe('Posponer: Agua');
+    await setLangForTests('en');
   });
 });
