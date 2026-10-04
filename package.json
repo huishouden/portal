@@ -12,7 +12,7 @@
     "test": "bun test src",
     "icons": "pwa-icons",
     "e2e": "playwright test e2e/smoke.spec.ts e2e/todo.spec.ts e2e/contact-import.spec.ts e2e/i18n.spec.ts",
-    "e2e:signed-in": "playwright test e2e/signed-in.spec.ts e2e/my-calendar.spec.ts",
+    "e2e:signed-in": "playwright test e2e/signed-in.spec.ts e2e/my-calendar.spec.ts e2e/google-window.spec.ts",
     "prepare": "git config core.hooksPath .githooks",
     "bootstrap": "node_modules/@huishouden/pwa-kit/infra/bootstrap.sh infra/apps.conf",
     "bootstrap:staging": "node_modules/@huishouden/pwa-kit/infra/bootstrap.sh --staging infra/apps.conf",
