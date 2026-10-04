@@ -5,7 +5,8 @@ import { ChevronDown, CircleCheck } from 'lucide-react';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { AppIcon } from '../components/AppIcon';
 import { Greeting } from '../components/DutchWord';
-import { ItemIcon, KIND_WORDS, itemMeta } from '../components/ItemIcon';
+import { ItemIcon, inMyLanguage, itemMeta, kindWord } from '../components/ItemIcon';
+import { t, useT } from '../i18n';
 import type { MemberProfile } from '../hub';
 import { appSummaries, doneLine, todayBoard } from '../today';
 
@@ -20,16 +21,16 @@ interface Props {
   profiles?: Record<string, MemberProfile>;
 }
 
-const HEADINGS: Record<Exclude<TodayGroup, 'done'>, string> = { overdue: 'Overdue', today: 'Today', soon: 'Next two days' };
-
-const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const HEADINGS = { overdue: 'today.overdue', today: 'today.today', soon: 'today.soon' } as const satisfies Record<Exclude<TodayGroup, 'done'>, string>;
 
 /**
  * The wall-tablet glance: what is overdue, what is on today and in the next two days across every
  * app, big enough to read across the room, each a tap away from its app; what has been done today,
  * folded away at the bottom; and one line per app.
  */
-export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props) {
+export function TodayScreen({ agenda: stored, apps, now, me = '', profiles = {} }: Props) {
+  const t = useT();
+  const agenda = stored?.map(inMyLanguage);
   const today = toYmd(now);
   const byRepo = new Map(apps.map((a) => [a.repo, a]));
   const { open, done } = agenda ? todayBoard(agenda, now) : { open: [], done: [] };
@@ -48,11 +49,11 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
         <div className="space-y-6" aria-live="polite">
           {agenda === undefined && <Skeleton />}
           {agenda !== undefined && groups.length === 0 && (
-            <p className={`${cardClass} p-6 text-xl text-muted`}>Nothing due today or in the next two days.</p>
+            <p className={`${cardClass} p-6 text-xl text-muted`}>{t('today.empty')}</p>
           )}
           {groups.map(({ group, entries }) => (
-            <section key={group} aria-label={HEADINGS[group]}>
-              <h2 className={`mb-2 ${overline} ${group === 'overdue' ? 'text-attention' : ''}`}>{HEADINGS[group]}</h2>
+            <section key={group} aria-label={t(HEADINGS[group])}>
+              <h2 className={`mb-2 ${overline} ${group === 'overdue' ? 'text-attention' : ''}`}>{t(HEADINGS[group])}</h2>
               <ul className={`${cardClass} divide-y divide-line`}>
                 {entries.map((e) => (
                   <TodayRow key={e.item.id} entry={e} app={byRepo.get(e.item.app)} />
@@ -64,10 +65,10 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
             <details className="group">
               <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg text-muted hover:text-link [&::-webkit-details-marker]:hidden">
                 <CircleCheck size={20} className="text-link" aria-hidden="true" />
-                <span className={overline}>Done today ({done.length})</span>
+                <span className={overline}>{t('today.doneToday', { count: done.length })}</span>
                 <ChevronDown size={18} className="transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
               </summary>
-              <ul className={`${cardClass} mt-2 divide-y divide-line`} aria-label="Done today">
+              <ul className={`${cardClass} mt-2 divide-y divide-line`} aria-label={t('today.doneTodayList')}>
                 {done.map(({ item }) => (
                   <DoneRow key={item.id} item={item} app={byRepo.get(item.app)} line={doneLine(item, now, me, profiles)} />
                 ))}
@@ -76,8 +77,8 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
           )}
         </div>
         {summaries.length > 0 && (
-          <section aria-label="By app" className={`${cardClass} p-5`}>
-            <h2 className={`mb-2 ${overline}`}>By app</h2>
+          <section aria-label={t('today.byApp')} className={`${cardClass} p-5`}>
+            <h2 className={`mb-2 ${overline}`}>{t('today.byApp')}</h2>
             <ul className="divide-y divide-line">
               {summaries.map(({ app, overdue, week }) => (
                 <li key={app.repo}>
@@ -86,9 +87,9 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
                     <span className="min-w-0 flex-1">
                       <span className="block font-semibold">{app.name}</span>
                       <span className="block text-muted">
-                        {overdue > 0 && <span className="font-medium text-attention">{count(overdue, 'overdue', 'overdue')}</span>}
+                        {overdue > 0 && <span className="font-medium text-attention">{t('today.appOverdue', { count: overdue })}</span>}
                         {overdue > 0 && week > 0 && ' · '}
-                        {week > 0 && `${count(week, 'thing', 'things')} this week`}
+                        {week > 0 && t('today.appWeek', { count: week })}
                       </span>
                     </span>
                   </a>
@@ -107,8 +108,8 @@ const pulse = 'animate-pulse rounded bg-sunken motion-reduce:animate-none';
 /** Rows the size of real ones while the day loads, so nothing jumps when it arrives. */
 function Skeleton() {
   return (
-    <section aria-busy="true" aria-label="Loading">
-      <p className="sr-only">Loading the household's day.</p>
+    <section aria-busy="true" aria-label={t('common.loading')}>
+      <p className="sr-only">{t('today.loading')}</p>
       <div className="mb-2 h-4 w-24 rounded bg-stone-200 dark:bg-forest-700" aria-hidden="true" />
       <ul className={`${cardClass} divide-y divide-line`} aria-hidden="true">
         {[0, 1, 2].map((i) => (
@@ -133,13 +134,13 @@ function TodayRow({ entry: { item, group, when }, app }: { entry: TodayEntry; ap
       <a href={suiteLink(item.url)} className="flex min-h-20 items-center gap-3 px-4 py-3 hover:bg-tint sm:gap-4 sm:px-5 sm:py-4">
         <ItemIcon item={item} app={app} size={44} />
         <span className="min-w-0 flex-1">
-          <span className="block text-xl font-semibold text-ink [overflow-wrap:break-word] sm:text-2xl">{item.title}</span>
+          <span data-hh-data className="block text-xl font-semibold text-ink [overflow-wrap:break-word] sm:text-2xl">{item.title}</span>
           <span className={`block text-lg font-medium tabular-nums sm:hidden ${tone}`}>{when}</span>
-          {meta && <span className="block text-base text-muted [overflow-wrap:break-word] sm:text-lg">{meta}</span>}
+          {meta && <span data-hh-data className="block text-base text-muted [overflow-wrap:break-word] sm:text-lg">{meta}</span>}
         </span>
         <span className={`hidden shrink-0 text-right text-xl font-medium tabular-nums sm:block ${tone}`}>{when}</span>
         <span className="sr-only">
-          {KIND_WORDS[item.kind]}. Open in {app?.name ?? 'its app'}
+          {app ? t('today.rowOpenIn', { kind: kindWord(item.kind), app: app.name }) : t('today.rowOpen', { kind: kindWord(item.kind) })}
         </span>
       </a>
     </li>
@@ -153,11 +154,11 @@ function DoneRow({ item, app, line }: { item: AgendaItem; app?: HouseholdApp; li
       <a href={suiteLink(item.url)} className="flex min-h-16 items-center gap-3 px-4 py-3 hover:bg-tint sm:gap-4 sm:px-5">
         <CircleCheck size={28} className="shrink-0 text-link" aria-hidden="true" />
         <span className="min-w-0 flex-1">
-          <span className="block text-lg font-medium text-muted line-through decoration-stone-400 [overflow-wrap:break-word]">{item.title}</span>
+          <span data-hh-data className="block text-lg font-medium text-muted line-through decoration-stone-400 [overflow-wrap:break-word]">{item.title}</span>
           <span className="block text-base text-muted [overflow-wrap:break-word]">{meta}</span>
         </span>
         <span className="sr-only">
-          {KIND_WORDS[item.kind]}, done. Open in {app?.name ?? 'its app'}
+          {app ? t('today.doneRowOpenIn', { kind: kindWord(item.kind), app: app.name }) : t('today.doneRowOpen', { kind: kindWord(item.kind) })}
         </span>
       </a>
     </li>

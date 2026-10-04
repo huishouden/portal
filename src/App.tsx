@@ -18,6 +18,7 @@ import { PrivacyScreen } from './screens/PrivacyScreen';
 import { PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
 import { trackView } from '@huishouden/pwa-kit/observability';
 import { useNow } from './now';
+import { t, useT } from './i18n';
 
 const VERSION = `${import.meta.env.VITE_APP_VERSION} (${import.meta.env.VITE_BUILD_SHA})`;
 
@@ -33,11 +34,11 @@ const TAB_IDS: TabId[] = ['today', 'todo', 'calendar', 'contacts', 'apps'];
 function tabsFor(state: HubState): Tab[] {
   if (!isMember(state) && !restoringMember(state)) return [];
   return [
-    { id: 'today', label: 'Today', icon: Sun, primary: true },
-    { id: 'todo', label: 'To-do', icon: ListChecks, primary: true },
-    { id: 'calendar', label: 'Calendar', icon: CalendarDays, primary: true },
-    { id: 'contacts', label: 'Contacts', icon: ContactIcon },
-    { id: 'apps', label: 'Apps', icon: LayoutGrid, primary: true },
+    { id: 'today', label: t('tabs.today'), icon: Sun, primary: true },
+    { id: 'todo', label: t('tabs.todo'), icon: ListChecks, primary: true },
+    { id: 'calendar', label: t('tabs.calendar'), icon: CalendarDays, primary: true },
+    { id: 'contacts', label: t('tabs.contacts'), icon: ContactIcon },
+    { id: 'apps', label: t('tabs.apps'), icon: LayoutGrid, primary: true },
   ];
 }
 
@@ -49,6 +50,7 @@ const tabFromPath = (): TabId | undefined => {
 };
 
 export default function App() {
+  const t = useT();
   const live = useLiveHub();
   const preview = usePreview();
   const { state, actions } = preview ?? live;
@@ -121,9 +123,9 @@ export default function App() {
     (layout: PortalLayout, previous: PortalLayout) => {
       const save = (next: PortalLayout) => actions.saveLayout(next).catch((e) => fail(e instanceof Error ? e.message : String(e)));
       void save(layout);
-      notify('Saved for everyone in the household.', () => void save(previous));
+      notify(t('toast.layoutSaved'), () => void save(previous));
     },
-    [actions, notify, fail],
+    [actions, notify, fail, t],
   );
 
   const user = state.auth === 'starting' ? undefined : state.auth === 'signed-out' ? null : state.user;
@@ -135,6 +137,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
+      {/* i18n-ignore: the suite's name, never translated */}
       <AppBar app="Huishouden" glyph="home" portalUrl="/" version={VERSION} user={user} signingIn={signingIn} onSignIn={signIn} onSignOut={() => void actions.signOut()}>
         <SectionTabs tabs={tabs} tab={privacy ? '' : tab} onTab={choose} />
       </AppBar>
@@ -191,7 +194,7 @@ export default function App() {
             window.scrollTo(0, 0);
           }}
         >
-          Privacy
+          {t('privacy.link')}
         </a>
       </footer>
       <Toast toast={toast} onDone={clear} />

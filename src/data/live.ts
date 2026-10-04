@@ -10,6 +10,7 @@ import {
   normalizeEmail,
   removeMember,
   saveMyProfile,
+  setHouseholdCurrency,
   watchHousehold,
   watchProfiles,
   type HouseholdState,
@@ -19,7 +20,7 @@ import { addContact, deleteContact, markUnflaggedOpen, restoreContact, updateCon
 import { can, householdRole, isRestricted, setRole } from '@huishouden/pwa-kit/roles';
 import { sendInviteEmail } from '@huishouden/pwa-kit/invite';
 import { agendaRange, watchAgenda, type AgendaItem } from '@huishouden/pwa-kit/agenda';
-import { applyTodo, TodoActionError, watchTodos, type TodoItem } from '@huishouden/pwa-kit/todos';
+import { applyTodo, TodoActionError, todoWords, watchTodos, type TodoItem } from '@huishouden/pwa-kit/todos';
 import { toYmd } from '@huishouden/pwa-kit/time';
 import { saveFood, watchFood, type FoodPreferences } from '@huishouden/pwa-kit/food';
 import { googleAccessMessage, readError } from '@huishouden/pwa-kit/feedback';
@@ -28,6 +29,7 @@ import { DEFAULT_LAYOUT, parseLayout, type PortalLayout } from '../apps';
 import { auth, db, googleClientId, signInWithGoogle, signOutEverywhere } from '../firebase';
 import { rememberHousehold, rememberedHousehold } from '../memberHint';
 import { MAX_NAME, suggestedHouseholdName, type HouseholdView, type HubActions, type HubState } from '../hub';
+import { t } from '../i18n';
 
 const LAYOUT_CACHE = 'hh-portal-layout';
 
@@ -202,6 +204,7 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
         members: h.members,
         joined: h.joined,
         roles: h.roles ?? {},
+        ...(h.currency ? { currency: h.currency } : {}),
         profiles: Object.fromEntries([...profiles].map(([k, p]) => [k, { name: p.name, photoURL: p.photoURL }])),
       };
     }
@@ -221,7 +224,7 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
 
   const actions = useMemo((): HubActions => {
     const need = () => {
-      if (!householdId || !email) throw new Error('Not in a household.');
+      if (!householdId || !email) throw new Error(t('error.noHousehold'));
       return { id: householdId, me: email };
     };
     return {
@@ -231,47 +234,47 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
         } catch (e) {
           const code = (e as { code?: string }).code;
           if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return;
-          throw new Error("Couldn't sign in. Try again.");
+          throw new Error(t('error.signIn'));
         }
       },
       signOut: signOutEverywhere,
       async createHousehold(name) {
         if (!email) return;
         await createHousehold(db, email, name.slice(0, MAX_NAME)).catch((e) => {
-          throw words(e, "Couldn't start the household");
+          throw words(e, t('error.createHousehold'));
         });
         track('create household');
       },
       async renameHousehold(name) {
         const { id } = need();
         await updateDoc(doc(db, 'households', id), { name: name.slice(0, MAX_NAME) }).catch((e) => {
-          throw words(e, "Couldn't rename the household");
+          throw words(e, t('error.renameHousehold'));
         });
       },
       async invite(to, inviteRole) {
         const { me } = need();
         const address = normalizeEmail(to);
         await inviteMember(db, ready!, address, inviteRole).catch((e) => {
-          throw e instanceof Error && !('code' in e) ? e : words(e, "Couldn't invite them");
+          throw e instanceof Error && !('code' in e) ? e : words(e, t('error.invite'));
         });
         track('invite member');
         return {
           to: address,
           from: profiles.get(me)?.name ?? user?.displayName ?? me,
-          householdName: ready?.name ?? 'the household',
+          householdName: ready?.name ?? t('household.theHousehold'),
           url: location.origin,
         };
       },
       async removeMember(who) {
         need();
         await removeMember(db, ready!, who).catch((e) => {
-          throw words(e, "Couldn't remove them");
+          throw words(e, t('error.remove'));
         });
       },
       async setRole(who, next) {
         need();
         await setRole(db, ready!, who, next).catch((e) => {
-          throw words(e, "Couldn't change their role");
+          throw words(e, t('error.role'));
         });
       },
       async sendInviteEmail(invitation) {
@@ -291,32 +294,39 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
           track('arrange apps');
         } catch (e) {
           setLayout(previous);
-          throw words(e, "Couldn't save the layout");
+          throw words(e, t('error.layout'));
         }
       },
       async addContact(input) {
         const { id, me } = need();
         await addContact(db, id, input, me).catch((e) => {
-          throw words(e, "Couldn't add the contact");
+          throw words(e, t('error.addContact'));
         });
         track('add contact');
       },
       async updateContact(contactId, input) {
         const { id, me } = need();
         await updateContact(db, id, contactId, input, me).catch((e) => {
-          throw words(e, "Couldn't save the contact");
+          throw words(e, t('error.saveContact'));
         });
       },
       async deleteContact(contact) {
         const { id } = need();
         await deleteContact(db, id, contact.id).catch((e) => {
-          throw words(e, "Couldn't delete the contact");
+          throw words(e, t('error.deleteContact'));
         });
+      },
+      async setCurrency(code) {
+        const { id } = need();
+        await setHouseholdCurrency(db, id, code).catch((e) => {
+          throw words(e, t('error.currency'));
+        });
+        track('set currency');
       },
       async saveFood(input) {
         const { id, me } = need();
         await saveFood(db, id, input, me).catch((e) => {
-          throw words(e, "Couldn't save the food preferences");
+          throw words(e, t('error.food'));
         });
         track('save food preferences');
       },
@@ -327,21 +337,21 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
           track(which === 'done' ? 'todo done' : 'todo cancel', { app: item.app });
           return {
             written: run.written.catch((e) => {
-              throw words(e, `Couldn't change ${item.title}`);
+              throw words(e, t('error.todo', { title: todoWords(item).title }));
             }),
             undo: () =>
               run.undo().catch((e) => {
-                throw words(e, `Couldn't put ${item.title} back`);
+                throw words(e, t('error.todoUndo', { title: todoWords(item).title }));
               }),
           };
         } catch (e) {
-          throw e instanceof TodoActionError ? e : words(e, `Couldn't change ${item.title}`);
+          throw e instanceof TodoActionError ? e : words(e, t('error.todo', { title: todoWords(item).title }));
         }
       },
       async restoreContact(contact) {
         const { id } = need();
         await restoreContact(db, id, contact).catch((e) => {
-          throw words(e, "Couldn't restore the contact");
+          throw words(e, t('error.restoreContact'));
         });
       },
     };

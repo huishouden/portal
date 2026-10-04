@@ -5,6 +5,7 @@ import type { Invitation } from '@huishouden/pwa-kit/invite';
 import type { TodoItem } from '@huishouden/pwa-kit/todos';
 import { householdRole, type Role } from '@huishouden/pwa-kit/roles';
 import type { PortalLayout } from './apps';
+import { t } from './i18n';
 
 /** The signed-in person as the app bar shows them. */
 export interface HubUser {
@@ -28,6 +29,8 @@ export interface ReadyHousehold {
   /** Roles written out; anyone missing is a member, except the creator (first), an admin. */
   roles: Record<string, Role>;
   profiles: Record<string, MemberProfile>;
+  /** The currency every app shows amounts in (ISO 4217); US dollars when unset. */
+  currency?: string;
 }
 
 export type HouseholdView =
@@ -91,6 +94,8 @@ export interface HubActions {
   deleteContact(contact: Contact): Promise<void>;
   restoreContact(contact: Contact): Promise<void>;
   saveFood(input: FoodInput): Promise<void>;
+  /** The household's currency for every app (`setHouseholdCurrency`); admins and members. */
+  setCurrency(code: string): Promise<void>;
   /** Runs an item's Done or Cancel in its app's data, as the signed-in member (`applyTodo`). */
   runTodo(item: TodoItem, which: 'done' | 'cancel'): Promise<TodoRun>;
 }
@@ -101,7 +106,7 @@ export const MAX_NAME = 60;
 /** "Sam's household" from a Google name of "Sam Example"; a plain fallback without one. */
 export function suggestedHouseholdName(displayName: string | null | undefined): string {
   const first = displayName?.trim().split(/\s+/)[0];
-  return first ? `${first}'s household` : 'Our household';
+  return first ? t('household.suggestedName', { name: first }) : t('household.ourHousehold');
 }
 
 export const isMember = (s: HubState): s is Extract<HubState, { auth: 'signed-in' }> & { household: ReadyHousehold } =>

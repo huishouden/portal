@@ -97,7 +97,8 @@ export const noHousehold: HubState = { auth: 'signed-in', user, me, household: {
 
 /** Waits for sign-in to resolve as signed out (so it can't replace the preview), then shows `state`. */
 export async function showHub(page: Page, state: HubState) {
-  await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible();
+  // The introduction's "How it works", in whichever language the page is in.
+  await expect(page.locator('#household h3')).toBeVisible();
   await page.evaluate((s) => window.__hubPreview!(s), state);
 }
 

@@ -1,7 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Volume2 } from 'lucide-react';
-
-const HINT = 'A Dutch "g" is a soft throaty sound, like the "ch" in Scottish "loch".';
+import { t, useT } from '../i18n';
 
 /**
  * A Dutch word that explains itself on demand: hovering, focusing or tapping it opens a small card
@@ -10,6 +9,7 @@ const HINT = 'A Dutch "g" is a soft throaty sound, like the "ch" in Scottish "lo
  * until tapped again, tapped elsewhere, or Escape.
  */
 export function DutchWord({ word, say, means }: { word: string; say: string; means: string }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
   const id = useId();
@@ -72,9 +72,9 @@ export function DutchWord({ word, say, means }: { word: string; say: string; mea
         hidden={!open}
         className="absolute top-[calc(100%+8px)] left-0 z-30 w-max max-w-[min(320px,80vw)] flex-col gap-1.5 rounded-xl bg-surface px-4 py-3.5 text-base leading-snug font-normal text-ink shadow-xl [&:not([hidden])]:flex"
       >
-        <span className="font-semibold text-link">Say it: {say}</span>
-        <span>Means: {means}</span>
-        {/g/i.test(word) && <span className="text-sm text-muted">{HINT}</span>}
+        <span className="font-semibold text-link">{t('dutch.say', { say })}</span>
+        <span>{t('dutch.means', { means })}</span>
+        {/g/i.test(word) && <span className="text-sm text-muted">{t('dutch.gHint')}</span>}
         {canSpeak && (
           <button
             type="button"
@@ -84,7 +84,7 @@ export function DutchWord({ word, say, means }: { word: string; say: string; mea
               speak(word);
             }}
           >
-            <Volume2 size={18} aria-hidden="true" /> Hear it
+            <Volume2 size={18} aria-hidden="true" /> {t('dutch.hear')}
           </button>
         )}
       </span>
@@ -103,19 +103,32 @@ function speak(text: string) {
   synth.speak(utterance);
 }
 
-/** The greeting is Dutch; the word explains itself on hover or tap. */
+/**
+ * The greeting is Dutch in every language; the word explains itself on hover or tap, with a
+ * sound-alike spelled for the reader's language.
+ */
 const GREETINGS = [
-  { until: 12, word: 'Goedemorgen', say: 'KHOO-duh-mor-khun', means: 'Good morning' },
-  { until: 18, word: 'Goedemiddag', say: 'KHOO-duh-mid-dahkh', means: 'Good afternoon' },
-  { until: 24, word: 'Goedenavond', say: 'KHOO-duh-nah-vont', means: 'Good evening' },
-];
+  { until: 12, word: 'Goedemorgen', key: 'morning' },
+  { until: 18, word: 'Goedemiddag', key: 'afternoon' },
+  { until: 24, word: 'Goedenavond', key: 'evening' },
+] as const;
+
+const SAY = { morning: 'greeting.morningSay', afternoon: 'greeting.afternoonSay', evening: 'greeting.eveningSay' } as const;
+const MEANS = { morning: 'greeting.morningMeans', afternoon: 'greeting.afternoonMeans', evening: 'greeting.eveningMeans' } as const;
+
+/** "Huishouden", the suite's name, explaining itself like the greeting. */
+export function HuishoudenWord() {
+  // i18n-ignore: the suite's name, never translated
+  return <DutchWord word="Huishouden" say={t('dutch.huishoudenSay')} means={t('dutch.huishoudenMeans')} />;
+}
 
 /** `compact`: smaller on phones, where Today's items should start as high as possible. */
 export function Greeting({ hour, compact, children }: { hour: number; compact?: boolean; children?: ReactNode }) {
+  const t = useT();
   const g = GREETINGS.find((x) => hour < x.until)!;
   return (
     <h2 className={`${compact ? 'text-2xl sm:text-[clamp(1.75rem,4vw,2.25rem)]' : 'text-[clamp(1.75rem,4vw,2.25rem)]'} font-bold text-link`}>
-      <DutchWord word={g.word} say={g.say} means={g.means} />
+      <DutchWord word={g.word} say={t(SAY[g.key])} means={t(MEANS[g.key])} />
       {children}
     </h2>
   );

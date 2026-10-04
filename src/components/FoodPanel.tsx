@@ -3,10 +3,10 @@ import { Pencil, Plus, Trash2, UserPlus, X } from 'lucide-react';
 import {
   DEFAULT_PANTRY,
   DIETS,
-  DIET_LABELS,
   FOOD_LIMITS,
-  SPICE_LABELS,
   SPICE_LEVELS,
+  dietLabel,
+  spiceLabel,
   withMembers,
   type Diet,
   type FoodPerson,
@@ -16,6 +16,8 @@ import {
 import { Chip, Dialog, Field, cardClass, deleteButton, ghostButton, iconButton, inputClass, primaryButton, secondaryButton } from '@huishouden/pwa-kit/react/ui';
 import { RoleNote } from '@huishouden/pwa-kit/react/roles';
 import type { HubActions, ReadyHousehold } from '../hub';
+import { formatList } from '@huishouden/pwa-kit/i18n';
+import { t, useT } from '../i18n';
 
 interface Props {
   household: ReadyHousehold;
@@ -28,9 +30,20 @@ interface Props {
 
 /** "Vegetarian, Nut allergy · avoids cilantro and olives", or that there's nothing to plan around. */
 export function personSummary(p: FoodPerson): string {
-  const parts = [p.diets.map((d) => DIET_LABELS[d]).join(', '), p.avoid.length ? `avoids ${p.avoid.join(', ')}` : ''].filter(Boolean);
-  return parts.length ? parts.join(' · ') : 'Eats anything';
+  const parts = [p.diets.map(dietLabel).join(', '), p.avoid.length ? t('food.avoids', { foods: formatList(p.avoid) }) : ''].filter(Boolean);
+  return parts.length ? parts.join(' · ') : t('food.eatsAnything');
 }
+
+/** The kit's usual kitchen basics are stored in English (the meal model reads them); shown in the reader's language. */
+const PANTRY_KEYS: Record<string, 'food.pantry.salt' | 'food.pantry.pepper' | 'food.pantry.herbs' | 'food.pantry.oil' | 'food.pantry.spray' | 'food.pantry.butter'> = {
+  salt: 'food.pantry.salt',
+  'black pepper': 'food.pantry.pepper',
+  'common dried herbs and spices': 'food.pantry.herbs',
+  'cooking oil': 'food.pantry.oil',
+  'cooking spray': 'food.pantry.spray',
+  butter: 'food.pantry.butter',
+};
+const pantryWord = (item: string) => (PANTRY_KEYS[item] ? t(PANTRY_KEYS[item]) : item);
 
 /**
  * Who eats at home and what suits them: every member (named from their profile) plus anyone without
@@ -38,11 +51,14 @@ export function personSummary(p: FoodPerson): string {
  * One document for the household (`settings/food`), read by every app that suggests meals.
  */
 export function FoodPanel({ household, food, actions, fail, canEdit = true }: Props) {
+  const t = useT();
   const [editing, setEditing] = useState<FoodPerson | 'new' | null>(null);
   const [pantryItem, setPantryItem] = useState('');
   const members = household.members.map((email) => ({ email, name: household.profiles[email]?.name }));
   const people = withMembers(food?.people ?? [], members);
   const pantry = food?.pantryAssumed ?? [...DEFAULT_PANTRY];
+  // The sentence is translated whole; the link to Groceries sits where the language puts it.
+  const intro = t('food.intro', { app: '\u0000' }).split('\u0000');
 
   const save = (next: { people?: FoodPerson[]; pantryAssumed?: string[] }) =>
     actions.saveFood({ people: next.people ?? people, pantryAssumed: next.pantryAssumed ?? pantry }).catch((e) => fail(e instanceof Error ? e.message : String(e)));
@@ -63,54 +79,54 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
   };
 
   return (
-    <section aria-label="Food" className={`${cardClass} max-w-2xl p-6`}>
+    <section aria-label={t('food.title')} className={`${cardClass} max-w-2xl p-6`}>
       <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold text-link">Food</h2>
+        <h2 className="text-xl font-semibold text-link">{t('food.title')}</h2>
         {canEdit && (
           <button type="button" className={secondaryButton} onClick={() => setEditing('new')} disabled={people.length >= FOOD_LIMITS.people}>
-            <UserPlus size={18} aria-hidden="true" /> Add someone
+            <UserPlus size={18} aria-hidden="true" /> {t('food.addSomeone')}
           </button>
         )}
       </div>
       <p className="mb-3 text-muted">
-        Who eats at home, and what suits them. Meal ideas in{' '}
+        {intro[0]}
         <a href="/groceries/?mode=meals" className="font-medium text-link underline underline-offset-2">
-          Groceries
-        </a>{' '}
-        follow these.
+          {t('food.groceries')}
+        </a>
+        {intro[1]}
       </p>
-      <p className="mb-3 text-sm text-muted">Meal ideas keep to the lowest heat anyone picked.</p>
+      <p className="mb-3 text-sm text-muted">{t('food.heatNote')}</p>
       {food === undefined ? (
-        <p className="text-muted">Loading.</p>
+        <p className="text-muted">{t('food.loading')}</p>
       ) : (
-        <ul className="mb-5" aria-label="People">
+        <ul className="mb-5" aria-label={t('food.people')}>
           {people.map((p) => (
             <li key={p.id} className="border-b border-line py-2.5">
               <div className="flex items-center gap-3">
                 <span className="min-w-0 flex-1 [overflow-wrap:break-word]">
                   <span className="block font-semibold">
-                    {p.name}
-                    {p.member === undefined && <span className="font-normal text-muted"> (no account)</span>}
+                    <span translate="no">{p.name}</span>
+                    {p.member === undefined && <span className="font-normal text-muted"> {t('food.noAccount')}</span>}
                   </span>
                   <span className="block text-muted">{personSummary(p)}</span>
-                  {p.note && <span className="block text-sm text-muted">{p.note}</span>}
+                  {p.note && <span className="block text-sm text-muted" translate="no">{p.note}</span>}
                 </span>
                 {canEdit && (
-                  <button type="button" className={iconButton} aria-label={`Edit ${p.name}'s food`} onClick={() => setEditing(p)}>
+                  <button type="button" className={iconButton} aria-label={t('food.editPerson', { name: p.name })} onClick={() => setEditing(p)}>
                     <Pencil size={18} />
                   </button>
                 )}
               </div>
               {!canEdit ? (
-                p.spice && <p className="mt-1 text-sm text-muted">Spice: {SPICE_LABELS[p.spice]}</p>
+                p.spice && <p className="mt-1 text-sm text-muted">{t('food.spiceIs', { level: spiceLabel(p.spice) })}</p>
               ) : (
-              <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label={`${p.name}'s spice`}>
+              <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label={t('food.personSpice', { name: p.name })}>
                 <span className="mr-1 text-sm font-medium text-ink-soft" aria-hidden="true">
-                  Spice
+                  {t('food.spice')}
                 </span>
                 {SPICE_LEVELS.map((level) => (
                   <Chip key={level} active={p.spice === level} onClick={() => setSpice(p, level)}>
-                    {SPICE_LABELS[level]}
+                    {spiceLabel(level)}
                   </Chip>
                 ))}
               </div>
@@ -120,17 +136,17 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
         </ul>
       )}
 
-      <h3 className="mb-1 font-semibold">Kitchen basics</h3>
-      <p className="mb-2 text-sm text-muted">Meal ideas assume these are at home and leave them off the shopping list.</p>
-      <ul className="mb-2 flex flex-wrap gap-2" aria-label="Kitchen basics">
+      <h3 className="mb-1 font-semibold">{t('food.basics')}</h3>
+      <p className="mb-2 text-sm text-muted">{t('food.basicsHint')}</p>
+      <ul className="mb-2 flex flex-wrap gap-2" aria-label={t('food.basics')}>
         {pantry.map((item) => (
           <li key={item} className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface pr-1 pl-4 text-sm font-medium text-ink-soft">
-            {item}
+            {pantryWord(item)}
             {canEdit ? (
               <button
                 type="button"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-sunken"
-                aria-label={`Remove ${item}`}
+                aria-label={t('food.removeItem', { item: pantryWord(item) })}
                 onClick={() => void save({ pantryAssumed: pantry.filter((p) => p !== item) })}
               >
                 <X size={16} />
@@ -140,7 +156,7 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
             )}
           </li>
         ))}
-        {pantry.length === 0 && <li className="text-muted">None: meal ideas list everything to buy.</li>}
+        {pantry.length === 0 && <li className="text-muted">{t('food.basicsNone')}</li>}
       </ul>
       {!canEdit && <RoleNote action="change-settings" className="mt-3" />}
       {canEdit && (
@@ -150,16 +166,16 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
           value={pantryItem}
           maxLength={FOOD_LIMITS.pantryItem}
           onChange={(e) => setPantryItem(e.target.value)}
-          placeholder="Another basic, like soy sauce"
-          aria-label="Another kitchen basic"
+          placeholder={t('food.basicPlaceholder')}
+          aria-label={t('food.basicLabel')}
           disabled={pantry.length >= FOOD_LIMITS.pantry}
         />
         <button type="submit" className={secondaryButton} disabled={!pantryItem.trim()}>
-          <Plus size={18} aria-hidden="true" /> Add
+          <Plus size={18} aria-hidden="true" /> {t('common.add')}
         </button>
         {pantry.join('|') !== DEFAULT_PANTRY.join('|') && (
           <button type="button" className={ghostButton} onClick={() => void save({ pantryAssumed: [...DEFAULT_PANTRY] })}>
-            Back to the usual basics
+            {t('food.basicsReset')}
           </button>
         )}
       </form>
@@ -183,6 +199,7 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
   const [avoid, setAvoid] = useState<string[]>(person?.avoid ?? []);
   const [avoidItem, setAvoidItem] = useState('');
   const [note, setNote] = useState(person?.note ?? '');
+  const t = useT();
   const valid = name.trim().length > 0;
 
   const addAvoid = () => {
@@ -212,7 +229,7 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
 
   return (
     <Dialog
-      title={person ? `${person.name}'s food` : 'Someone without an account'}
+      title={person ? t('food.personTitle', { name: person.name }) : t('food.newPersonTitle')}
       onClose={onClose}
       footer={
         <>
@@ -225,14 +242,14 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
                 onClose();
               }}
             >
-              <Trash2 size={18} /> Remove
+              <Trash2 size={18} /> {t('common.remove')}
             </button>
           )}
           <button type="button" className={ghostButton} onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button type="button" className={primaryButton} disabled={!valid} onClick={save}>
-            Save
+            {t('common.save')}
           </button>
         </>
       }
@@ -244,30 +261,30 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
           save();
         }}
       >
-        <Field label="Name" hint={person?.member ? `Signed in as ${person.member}` : 'A child, or anyone else who eats at home.'}>
-          <input className={inputClass} value={name} maxLength={FOOD_LIMITS.name} onChange={(e) => setName(e.target.value)} placeholder="Robin" />
+        <Field label={t('common.name')} hint={person?.member ? t('food.signedInAs', { email: person.member }) : t('food.nameHint')}>
+          <input className={inputClass} value={name} maxLength={FOOD_LIMITS.name} onChange={(e) => setName(e.target.value)} placeholder={t('food.namePlaceholder')} />
         </Field>
         <fieldset>
-          <legend className="mb-1.5 block text-sm font-medium text-ink-soft">Diets, allergies and health</legend>
+          <legend className="mb-1.5 block text-sm font-medium text-ink-soft">{t('food.diets')}</legend>
           <div className="flex flex-wrap gap-2">
             {DIETS.map((d) => (
               <Chip key={d} active={diets.includes(d)} onClick={() => setDiets(diets.includes(d) ? diets.filter((x) => x !== d) : [...diets, d])}>
-                {DIET_LABELS[d]}
+                {dietLabel(d)}
               </Chip>
             ))}
           </div>
         </fieldset>
         <div>
-          <span className="mb-1.5 block text-sm font-medium text-ink-soft">Foods to avoid</span>
+          <span className="mb-1.5 block text-sm font-medium text-ink-soft">{t('food.avoid')}</span>
           {avoid.length > 0 && (
-            <ul className="mb-2 flex flex-wrap gap-2" aria-label="Foods to avoid">
+            <ul className="mb-2 flex flex-wrap gap-2" aria-label={t('food.avoid')}>
               {avoid.map((a) => (
                 <li key={a} className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface pr-1 pl-4 text-sm font-medium text-ink-soft">
                   {a}
                   <button
                     type="button"
                     className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-sunken"
-                    aria-label={`Remove ${a}`}
+                    aria-label={t('food.removeItem', { item: a })}
                     onClick={() => setAvoid(avoid.filter((x) => x !== a))}
                   >
                     <X size={16} />
@@ -287,17 +304,17 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
                   addAvoid();
                 }
               }}
-              placeholder="Cilantro, olives"
-              aria-label="Add foods to avoid"
+              placeholder={t('food.avoidPlaceholder')}
+              aria-label={t('food.avoidLabel')}
               disabled={avoid.length >= FOOD_LIMITS.avoid}
             />
             <button type="button" className={secondaryButton} onClick={addAvoid} disabled={!avoidItem.trim()}>
-              <Plus size={18} aria-hidden="true" /> Add
+              <Plus size={18} aria-hidden="true" /> {t('common.add')}
             </button>
           </div>
         </div>
-        <Field label="Note">
-          <input className={inputClass} value={note} maxLength={FOOD_LIMITS.note} onChange={(e) => setNote(e.target.value)} placeholder="Small portions; no spicy food at dinner" />
+        <Field label={t('food.note')}>
+          <input className={inputClass} value={note} maxLength={FOOD_LIMITS.note} onChange={(e) => setNote(e.target.value)} placeholder={t('food.notePlaceholder')} />
         </Field>
         <button type="submit" hidden />
       </form>

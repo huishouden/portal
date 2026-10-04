@@ -1,3 +1,4 @@
+import { getLang, type Lang } from '@huishouden/pwa-kit/i18n';
 import { logoSvg, type Glyph } from '@huishouden/pwa-kit/logo';
 import registry from '../apps.json';
 
@@ -5,6 +6,8 @@ import registry from '../apps.json';
 export interface RegistryEntry {
   name: string;
   description?: string;
+  /** The name and description in the other languages (English is `name` and `description`). */
+  i18n?: Partial<Record<Exclude<Lang, 'en'>, { name?: string; description?: string; contactRoles?: Record<string, string> }>>;
   repo: string;
   /** The app's own Hosting site: its old address, and its staging site's name. */
   site: string;
@@ -38,13 +41,40 @@ export interface HouseholdApp {
 export const appHref = (app: Pick<RegistryEntry, 'site' | 'path' | 'redirect'>): string =>
   app.path && app.redirect ? app.path : `https://${app.site}.web.app/`;
 
+/** The entry's name or description in the active language, English when it has none in it. */
+export function registryText(app: Pick<RegistryEntry, 'name' | 'description' | 'i18n'>, field: 'name' | 'description'): string {
+  const lang = getLang();
+  const own = lang === 'en' ? undefined : app.i18n?.[lang]?.[field];
+  return own ?? app[field] ?? '';
+}
+
+/**
+ * A contact role as the reader sees it: contacts keep the apps' roles in English ("Plumber", so they
+ * group the same whoever added them), shown in the active language where an app gives the word.
+ * Roles people typed themselves are shown as typed.
+ */
+export function contactRoleLabel(role: string, entries: RegistryEntry[] = registry as RegistryEntry[]): string {
+  const lang = getLang();
+  if (lang === 'en') return role;
+  for (const e of entries) {
+    const own = e.i18n?.[lang]?.contactRoles?.[role];
+    if (own) return own;
+  }
+  return role;
+}
+
 export function tilesFrom(entries: RegistryEntry[]): HouseholdApp[] {
   return entries
     .filter((app) => app.tile !== false)
     .map((app) => ({
       repo: app.repo,
-      name: app.name,
-      description: app.description ?? '',
+      // Read when shown, so the tiles follow a change of language.
+      get name() {
+        return registryText(app, 'name');
+      },
+      get description() {
+        return registryText(app, 'description');
+      },
       url: appHref(app),
       icon: logoSvg(app.glyph),
       contactRoles: app.contactRoles ?? [],

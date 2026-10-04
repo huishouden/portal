@@ -3,7 +3,8 @@ import { agendaDays, agendaStatus, agendaTime, type AgendaItem } from '@huishoud
 import { dueText, toYmd } from '@huishouden/pwa-kit/time';
 import { Chip, cardClass, overline } from '@huishouden/pwa-kit/react/ui';
 import { suiteLink, type HouseholdApp } from '../apps';
-import { ItemIcon, KIND_WORDS, itemMeta } from '../components/ItemIcon';
+import { ItemIcon, inMyLanguage, itemMeta, kindWord } from '../components/ItemIcon';
+import { t, useT } from '../i18n';
 
 interface Props {
   agenda: AgendaItem[] | undefined;
@@ -14,10 +15,11 @@ interface Props {
 
 /** Every app's dated things by day, from today on, with overdue ones first; each opens its app. */
 export function CalendarScreen({ agenda, apps, now }: Props) {
+  const t = useT();
   const [only, setOnly] = useState<string | null>(null);
   const today = toYmd(now);
   const byRepo = new Map(apps.map((a) => [a.repo, a]));
-  const items = agenda ?? [];
+  const items = (agenda ?? []).map(inMyLanguage);
   const withItems = apps.filter((a) => items.some((i) => i.app === a.repo));
   const shown = only ? items.filter((i) => i.app === only) : items;
   const overdue = shown.filter((i) => agendaStatus(i, now) === 'overdue');
@@ -29,11 +31,11 @@ export function CalendarScreen({ agenda, apps, now }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-ink">Calendar</h2>
+      <h2 className="text-2xl font-semibold text-ink">{t('calendar.title')}</h2>
       {withItems.length > 1 && (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Show items from">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t('calendar.showFrom')}>
           <Chip active={only === null} onClick={() => setOnly(null)}>
-            All apps
+            {t('filter.allApps')}
           </Chip>
           {withItems.map((a) => (
             <Chip key={a.repo} active={only === a.repo} onClick={() => setOnly(a.repo)}>
@@ -42,14 +44,14 @@ export function CalendarScreen({ agenda, apps, now }: Props) {
           ))}
         </div>
       )}
-      {agenda === undefined && <p className="text-lg text-muted">Loading the calendar.</p>}
+      {agenda === undefined && <p className="text-lg text-muted">{t('calendar.loading')}</p>}
       {agenda !== undefined && overdue.length === 0 && days.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
-          Nothing coming up. Appointments, due jobs, bills and renewals from the household's apps show here.
+          {t('calendar.empty')}
         </p>
       )}
       {overdue.length > 0 && (
-        <Day label="Overdue" attention>
+        <Day label={t('calendar.overdue')} attention>
           {overdue.map((i) => (
             <Row key={i.id} item={i} app={byRepo.get(i.app)} when={i.allDay || toYmd(i.start) < today ? dueText(toYmd(i.start), today) : agendaTime(i)} attention />
           ))}
@@ -83,12 +85,11 @@ function Row({ item, app, when, attention, done }: { item: AgendaItem; app?: Hou
         <span className={`w-20 shrink-0 text-sm tabular-nums sm:w-44 sm:text-base ${attention ? 'font-medium text-attention' : 'text-muted'}`}>{when}</span>
         <ItemIcon item={item} app={app} size={28} />
         <span className="min-w-0 flex-1">
-          <span className={`block font-medium [overflow-wrap:break-word] ${done ? 'text-muted line-through' : 'text-ink'}`}>{item.title}</span>
-          {meta && <span className="block text-sm text-muted [overflow-wrap:break-word]">{meta}</span>}
+          <span data-hh-data className={`block font-medium [overflow-wrap:break-word] ${done ? 'text-muted line-through' : 'text-ink'}`}>{item.title}</span>
+          {meta && <span data-hh-data className="block text-sm text-muted [overflow-wrap:break-word]">{meta}</span>}
         </span>
         <span className="sr-only">
-          {KIND_WORDS[item.kind]}
-          {done ? ', done' : ''}.
+          {done ? t('calendar.kindDone', { kind: kindWord(item.kind) }) : t('calendar.kind', { kind: kindWord(item.kind) })}
         </span>
         {app && <span className="sr-only shrink-0 text-sm text-muted sm:not-sr-only">{app.name}</span>}
       </a>

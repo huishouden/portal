@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react';
 import { ghostButton, primaryButton } from '@huishouden/pwa-kit/react/ui';
 import { AppIcon as Icon } from './AppIcon';
 import { arrangeTiles, layoutOf, sameLayout, type HouseholdApp, type PortalLayout } from '../apps';
+import { t, useT } from '../i18n';
 
 interface Props {
   apps: HouseholdApp[];
@@ -49,6 +50,7 @@ function SmallTile({ app }: { app: HouseholdApp }) {
  * Cancel discards; Done saves for everyone in the household.
  */
 export function Tiles({ apps, layout, canArrange, onSave }: Props) {
+  const t = useT();
   const { all, shown, more } = arrangeTiles(apps, layout);
   const [arranging, setArranging] = useState(false);
   const [draft, setDraft] = useState<HouseholdApp[]>([]);
@@ -94,13 +96,13 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
     const [app] = next.splice(from, 1);
     next.splice(to, 0, app);
     setDraft(next);
-    setAnnounce(`${app.name} moved to ${to + 1} of ${next.length}.`);
+    setAnnounce(t('tiles.moved', { name: app.name, position: to + 1, total: next.length }));
   };
 
   if (!arranging) {
     return (
       <div ref={root}>
-        <nav aria-label="Household apps" className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
+        <nav aria-label={t('tiles.label')} className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
           {shown.map((a) => (
             <Tile key={a.repo} app={a} />
           ))}
@@ -111,9 +113,9 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
               <details className="group flex-1">
                 <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl px-1 font-medium text-link [&::-webkit-details-marker]:hidden">
                   <ChevronRight size={18} aria-hidden="true" className="transition-transform duration-150 group-open:rotate-90" />
-                  More apps <span className="text-muted">({more.length})</span>
+                  {t('tiles.more')} <span className="text-muted">({more.length})</span>
                 </summary>
-                <nav aria-label="More apps" className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+                <nav aria-label={t('tiles.more')} className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
                   {more.map((a) => (
                     <SmallTile key={a.repo} app={a} />
                   ))}
@@ -122,7 +124,7 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
             )}
             {canArrange && (
               <button type="button" data-key="arrange" className={`${ghostButton} ml-auto`} onClick={start}>
-                Arrange
+                {t('tiles.arrange')}
               </button>
             )}
           </div>
@@ -143,20 +145,20 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <div>
           <h2 tabIndex={-1} data-key="title" className="text-xl font-semibold text-link outline-none">
-            Arrange apps
+            {t('tiles.arrangeTitle')}
           </h2>
-          <p className="text-muted">Move apps, or hide the ones your household doesn't use. Everyone in the household sees this layout.</p>
+          <p className="text-muted">{t('tiles.arrangeHint')}</p>
         </div>
         <div className="flex gap-2">
           <button type="button" className={ghostButton} onClick={() => stop(false)}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button type="button" className={primaryButton} onClick={() => stop(true)}>
-            Done
+            {t('common.done')}
           </button>
         </div>
       </div>
-      <ol aria-label="Household apps, in order" className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
+      <ol aria-label={t('tiles.inOrder')} className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
         {draft.map((app, i) => {
           const hidden = draftHidden.has(app.repo);
           const drag = fine
@@ -199,10 +201,10 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
               <span className="text-[1.375rem] font-semibold text-link">
                 {app.name}
                 {hidden && (
-                  <span className="ml-1.5 rounded-full bg-stone-200 px-2 py-0.5 align-middle dark:bg-forest-700 text-xs font-medium text-muted">Hidden</span>
+                  <span className="ml-1.5 rounded-full bg-stone-200 px-2 py-0.5 align-middle dark:bg-forest-700 text-xs font-medium text-muted">{t('tiles.hidden')}</span>
                 )}
               </span>
-              <span className="mb-2 text-muted">{hidden ? 'Under More apps' : app.description}</span>
+              <span className="mb-2 text-muted">{hidden ? t('tiles.underMore') : app.description}</span>
               <span className="mt-auto flex items-center gap-1 border-t border-line pt-2">
                 <MoveButton
                   dir="up"
@@ -225,20 +227,20 @@ export function Tiles({ apps, layout, canArrange, onSave }: Props) {
                 <button
                   type="button"
                   data-key={`toggle:${app.repo}`}
-                  aria-label={`${hidden ? 'Show' : 'Hide'} ${app.name}`}
+                  aria-label={hidden ? t('tiles.showApp', { name: app.name }) : t('tiles.hideApp', { name: app.name })}
                   className={`${ghostButton} ml-auto text-link`}
                   onClick={() => {
                     const next = new Set(draftHidden);
-                    if (next.delete(app.repo)) setAnnounce(`${app.name} shown.`);
+                    if (next.delete(app.repo)) setAnnounce(t('tiles.shown', { name: app.name }));
                     else {
                       next.add(app.repo);
-                      setAnnounce(`${app.name} hidden. It stays under More apps.`);
+                      setAnnounce(t('tiles.hiddenAnnounce', { name: app.name }));
                     }
                     setDraftHidden(next);
                     setFocusKey(`toggle:${app.repo}`);
                   }}
                 >
-                  {hidden ? 'Show' : 'Hide'}
+                  {hidden ? t('tiles.show') : t('tiles.hide')}
                 </button>
               </span>
             </li>
@@ -258,8 +260,8 @@ function MoveButton({ dir, app, disabled, onClick }: { dir: 'up' | 'down'; app: 
     <button
       type="button"
       data-key={`${dir}:${app.repo}`}
-      aria-label={`Move ${app.name} ${dir === 'up' ? 'earlier' : 'later'}`}
-      title={dir === 'up' ? 'Move earlier' : 'Move later'}
+      aria-label={dir === 'up' ? t('tiles.moveAppEarlier', { name: app.name }) : t('tiles.moveAppLater', { name: app.name })}
+      title={dir === 'up' ? t('tiles.moveEarlier') : t('tiles.moveLater')}
       disabled={disabled}
       onClick={onClick}
       className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-link hover:bg-tint disabled:text-stone-300 dark:disabled:text-forest-500 disabled:hover:bg-transparent"
