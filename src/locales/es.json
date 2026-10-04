@@ -385,8 +385,6 @@
   "myCalendar.undoFailed": "No se pudo deshacer. Puede que haya cambiado desde entonces.",
   "myCalendar.dismiss": "Ocultar",
   "myCalendar.dismissLabel": "Ocultar el cambio de {title}",
-  "myCalendar.googleCancelled": "No se conectó Google Calendar. Inténtalo de nuevo cuando quieras.",
-  "myCalendar.popupBlocked": "El navegador bloqueó la ventana de Google. Permite las ventanas emergentes en este sitio e inténtalo de nuevo.",
   "myCalendar.googleDenied": "Google no permitió que Huishouden creara su calendario. Inténtalo de nuevo y marca la casilla de Google Calendar.",
   "myCalendar.offline": "No se pudo conectar con el servicio de calendario. Revisa la conexión e inténtalo de nuevo.",
   "myCalendar.failed": "No funcionó. Inténtalo de nuevo en un momento.",

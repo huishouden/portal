@@ -385,8 +385,6 @@
   "myCalendar.undoFailed": "Ongedaan maken lukte niet. Misschien is het sindsdien veranderd.",
   "myCalendar.dismiss": "Verbergen",
   "myCalendar.dismissLabel": "De wijziging aan {title} verbergen",
-  "myCalendar.googleCancelled": "Google Agenda is niet gekoppeld. Probeer het opnieuw wanneer je wilt.",
-  "myCalendar.popupBlocked": "De browser blokkeerde het venster van Google. Sta pop-ups toe voor deze site en probeer het opnieuw.",
   "myCalendar.googleDenied": "Google gaf Huishouden geen toestemming om een agenda te maken. Probeer het opnieuw en vink Google Agenda aan.",
   "myCalendar.offline": "De agendadienst is niet bereikbaar. Controleer de verbinding en probeer het opnieuw.",
   "myCalendar.failed": "Dat lukte niet. Probeer het zo opnieuw.",

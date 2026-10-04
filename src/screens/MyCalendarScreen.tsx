@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { User } from 'firebase/auth';
 import { CalendarCheck, CalendarPlus, RefreshCw, Undo2 } from 'lucide-react';
-import { Checkbox, Dialog, ErrorNotice, cardClass, deleteButton, ghostButton, linkClass, overline, primaryButton, secondaryButton } from '@huishouden/pwa-kit/react/ui';
+import { Checkbox, Dialog, ErrorNotice, GoogleWindowWait, cardClass, deleteButton, ghostButton, linkClass, overline, primaryButton, secondaryButton } from '@huishouden/pwa-kit/react/ui';
 import { googleAuthCode } from '@huishouden/pwa-kit/google-token';
-import { popupBlocked, popupCancelled } from '@huishouden/pwa-kit/feedback';
+import { accessDenied, googleWindowMessage } from '@huishouden/pwa-kit/feedback';
 import { formatAgo } from '@huishouden/pwa-kit/time';
 import { MONEY_APPS, can, type Role } from '@huishouden/pwa-kit/roles';
 import { DEFAULT_CALENDAR_SETTINGS, type CalendarSettings } from '@huishouden/pwa-kit/calendar-export';
@@ -61,6 +61,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
   const [changes, setChanges] = useState<CalendarChange[] | null>(null);
   const [confirm, setConfirm] = useState<'rotate' | 'revoke' | 'disconnect' | null>(null);
   const [deleteCalendar, setDeleteCalendar] = useState(true);
+  const [awaitingGoogle, setAwaitingGoogle] = useState(false);
 
   useEffect(() => {
     const before = document.title;
@@ -96,8 +97,9 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
   }, [householdId, me]);
 
   const errorText = (e: unknown) => {
-    if (popupCancelled(e)) return t('myCalendar.googleCancelled');
-    if (popupBlocked(e)) return t('myCalendar.popupBlocked');
+    if (accessDenied(e)) return t('myCalendar.googleDenied');
+    const google = googleWindowMessage(e, 'Google Calendar');
+    if (google) return google;
     const code = e instanceof CalendarCallError ? e.code : '';
     if (code === 'network') return t('myCalendar.offline');
     if (code === 'firestore-quota') return t('myCalendar.dailyLimit');
@@ -119,11 +121,15 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
     }
   };
 
+  const askGoogle = () => googleAuthCode(auth, [CALENDAR_SCOPE], { deniedMessage: t('myCalendar.googleDenied') });
+
   const connectGoogle = async () => {
     if (!user || !householdId) return;
     setBusy('connect');
     try {
-      const { code } = await googleAuthCode(auth, [CALENDAR_SCOPE], { deniedMessage: t('myCalendar.googleDenied') });
+      // Straight from the tap: anything awaited before Google's window opens gets it blocked.
+      setAwaitingGoogle(true);
+      const { code } = await askGoogle().finally(() => setAwaitingGoogle(false));
       setStatus(await calendarApi.connectGoogle(user, householdId, code));
       notify(t('myCalendar.connected'));
     } catch (e) {
@@ -189,6 +195,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
                   <CalendarPlus className="size-5" aria-hidden />
                   {busy === 'connect' ? t('myCalendar.connecting') : t('myCalendar.connect')}
                 </button>
+                <GoogleWindowWait waiting={awaitingGoogle} onShow={() => void askGoogle().catch(() => undefined)} />
                 <p className="text-sm text-muted">{t('myCalendar.googleScope')}</p>
               </>
             ) : (

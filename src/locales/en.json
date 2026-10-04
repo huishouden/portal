@@ -385,8 +385,6 @@
   "myCalendar.undoFailed": "Couldn't undo that. It may have changed since.",
   "myCalendar.dismiss": "Hide",
   "myCalendar.dismissLabel": "Hide the change to {title}",
-  "myCalendar.googleCancelled": "Google Calendar wasn't connected. Try again when you're ready.",
-  "myCalendar.popupBlocked": "The browser blocked Google's window. Allow pop-ups for this site and try again.",
   "myCalendar.googleDenied": "Google didn't allow Huishouden to make its calendar. Try again and tick the box for Google Calendar.",
   "myCalendar.offline": "Couldn't reach the calendar service. Check the connection and try again.",
   "myCalendar.failed": "That didn't work. Try again in a moment.",
