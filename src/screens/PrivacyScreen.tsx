@@ -13,10 +13,11 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 const SECTIONS = [
   { title: 'privacy.dataTitle', paragraphs: ['privacy.dataBody'] },
+  { title: 'privacy.homeTitle', paragraphs: ['privacy.homeBody'] },
   { title: 'privacy.sendTitle', items: ['privacy.sendErrors', 'privacy.sendSpeed', 'privacy.sendUsage', 'privacy.sendRegion'] },
   { title: 'privacy.neverTitle', paragraphs: ['privacy.neverBody'] },
   { title: 'privacy.gpcTitle', paragraphs: ['privacy.gpcBody'] },
-  { title: 'privacy.providersTitle', items: ['privacy.providerFirebase', 'privacy.providerNewRelic', 'privacy.providerCloudflare', 'privacy.providerGoogle'] },
+  { title: 'privacy.providersTitle', items: ['privacy.providerFirebase', 'privacy.providerNewRelic', 'privacy.providerCloudflare', 'privacy.providerGoogle', 'privacy.providerOsm'] },
 ] as const;
 
 /** What the apps collect and why, in plain words. Linked from every app's account menu. */
