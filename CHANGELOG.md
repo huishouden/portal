@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.1](https://github.com/huishouden/portal/compare/v2.12.0...v2.12.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* the to-do toast's past tense for to-dos written in Spanish or Dutch ([#70](https://github.com/huishouden/portal/issues/70)) ([14ec484](https://github.com/huishouden/portal/commit/14ec484909fc2caa4c0ae0dfa4e4295a29932669))
+
 ## [2.12.0](https://github.com/huishouden/portal/compare/v2.11.0...v2.12.0) (2026-10-04)
 
 
