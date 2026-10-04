@@ -109,3 +109,56 @@ test('the admin in Health’s audience: "Medicine for E2E Nan" with no detail un
   await expect(page.getByRole('button', { name: 'Make my calendar link' })).toBeVisible({ timeout: 20_000 });
   expect((await page.request.get(fresh)).status()).toBe(404);
 });
+
+// Google's window, stubbed: a stand-in for Google Identity Services whose code client either can't
+// open its window (a blocked pop-up) or opens one that never answers (a window out of sight). The
+// Worker's status is the real one with Google offered and not yet connected.
+async function stubGoogle(page: Page, mode: 'blocked' | 'hidden') {
+  await page.addInitScript((mode) => {
+    const w = window as unknown as { google: unknown; __codeRequests: number };
+    w.__codeRequests = 0;
+    w.google = {
+      accounts: {
+        id: { initialize() {}, prompt() {}, disableAutoSelect() {} },
+        oauth2: {
+          initCodeClient: (cfg: { error_callback?: (e: { type: string; message: string }) => void }) => ({
+            requestCode() {
+              w.__codeRequests += 1;
+              if (mode === 'blocked') setTimeout(() => cfg.error_callback?.({ type: 'popup_failed_to_open', message: 'Failed to open popup window' }));
+            },
+          }),
+          initTokenClient: () => ({ requestAccessToken() {} }),
+          hasGrantedAllScopes: () => false,
+        },
+      },
+    };
+  }, mode);
+  await page.route('**/api/status?**', async (route) => {
+    const res = await route.fetch();
+    const body = (await res.json()) as Record<string, unknown>;
+    await route.fulfill({ response: res, json: { ...body, googleAvailable: true, google: null } });
+  });
+}
+
+test('a blocked Google window says so: allow pop-ups, and the button is ready again', async ({ page }) => {
+  await stubGoogle(page, 'blocked');
+  await signInTestUser(page, { email: 'test-b@example.com' });
+  await page.goto('my-calendar');
+  const connect = page.getByRole('button', { name: 'Connect Google Calendar' });
+  await expect(connect).toBeVisible({ timeout: 20_000 });
+  await connect.click();
+  await expect(page.getByText('Your browser blocked Google’s window. Allow pop-ups for this site, then try again.')).toBeVisible();
+  await expect(connect).toBeEnabled();
+});
+
+test('a Google window out of sight: after a few seconds, a way to bring it back', async ({ page }) => {
+  await stubGoogle(page, 'hidden');
+  await signInTestUser(page, { email: 'test-b@example.com' });
+  await page.goto('my-calendar');
+  const connect = page.getByRole('button', { name: 'Connect Google Calendar' });
+  await expect(connect).toBeVisible({ timeout: 20_000 });
+  await connect.click();
+  await expect(page.getByText('Can’t see it? It may be behind this window.')).toBeVisible({ timeout: 10_000 });
+  await page.getByRole('button', { name: 'Show Google’s window' }).click();
+  expect(await page.evaluate(() => (window as unknown as { __codeRequests: number }).__codeRequests)).toBe(2);
+});
