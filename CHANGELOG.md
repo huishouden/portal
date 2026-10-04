@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.0](https://github.com/huishouden/portal/compare/v2.15.4...v2.16.0) (2026-10-04)
+
+
+### Features
+
+* **household:** a Home section for the household's address, by search or this device's location (kit 0.84.0) ([#94](https://github.com/huishouden/portal/issues/94)) ([759497d](https://github.com/huishouden/portal/commit/759497d09cd21e5abd5e1530bbdc4cbcfae64ff3))
+
 ## [2.15.4](https://github.com/huishouden/portal/compare/v2.15.3...v2.15.4) (2026-10-04)
 
 
