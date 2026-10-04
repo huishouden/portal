@@ -75,22 +75,27 @@ jobs:
           echo "kit $ref"
 
       - name: Provision New Relic
+        id: provision
         if: steps.secrets.outputs.run == 'true'
         env:
           NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
           ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
         run: |
           set -o pipefail
-          bun "$KIT/infra/newrelic.ts" apps.json --out "$RUNNER_TEMP/observability.json" | tee "$RUNNER_TEMP/provision.log"
+          status=0
+          bun "$KIT/infra/newrelic.ts" apps.json --out "$RUNNER_TEMP/observability.json" 2>&1 | tee "$RUNNER_TEMP/provision.log" || status=$?
           { echo '### New Relic'; echo; echo '```'; cat "$RUNNER_TEMP/provision.log"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
+      # Also after a later provisioning step failed: the settings were written first.
       - name: Publish the apps' browser settings
-        if: steps.secrets.outputs.run == 'true' && inputs.dry-run != true
+        if: ${{ !cancelled() && steps.secrets.outputs.run == 'true' && steps.provision.outcome != 'skipped' && inputs.dry-run != true }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
           new="$RUNNER_TEMP/observability.json"
+          if [ ! -s "$new" ]; then echo "No settings were written; nothing to publish."; exit 0; fi
           # The same check the deploy makes: ids and NRJS- browser keys only, never anything else.
           bun -e "import { parseSiteObservability } from '$KIT/src/observability.ts';
             if (!parseSiteObservability(JSON.parse(await Bun.file('$new').text()))) { console.error('observability.json is not valid'); process.exit(1); }"
