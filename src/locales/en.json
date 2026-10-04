@@ -313,6 +313,7 @@
   "myCalendar.noHousehold": "Join or start a household first.",
   "myCalendar.notAvailable": "Calendars aren't available on this site yet.",
   "myCalendar.loadFailed": "Couldn't reach the calendar service.",
+  "myCalendar.dailyLimit": "Huishouden has used up today's allowance for this. It works again tomorrow.",
   "myCalendar.signedOut": "Your calendar stopped updating because you were signed out everywhere. Set it up again below to start it.",
   "myCalendar.googleTitle": "Google Calendar, both ways",
   "myCalendar.googleIntro": "Adds a \"Huishouden\" calendar to your Google account and keeps it up to date within about 5 minutes. Move, rename or delete something there and Huishouden changes too.",

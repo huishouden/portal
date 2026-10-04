@@ -25,6 +25,14 @@ describe('the calendar link', () => {
     expect(seen).toEqual([{ url: 'https://calendar.example/api/status?household=h1', auth: 'Bearer id-token' }]);
     expect((await calendarCall(user, '/api/status', undefined, fake, '').catch((e) => e)).code).toBe('not-configured');
   });
+
+  test('Firestore’s daily quota used up comes back as its own code, not as unreachable', async () => {
+    const user = { getIdToken: async () => 'id-token', refreshToken: 'rt' } as never;
+    const fake = (async () => new Response(JSON.stringify({ error: 'firestore-quota' }), { status: 503 })) as unknown as typeof fetch;
+    const e = await calendarCall(user, '/api/status?household=h1', undefined, fake, 'https://calendar.example').catch((x) => x);
+    expect(e).toBeInstanceOf(CalendarCallError);
+    expect(e.code).toBe('firestore-quota');
+  });
 });
 
 describe('changes from Google Calendar', () => {

@@ -55,7 +55,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
   const heading = useRef<HTMLHeadingElement>(null);
   const title = t('myCalendar.title');
   const [status, setStatus] = useState<CalendarStatus | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [settings, setSettings] = useState<CalendarSettings | null>(null);
   const [changes, setChanges] = useState<CalendarChange[] | null>(null);
@@ -73,11 +73,11 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
 
   const load = useCallback(async () => {
     if (!user || !householdId || !CALENDAR_URL) return;
-    setLoadError(false);
+    setLoadError(null);
     try {
       setStatus(await calendarApi.status(user, householdId));
-    } catch {
-      setLoadError(true);
+    } catch (e) {
+      setLoadError(e instanceof CalendarCallError ? e.code : 'failed');
     }
   }, [user, householdId]);
 
@@ -100,6 +100,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
     if (popupBlocked(e)) return t('myCalendar.popupBlocked');
     const code = e instanceof CalendarCallError ? e.code : '';
     if (code === 'network') return t('myCalendar.offline');
+    if (code === 'firestore-quota') return t('myCalendar.dailyLimit');
     if (code === 'google-denied') return t('myCalendar.googleDenied');
     if (code === 'google-config') return t('myCalendar.googleUnavailable');
     return t('myCalendar.failed');
@@ -172,7 +173,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
       {user === null && <p className="text-muted">{t('myCalendar.signIn')}</p>}
       {user && !householdId && <p className="text-muted">{t('myCalendar.noHousehold')}</p>}
       {ready && !CALENDAR_URL && <p className="text-muted">{t('myCalendar.notAvailable')}</p>}
-      {ready && CALENDAR_URL && loadError && <ErrorNotice message={t('myCalendar.loadFailed')} onRetry={() => void load()} />}
+      {ready && CALENDAR_URL && loadError && <ErrorNotice message={loadError === 'firestore-quota' ? t('myCalendar.dailyLimit') : t('myCalendar.loadFailed')} onRetry={() => void load()} />}
       {ready && status?.signedOut && <p role="status" className="rounded-xl bg-attention-tint px-3 py-2 text-attention">{t('myCalendar.signedOut')}</p>}
 
       {ready && CALENDAR_URL && status && (

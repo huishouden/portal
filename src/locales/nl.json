@@ -313,6 +313,7 @@
   "myCalendar.noHousehold": "Word eerst lid van een huishouden of begin er een.",
   "myCalendar.notAvailable": "Agenda's zijn op deze site nog niet beschikbaar.",
   "myCalendar.loadFailed": "De agendadienst is niet bereikbaar.",
+  "myCalendar.dailyLimit": "Huishouden heeft het maximum voor vandaag hiervoor bereikt. Morgen werkt het weer.",
   "myCalendar.signedOut": "Je agenda wordt niet meer bijgewerkt omdat je overal bent uitgelogd. Stel hem hieronder opnieuw in om verder te gaan.",
   "myCalendar.googleTitle": "Google Agenda, in twee richtingen",
   "myCalendar.googleIntro": "Voegt een agenda \"Huishouden\" toe aan je Google-account en houdt die binnen ongeveer 5 minuten bij. Verplaats, hernoem of verwijder je daar iets, dan verandert het ook in Huishouden.",
