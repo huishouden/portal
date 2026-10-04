@@ -59,6 +59,13 @@ test('account menu', ({ page }) =>
     }),
   }));
 
+test('ai assistant', ({ page }) =>
+  captureScreenshot(page, 'assistant', {
+    fixedTime,
+    path: '/assistant',
+    prepare: (p) => expect(p.getByRole('heading', { name: 'Use Huishouden from your AI assistant' })).toBeVisible(),
+  }));
+
 test('apps', ({ page }) =>
   captureScreenshot(page, 'apps', {
     fixedTime,
