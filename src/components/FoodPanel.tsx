@@ -65,35 +65,35 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
   return (
     <section aria-label="Food" className={`${cardClass} max-w-2xl p-6`}>
       <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold text-forest-700">Food</h2>
+        <h2 className="text-xl font-semibold text-link">Food</h2>
         {canEdit && (
           <button type="button" className={secondaryButton} onClick={() => setEditing('new')} disabled={people.length >= FOOD_LIMITS.people}>
             <UserPlus size={18} aria-hidden="true" /> Add someone
           </button>
         )}
       </div>
-      <p className="mb-3 text-stone-600">
+      <p className="mb-3 text-muted">
         Who eats at home, and what suits them. Meal ideas in{' '}
-        <a href="/groceries/?mode=meals" className="font-medium text-forest-700 underline underline-offset-2">
+        <a href="/groceries/?mode=meals" className="font-medium text-link underline underline-offset-2">
           Groceries
         </a>{' '}
         follow these.
       </p>
-      <p className="mb-3 text-sm text-stone-600">Meal ideas keep to the lowest heat anyone picked.</p>
+      <p className="mb-3 text-sm text-muted">Meal ideas keep to the lowest heat anyone picked.</p>
       {food === undefined ? (
-        <p className="text-stone-600">Loading.</p>
+        <p className="text-muted">Loading.</p>
       ) : (
         <ul className="mb-5" aria-label="People">
           {people.map((p) => (
-            <li key={p.id} className="border-b border-stone-200 py-2.5">
+            <li key={p.id} className="border-b border-line py-2.5">
               <div className="flex items-center gap-3">
                 <span className="min-w-0 flex-1 [overflow-wrap:break-word]">
                   <span className="block font-semibold">
                     {p.name}
-                    {p.member === undefined && <span className="font-normal text-stone-600"> (no account)</span>}
+                    {p.member === undefined && <span className="font-normal text-muted"> (no account)</span>}
                   </span>
-                  <span className="block text-stone-600">{personSummary(p)}</span>
-                  {p.note && <span className="block text-sm text-stone-600">{p.note}</span>}
+                  <span className="block text-muted">{personSummary(p)}</span>
+                  {p.note && <span className="block text-sm text-muted">{p.note}</span>}
                 </span>
                 {canEdit && (
                   <button type="button" className={iconButton} aria-label={`Edit ${p.name}'s food`} onClick={() => setEditing(p)}>
@@ -102,10 +102,10 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
                 )}
               </div>
               {!canEdit ? (
-                p.spice && <p className="mt-1 text-sm text-stone-600">Spice: {SPICE_LABELS[p.spice]}</p>
+                p.spice && <p className="mt-1 text-sm text-muted">Spice: {SPICE_LABELS[p.spice]}</p>
               ) : (
               <div className="mt-2 flex flex-wrap items-center gap-2" role="group" aria-label={`${p.name}'s spice`}>
-                <span className="mr-1 text-sm font-medium text-stone-700" aria-hidden="true">
+                <span className="mr-1 text-sm font-medium text-ink-soft" aria-hidden="true">
                   Spice
                 </span>
                 {SPICE_LEVELS.map((level) => (
@@ -121,15 +121,15 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
       )}
 
       <h3 className="mb-1 font-semibold">Kitchen basics</h3>
-      <p className="mb-2 text-sm text-stone-600">Meal ideas assume these are at home and leave them off the shopping list.</p>
+      <p className="mb-2 text-sm text-muted">Meal ideas assume these are at home and leave them off the shopping list.</p>
       <ul className="mb-2 flex flex-wrap gap-2" aria-label="Kitchen basics">
         {pantry.map((item) => (
-          <li key={item} className="inline-flex min-h-11 items-center gap-1 rounded-full border border-stone-200 bg-white pr-1 pl-4 text-sm font-medium text-stone-700">
+          <li key={item} className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface pr-1 pl-4 text-sm font-medium text-ink-soft">
             {item}
             {canEdit ? (
               <button
                 type="button"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-stone-600 hover:bg-stone-100"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-sunken"
                 aria-label={`Remove ${item}`}
                 onClick={() => void save({ pantryAssumed: pantry.filter((p) => p !== item) })}
               >
@@ -140,7 +140,7 @@ export function FoodPanel({ household, food, actions, fail, canEdit = true }: Pr
             )}
           </li>
         ))}
-        {pantry.length === 0 && <li className="text-stone-600">None: meal ideas list everything to buy.</li>}
+        {pantry.length === 0 && <li className="text-muted">None: meal ideas list everything to buy.</li>}
       </ul>
       {!canEdit && <RoleNote action="change-settings" className="mt-3" />}
       {canEdit && (
@@ -248,7 +248,7 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
           <input className={inputClass} value={name} maxLength={FOOD_LIMITS.name} onChange={(e) => setName(e.target.value)} placeholder="Robin" />
         </Field>
         <fieldset>
-          <legend className="mb-1.5 block text-sm font-medium text-stone-700">Diets, allergies and health</legend>
+          <legend className="mb-1.5 block text-sm font-medium text-ink-soft">Diets, allergies and health</legend>
           <div className="flex flex-wrap gap-2">
             {DIETS.map((d) => (
               <Chip key={d} active={diets.includes(d)} onClick={() => setDiets(diets.includes(d) ? diets.filter((x) => x !== d) : [...diets, d])}>
@@ -258,15 +258,15 @@ function PersonDialog({ person, onSave, onDelete, onClose }: { person: FoodPerso
           </div>
         </fieldset>
         <div>
-          <span className="mb-1.5 block text-sm font-medium text-stone-700">Foods to avoid</span>
+          <span className="mb-1.5 block text-sm font-medium text-ink-soft">Foods to avoid</span>
           {avoid.length > 0 && (
             <ul className="mb-2 flex flex-wrap gap-2" aria-label="Foods to avoid">
               {avoid.map((a) => (
-                <li key={a} className="inline-flex min-h-11 items-center gap-1 rounded-full border border-stone-200 bg-white pr-1 pl-4 text-sm font-medium text-stone-700">
+                <li key={a} className="inline-flex min-h-11 items-center gap-1 rounded-full border border-line bg-surface pr-1 pl-4 text-sm font-medium text-ink-soft">
                   {a}
                   <button
                     type="button"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-stone-600 hover:bg-stone-100"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted hover:bg-sunken"
                     aria-label={`Remove ${a}`}
                     onClick={() => setAvoid(avoid.filter((x) => x !== a))}
                   >

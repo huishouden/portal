@@ -14,7 +14,7 @@ interface Props {
   fail: (message: string) => void;
 }
 
-const textLink = 'min-h-11 font-medium text-forest-700 underline underline-offset-4 hover:text-forest-600';
+const textLink = 'min-h-11 font-medium text-link underline underline-offset-4 hover:text-forest-600 dark:hover:text-forest-200';
 
 /**
  * The household: starting one, renaming it, who is in it (their own names and photos) with their
@@ -38,14 +38,14 @@ export function HouseholdPanel({ state, actions, notify, fail }: Props) {
     <section id="household" aria-label="Household" aria-live="polite" className={`${cardClass} max-w-2xl p-6`}>
       {h.status === 'loading' && (
         <>
-          <h2 className="mb-3 text-xl font-semibold text-forest-700">Household</h2>
-          <p className="text-stone-600">Loading…</p>
+          <h2 className="mb-3 text-xl font-semibold text-link">Household</h2>
+          <p className="text-muted">Loading…</p>
         </>
       )}
       {h.status === 'error' && (
         <>
-          <h2 className="mb-3 text-xl font-semibold text-forest-700">Household</h2>
-          <p className="text-red-700">{h.error}</p>
+          <h2 className="mb-3 text-xl font-semibold text-link">Household</h2>
+          <p className="text-error">{h.error}</p>
         </>
       )}
       {h.status === 'none' && (
@@ -58,9 +58,9 @@ export function HouseholdPanel({ state, actions, notify, fail }: Props) {
         />
       )}
       {h.status === 'ready' && <Household key={h.id} me={state.me} household={h} actions={actions} run={run} focusInvite={created} />}
-      <p className="mt-4 text-sm text-stone-600">
+      <p className="mt-4 text-sm text-muted">
         Signed in as {state.me} ·{' '}
-        <button type="button" className="font-medium text-forest-700 underline underline-offset-4" onClick={() => void actions.signOut()}>
+        <button type="button" className="font-medium text-link underline underline-offset-4" onClick={() => void actions.signOut()}>
           Sign out
         </button>
       </p>
@@ -83,7 +83,7 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
   }, [naming]);
 
   const waiting = (
-    <p className="mt-3 text-sm text-stone-600">
+    <p className="mt-3 text-sm text-muted">
       Waiting for an invite? Ask a member to invite <strong>{me}</strong>.
     </p>
   );
@@ -91,7 +91,7 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
   if (!naming) {
     return (
       <>
-        <h2 className="mb-3 text-xl font-semibold text-forest-700">Household</h2>
+        <h2 className="mb-3 text-xl font-semibold text-link">Household</h2>
         <p className="mb-3">Start a household for the people you live with. You'll invite them next.</p>
         <button ref={startButton} type="button" className={primaryButton} onClick={() => setNaming(true)}>
           Start a household
@@ -112,7 +112,7 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
 
   return (
     <>
-      <h2 className="mb-3 text-xl font-semibold text-forest-700">Start a household</h2>
+      <h2 className="mb-3 text-xl font-semibold text-link">Start a household</h2>
       <form onSubmit={submit} className="mb-3">
         <label htmlFor="hh-new-name" className="mb-1.5 block font-medium">
           Name
@@ -136,7 +136,7 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
           </button>
         </div>
       </form>
-      <p className="text-sm text-stone-600">Only you are in it at first. You can rename it any time.</p>
+      <p className="text-sm text-muted">Only you are in it at first. You can rename it any time.</p>
       {waiting}
     </>
   );
@@ -222,7 +222,7 @@ function Household({
         </form>
       ) : (
         <div className="mb-1 flex items-baseline gap-3">
-          <h2 className="text-xl font-semibold text-forest-700">{h.name}</h2>
+          <h2 className="text-xl font-semibold text-link">{h.name}</h2>
           {can(role, 'change-settings') && (
             <button
               ref={renameButton}
@@ -246,7 +246,7 @@ function Household({
           const self = m === me;
           const theirs = householdRole(h, m) ?? 'member';
           return (
-            <li key={m} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-stone-200 py-2.5">
+            <li key={m} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line py-2.5">
               {p?.photoURL ? (
                 <img className="h-10 w-10 shrink-0 rounded-full object-cover" src={p.photoURL} alt="" referrerPolicy="no-referrer" />
               ) : (
@@ -257,10 +257,10 @@ function Household({
               <span className="flex min-w-0 flex-1 flex-col [overflow-wrap:anywhere]">
                 <span className="font-semibold">
                   {p?.name ?? m}
-                  {self && <span className="font-normal text-stone-600"> (you)</span>}
+                  {self && <span className="font-normal text-muted"> (you)</span>}
                 </span>
-                {p?.name && <span className="text-sm text-stone-600">{m}</span>}
-                {!(admin && !self) && <span className="text-sm text-stone-600">{ROLE_LABELS[theirs]}</span>}
+                {p?.name && <span className="text-sm text-muted">{m}</span>}
+                {!(admin && !self) && <span className="text-sm text-muted">{ROLE_LABELS[theirs]}</span>}
               </span>
               {admin && !self && (
                 <RoleSelect
@@ -270,7 +270,7 @@ function Household({
                 />
               )}
               <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${joined ? 'bg-forest-100 text-forest-700' : 'bg-terracotta-light text-terracotta-dark'}`}
+                className={`rounded-full px-2 py-0.5 text-xs font-medium ${joined ? 'bg-tint-strong text-link' : 'bg-attention-tint text-attention'}`}
               >
                 {joined ? 'Signed in' : 'Invited'}
               </span>
@@ -291,7 +291,7 @@ function Household({
       </ul>
 
       {invited && (
-        <div role="status" className="mb-4 rounded-xl bg-forest-50 p-4">
+        <div role="status" className="mb-4 rounded-xl bg-tint p-4">
           <p className="mb-2">{invited.to} is invited. Let them know by email:</p>
           <div className="mb-2 flex flex-wrap items-center gap-3">
             <button
@@ -316,7 +316,7 @@ function Household({
               Not now
             </button>
           </div>
-          <p className="text-sm text-stone-600">Sent from your Gmail. Google asks once to let Huishouden send email; it only sends invitations.</p>
+          <p className="text-sm text-muted">Sent from your Gmail. Google asks once to let Huishouden send email; it only sends invitations.</p>
         </div>
       )}
 
@@ -329,7 +329,7 @@ function Household({
         </details>
       ) : (
         role && (
-          <p className="mb-4 text-sm text-stone-600">
+          <p className="mb-4 text-sm text-muted">
             You’re {role === 'admin' ? 'an' : 'a'} {ROLE_LABELS[role].toLowerCase()}: {ROLE_DESCRIPTIONS[role].charAt(0).toLowerCase() + ROLE_DESCRIPTIONS[role].slice(1)}
           </p>
         )
@@ -369,7 +369,7 @@ function Household({
         </button>
       </form>
       )}
-      {admin && !solo && <p className="text-sm text-stone-600">An invite gives them every household app the next time they sign in with that account.</p>}
+      {admin && !solo && <p className="text-sm text-muted">An invite gives them every household app the next time they sign in with that account.</p>}
     </>
   );
 }

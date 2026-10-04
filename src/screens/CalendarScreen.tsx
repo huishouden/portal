@@ -29,7 +29,7 @@ export function CalendarScreen({ agenda, apps, now }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-stone-800">Calendar</h2>
+      <h2 className="text-2xl font-semibold text-ink">Calendar</h2>
       {withItems.length > 1 && (
         <div className="flex flex-wrap gap-2" role="group" aria-label="Show items from">
           <Chip active={only === null} onClick={() => setOnly(null)}>
@@ -42,9 +42,9 @@ export function CalendarScreen({ agenda, apps, now }: Props) {
           ))}
         </div>
       )}
-      {agenda === undefined && <p className="text-lg text-stone-600">Loading the calendar.</p>}
+      {agenda === undefined && <p className="text-lg text-muted">Loading the calendar.</p>}
       {agenda !== undefined && overdue.length === 0 && days.length === 0 && (
-        <p className={`${cardClass} p-6 text-lg text-stone-600`}>
+        <p className={`${cardClass} p-6 text-lg text-muted`}>
           Nothing coming up. Appointments, due jobs, bills and renewals from the household's apps show here.
         </p>
       )}
@@ -69,8 +69,8 @@ export function CalendarScreen({ agenda, apps, now }: Props) {
 function Day({ label, attention, children }: { label: string; attention?: boolean; children: React.ReactNode }) {
   return (
     <section aria-label={label}>
-      <h3 className={`mb-2 ${overline} ${attention ? 'text-terracotta-dark' : ''}`}>{label}</h3>
-      <ul className={`${cardClass} divide-y divide-stone-200`}>{children}</ul>
+      <h3 className={`mb-2 ${overline} ${attention ? 'text-attention' : ''}`}>{label}</h3>
+      <ul className={`${cardClass} divide-y divide-line`}>{children}</ul>
     </section>
   );
 }
@@ -79,18 +79,18 @@ function Row({ item, app, when, attention, done }: { item: AgendaItem; app?: Hou
   const meta = itemMeta(item);
   return (
     <li>
-      <a href={suiteLink(item.url)} className="flex min-h-14 items-center gap-4 px-5 py-3 hover:bg-forest-50">
-        <span className={`w-20 shrink-0 text-sm tabular-nums sm:w-44 sm:text-base ${attention ? 'font-medium text-terracotta-dark' : 'text-stone-600'}`}>{when}</span>
+      <a href={suiteLink(item.url)} className="flex min-h-14 items-center gap-4 px-5 py-3 hover:bg-tint">
+        <span className={`w-20 shrink-0 text-sm tabular-nums sm:w-44 sm:text-base ${attention ? 'font-medium text-attention' : 'text-muted'}`}>{when}</span>
         <ItemIcon item={item} app={app} size={28} />
         <span className="min-w-0 flex-1">
-          <span className={`block font-medium [overflow-wrap:break-word] ${done ? 'text-stone-600 line-through' : 'text-stone-800'}`}>{item.title}</span>
-          {meta && <span className="block text-sm text-stone-600 [overflow-wrap:break-word]">{meta}</span>}
+          <span className={`block font-medium [overflow-wrap:break-word] ${done ? 'text-muted line-through' : 'text-ink'}`}>{item.title}</span>
+          {meta && <span className="block text-sm text-muted [overflow-wrap:break-word]">{meta}</span>}
         </span>
         <span className="sr-only">
           {KIND_WORDS[item.kind]}
           {done ? ', done' : ''}.
         </span>
-        {app && <span className="sr-only shrink-0 text-sm text-stone-600 sm:not-sr-only">{app.name}</span>}
+        {app && <span className="sr-only shrink-0 text-sm text-muted sm:not-sr-only">{app.name}</span>}
       </a>
     </li>
   );

@@ -42,18 +42,18 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 sm:gap-x-6">
         <Greeting hour={new Date(now).getHours()} compact />
-        <p className="text-base text-stone-600 sm:text-lg">{longDate(today, today)}</p>
+        <p className="text-base text-muted sm:text-lg">{longDate(today, today)}</p>
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6" aria-live="polite">
           {agenda === undefined && <Skeleton />}
           {agenda !== undefined && groups.length === 0 && (
-            <p className={`${cardClass} p-6 text-xl text-stone-600`}>Nothing due today or in the next two days.</p>
+            <p className={`${cardClass} p-6 text-xl text-muted`}>Nothing due today or in the next two days.</p>
           )}
           {groups.map(({ group, entries }) => (
             <section key={group} aria-label={HEADINGS[group]}>
-              <h2 className={`mb-2 ${overline} ${group === 'overdue' ? 'text-terracotta-dark' : ''}`}>{HEADINGS[group]}</h2>
-              <ul className={`${cardClass} divide-y divide-stone-200`}>
+              <h2 className={`mb-2 ${overline} ${group === 'overdue' ? 'text-attention' : ''}`}>{HEADINGS[group]}</h2>
+              <ul className={`${cardClass} divide-y divide-line`}>
                 {entries.map((e) => (
                   <TodayRow key={e.item.id} entry={e} app={byRepo.get(e.item.app)} />
                 ))}
@@ -62,12 +62,12 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
           ))}
           {done.length > 0 && (
             <details className="group">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg text-stone-600 hover:text-forest-700 [&::-webkit-details-marker]:hidden">
-                <CircleCheck size={20} className="text-forest-700" aria-hidden="true" />
+              <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg text-muted hover:text-link [&::-webkit-details-marker]:hidden">
+                <CircleCheck size={20} className="text-link" aria-hidden="true" />
                 <span className={overline}>Done today ({done.length})</span>
                 <ChevronDown size={18} className="transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
               </summary>
-              <ul className={`${cardClass} mt-2 divide-y divide-stone-200`} aria-label="Done today">
+              <ul className={`${cardClass} mt-2 divide-y divide-line`} aria-label="Done today">
                 {done.map(({ item }) => (
                   <DoneRow key={item.id} item={item} app={byRepo.get(item.app)} line={doneLine(item, now, me, profiles)} />
                 ))}
@@ -78,15 +78,15 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
         {summaries.length > 0 && (
           <section aria-label="By app" className={`${cardClass} p-5`}>
             <h2 className={`mb-2 ${overline}`}>By app</h2>
-            <ul className="divide-y divide-stone-200">
+            <ul className="divide-y divide-line">
               {summaries.map(({ app, overdue, week }) => (
                 <li key={app.repo}>
-                  <a href={app.url} className="flex min-h-14 items-center gap-3 py-2 hover:text-forest-700">
+                  <a href={app.url} className="flex min-h-14 items-center gap-3 py-2 hover:text-link">
                     <AppIcon app={app} size={32} />
                     <span className="min-w-0 flex-1">
                       <span className="block font-semibold">{app.name}</span>
-                      <span className="block text-stone-600">
-                        {overdue > 0 && <span className="font-medium text-terracotta-dark">{count(overdue, 'overdue', 'overdue')}</span>}
+                      <span className="block text-muted">
+                        {overdue > 0 && <span className="font-medium text-attention">{count(overdue, 'overdue', 'overdue')}</span>}
                         {overdue > 0 && week > 0 && ' · '}
                         {week > 0 && `${count(week, 'thing', 'things')} this week`}
                       </span>
@@ -102,15 +102,15 @@ export function TodayScreen({ agenda, apps, now, me = '', profiles = {} }: Props
   );
 }
 
-const pulse = 'animate-pulse rounded bg-stone-100 motion-reduce:animate-none';
+const pulse = 'animate-pulse rounded bg-sunken motion-reduce:animate-none';
 
 /** Rows the size of real ones while the day loads, so nothing jumps when it arrives. */
 function Skeleton() {
   return (
     <section aria-busy="true" aria-label="Loading">
       <p className="sr-only">Loading the household's day.</p>
-      <div className="mb-2 h-4 w-24 rounded bg-stone-200" aria-hidden="true" />
-      <ul className={`${cardClass} divide-y divide-stone-200`} aria-hidden="true">
+      <div className="mb-2 h-4 w-24 rounded bg-stone-200 dark:bg-forest-700" aria-hidden="true" />
+      <ul className={`${cardClass} divide-y divide-line`} aria-hidden="true">
         {[0, 1, 2].map((i) => (
           <li key={i} className="flex min-h-20 items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4">
             <span className={`h-11 w-11 shrink-0 ${pulse} rounded-xl`} />
@@ -127,15 +127,15 @@ function Skeleton() {
 
 function TodayRow({ entry: { item, group, when }, app }: { entry: TodayEntry; app?: HouseholdApp }) {
   const meta = itemMeta(item);
-  const tone = group === 'overdue' ? 'text-terracotta-dark' : 'text-stone-700';
+  const tone = group === 'overdue' ? 'text-attention' : 'text-ink-soft';
   return (
     <li>
-      <a href={suiteLink(item.url)} className="flex min-h-20 items-center gap-3 px-4 py-3 hover:bg-forest-50 sm:gap-4 sm:px-5 sm:py-4">
+      <a href={suiteLink(item.url)} className="flex min-h-20 items-center gap-3 px-4 py-3 hover:bg-tint sm:gap-4 sm:px-5 sm:py-4">
         <ItemIcon item={item} app={app} size={44} />
         <span className="min-w-0 flex-1">
-          <span className="block text-xl font-semibold text-stone-800 [overflow-wrap:break-word] sm:text-2xl">{item.title}</span>
+          <span className="block text-xl font-semibold text-ink [overflow-wrap:break-word] sm:text-2xl">{item.title}</span>
           <span className={`block text-lg font-medium tabular-nums sm:hidden ${tone}`}>{when}</span>
-          {meta && <span className="block text-base text-stone-600 [overflow-wrap:break-word] sm:text-lg">{meta}</span>}
+          {meta && <span className="block text-base text-muted [overflow-wrap:break-word] sm:text-lg">{meta}</span>}
         </span>
         <span className={`hidden shrink-0 text-right text-xl font-medium tabular-nums sm:block ${tone}`}>{when}</span>
         <span className="sr-only">
@@ -150,11 +150,11 @@ function DoneRow({ item, app, line }: { item: AgendaItem; app?: HouseholdApp; li
   const meta = [itemMeta(item), line].filter(Boolean).join(' · ');
   return (
     <li>
-      <a href={suiteLink(item.url)} className="flex min-h-16 items-center gap-3 px-4 py-3 hover:bg-forest-50 sm:gap-4 sm:px-5">
-        <CircleCheck size={28} className="shrink-0 text-forest-700" aria-hidden="true" />
+      <a href={suiteLink(item.url)} className="flex min-h-16 items-center gap-3 px-4 py-3 hover:bg-tint sm:gap-4 sm:px-5">
+        <CircleCheck size={28} className="shrink-0 text-link" aria-hidden="true" />
         <span className="min-w-0 flex-1">
-          <span className="block text-lg font-medium text-stone-600 line-through decoration-stone-400 [overflow-wrap:break-word]">{item.title}</span>
-          <span className="block text-base text-stone-600 [overflow-wrap:break-word]">{meta}</span>
+          <span className="block text-lg font-medium text-muted line-through decoration-stone-400 [overflow-wrap:break-word]">{item.title}</span>
+          <span className="block text-base text-muted [overflow-wrap:break-word]">{meta}</span>
         </span>
         <span className="sr-only">
           {KIND_WORDS[item.kind]}, done. Open in {app?.name ?? 'its app'}

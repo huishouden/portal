@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { expectBottomNav, expectCleanLoad, expectGoogleSignInPopup, expectHuishoudenFrame, expectInstallable, expectSecurityHeaders } from '@huishouden/pwa-kit/e2e';
+import { expectBottomNav, expectCleanLoad, expectGoogleSignInPopup, expectHuishoudenFrame, expectInstallable, expectSecurityHeaders, expectThemeConsistent } from '@huishouden/pwa-kit/e2e';
 import { readFileSync } from 'node:fs';
 import { MEMBER_HINT } from '../src/memberHint';
 import { markedDone, member, restoring, showHub } from './fixtures/hub';
@@ -193,3 +193,5 @@ test("members keep the household's food preferences, with every member listed", 
 
 // Contacts reads place screenshots, so the camera is allowed; location and microphone are not.
 test('sends the security headers and leaves sign-in un-framed', ({ request }) => expectSecurityHeaders(request, '/', { camera: true }));
+
+test('follows the suite theme: dark on a dark device, readable', ({ page }) => expectThemeConsistent(page, { path: './' }));

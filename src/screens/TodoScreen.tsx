@@ -92,9 +92,9 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-stone-800">To-do</h2>
+          <h2 className="text-2xl font-semibold text-ink">To-do</h2>
           {todos !== undefined && (
-            <p className="text-base text-stone-600" aria-live="polite">
+            <p className="text-base text-muted" aria-live="polite">
               {summaryLine(items, now)}
             </p>
           )}
@@ -117,7 +117,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
       {items.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:hidden">
           <label className="block">
-            <span className="mb-1 block text-sm font-medium text-stone-600">Sort</span>
+            <span className="mb-1 block text-sm font-medium text-muted">Sort</span>
             <select className={selectClass} value={view.sort} onChange={(e) => setSort(e.target.value as TodoView['sort'])}>
               <option value="newest">Newest added</option>
               <option value="oldest">Oldest added</option>
@@ -126,7 +126,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-sm font-medium text-stone-600">Show</span>
+            <span className="mb-1 block text-sm font-medium text-muted">Show</span>
             <select
               className={selectClass}
               value={view.old ? 'old' : (view.app ?? '')}
@@ -149,7 +149,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
       {items.length > 0 && (
         <div className="hidden space-y-2 sm:block">
           <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Sort">
-            <span className="mr-1 text-sm font-medium text-stone-600">Sort</span>
+            <span className="mr-1 text-sm font-medium text-muted">Sort</span>
             <Chip
               active={byDate}
               onClick={() => setSort(view.sort === 'newest' ? 'oldest' : 'newest')}
@@ -189,12 +189,12 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
 
       {todos === undefined && <Skeleton />}
       {todos !== undefined && shown.length === 0 && (
-        <p className={`${cardClass} p-6 text-lg text-stone-600`}>
+        <p className={`${cardClass} p-6 text-lg text-muted`}>
           {items.length === 0 ? 'Nothing to do in any app. To-dos, jobs, checklists and reminders show here as they come up.' : 'Nothing here with these choices.'}
         </p>
       )}
       {shown.length > 0 && (
-        <ul className={`${cardClass} divide-y divide-stone-200`} aria-label="To-do list">
+        <ul className={`${cardClass} divide-y divide-line`} aria-label="To-do list">
           {shown.map((item) => (
             <Row
               key={item.id}
@@ -215,9 +215,9 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
       {someoneElses && <RoleNote action="edit-others" />}
 
       {selecting && (
-        <div className="fixed inset-x-0 bottom-(--hh-bottom-nav) z-40 border-t border-stone-200 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg">
+        <div className="fixed inset-x-0 bottom-(--hh-bottom-nav) z-40 border-t border-line bg-surface px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-2">
-            <span className="text-base font-medium text-stone-800 tabular-nums" aria-live="polite">
+            <span className="text-base font-medium text-ink tabular-nums" aria-live="polite">
               {selectedItems.length} selected
             </span>
             <div className="flex flex-wrap items-center gap-2">
@@ -283,10 +283,10 @@ function Row({
   const appLabel = app?.name ?? item.app;
   const meta = [item.who, item.detail].filter(Boolean).join(' · ');
   return (
-    <li aria-label={item.title} className={`flex gap-3 px-4 py-3 sm:items-center sm:gap-4 sm:px-5 ${checked ? 'bg-forest-50' : ''}`}>
+    <li aria-label={item.title} className={`flex gap-3 px-4 py-3 sm:items-center sm:gap-4 sm:px-5 ${checked ? 'bg-tint' : ''}`}>
       {selecting && (
         <span className="flex h-11 w-8 shrink-0 items-center justify-center">
-          {mayCancel && <input type="checkbox" className="h-5 w-5 accent-forest-700" checked={checked} onChange={onToggle} aria-label={`Select ${item.title}`} />}
+          {mayCancel && <input type="checkbox" className="h-5 w-5 accent-forest-700 dark:accent-forest-400" checked={checked} onChange={onToggle} aria-label={`Select ${item.title}`} />}
         </span>
       )}
       {app && (
@@ -296,14 +296,14 @@ function Row({
       )}
       <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-lg font-semibold text-stone-800 [overflow-wrap:break-word]">{item.title}</p>
-          <p className="text-sm text-stone-600 [overflow-wrap:break-word]">
+          <p className="text-lg font-semibold text-ink [overflow-wrap:break-word]">{item.title}</p>
+          <p className="text-sm text-muted [overflow-wrap:break-word]">
             <span className="font-medium">{appLabel}</span>
             {meta && ` · ${meta}`}
             {due && (
               <>
                 {' · '}
-                <span className={overdue ? 'font-medium text-terracotta-dark' : ''}>{due}</span>
+                <span className={overdue ? 'font-medium text-attention' : ''}>{due}</span>
               </>
             )}
             {!info && ` · ${addedText(item, now)}`}
@@ -325,7 +325,7 @@ function Row({
             )}
             <a
               href={suiteLink(item.url)}
-              className={`${ghostButton} min-w-11 text-forest-700`}
+              className={`${ghostButton} min-w-11 text-link`}
               aria-label={`Open ${item.title} in ${appLabel}`}
             >
               <ExternalLink size={18} aria-hidden="true" />
@@ -359,11 +359,11 @@ function ConfirmCancel({ items, appName, onClose, onConfirm }: { items: TodoItem
       }
     >
       {one ? (
-        <p className="text-base text-stone-700">It stays in {appName(one.app)}'s history, where it can be brought back.</p>
+        <p className="text-base text-ink-soft">It stays in {appName(one.app)}'s history, where it can be brought back.</p>
       ) : (
         <>
-          <p className="text-base text-stone-700">Each stays in its app's history ({apps.join(', ')}), where it can be brought back.</p>
-          <ul className="mt-3 max-h-60 list-disc space-y-1 overflow-y-auto pl-5 text-base text-stone-700">
+          <p className="text-base text-ink-soft">Each stays in its app's history ({apps.join(', ')}), where it can be brought back.</p>
+          <ul className="mt-3 max-h-60 list-disc space-y-1 overflow-y-auto pl-5 text-base text-ink-soft">
             {items.map((i) => (
               <li key={i.id}>{i.title}</li>
             ))}
@@ -374,13 +374,13 @@ function ConfirmCancel({ items, appName, onClose, onConfirm }: { items: TodoItem
   );
 }
 
-const pulse = 'animate-pulse rounded bg-stone-100 motion-reduce:animate-none';
+const pulse = 'animate-pulse rounded bg-sunken motion-reduce:animate-none';
 
 function Skeleton() {
   return (
     <section aria-busy="true" aria-label="Loading">
       <p className="sr-only">Loading the household's to-dos.</p>
-      <ul className={`${cardClass} divide-y divide-stone-200`} aria-hidden="true">
+      <ul className={`${cardClass} divide-y divide-line`} aria-hidden="true">
         {[0, 1, 2].map((i) => (
           <li key={i} className="flex min-h-20 items-center gap-3 px-4 py-3 sm:px-5">
             <span className={`h-9 w-9 shrink-0 ${pulse} rounded-xl`} />
