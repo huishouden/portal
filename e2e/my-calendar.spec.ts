@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 import { signInTestUser } from '@huishouden/pwa-kit/e2e';
-import { seedTestHousehold, STAGING_PROJECT, TEST_HOUSEHOLD } from '@huishouden/pwa-kit/staging';
+import { seedTestHousehold, STAGING_PROJECT, testHousehold } from '@huishouden/pwa-kit/staging';
+
+const TEST_HOUSEHOLD = testHousehold();
 import { encodeFields } from '@huishouden/pwa-kit/firestore-rest';
 
 // "In your own calendar" on staging, against the real calendar Worker (huishouden-calendar-staging),
