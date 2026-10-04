@@ -1,0 +1,109 @@
+name: monitoring
+
+# New Relic for every app in apps.json (pwa-kit docs/observability.md "Setup"): Browser apps, a ping
+# monitor per app path, alerts and the dashboard, created or repaired by name with the kit's
+# infra/newrelic.ts at the version package.json pins. The apps' browser settings (public by design)
+# go to this repo's `observability` pre-release; every production deploy serves them as
+# /hh-observability.json, so no app repo needs variables and nothing is rebuilt.
+#
+# Secrets: NEW_RELIC_API_KEY (a New Relic User key) and ALERT_EMAIL. Without them the run skips with
+# a notice. Rotate the key: create a new one, `gh secret set NEW_RELIC_API_KEY`, run this, delete the old.
+
+on:
+  push:
+    branches: [main]
+    paths: [apps.json, .github/workflows/monitoring.yml]
+  schedule:
+    # Weekly: puts back anything changed or deleted by hand.
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Only print what would change
+        type: boolean
+        default: false
+
+concurrency:
+  # Two runs editing New Relic at once could both create a missing monitor; queue instead.
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # the `observability` release asset
+      actions: write # start ci.yml so the site serves new settings right away
+    env:
+      # Not a secret: it is in every page's browser agent.
+      NEW_RELIC_ACCOUNT_ID: ${{ vars.NEW_RELIC_ACCOUNT_ID || '8578044' }}
+      DRY_RUN: ${{ inputs.dry-run && '1' || '0' }}
+    steps:
+      - name: Are the secrets set?
+        id: secrets
+        env:
+          HAS_KEY: ${{ secrets.NEW_RELIC_API_KEY != '' }}
+          HAS_EMAIL: ${{ secrets.ALERT_EMAIL != '' }}
+        run: |
+          if [ "$HAS_KEY" != true ] || [ "$HAS_EMAIL" != true ]; then
+            echo "::notice title=Monitoring skipped::Set the NEW_RELIC_API_KEY and ALERT_EMAIL repo secrets to provision New Relic (pwa-kit docs/observability.md, Setup)."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: steps.secrets.outputs.run == 'true'
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        if: steps.secrets.outputs.run == 'true'
+
+      - name: The kit, at the version this repo pins
+        if: steps.secrets.outputs.run == 'true'
+        run: |
+          spec=$(jq -r '.devDependencies["@huishouden/pwa-kit"] // .dependencies["@huishouden/pwa-kit"] // empty' package.json)
+          ref=${spec##*#}
+          if [ -z "$spec" ] || [ "$ref" = "$spec" ]; then echo "::error::package.json must pin @huishouden/pwa-kit to a tag (github:huishouden/pwa-kit#vX.Y.Z)"; exit 1; fi
+          git clone -q --depth 1 --branch "$ref" https://github.com/huishouden/pwa-kit.git "$RUNNER_TEMP/pwa-kit"
+          echo "KIT=$RUNNER_TEMP/pwa-kit" >> "$GITHUB_ENV"
+          echo "kit $ref"
+
+      - name: Provision New Relic
+        if: steps.secrets.outputs.run == 'true'
+        env:
+          NEW_RELIC_API_KEY: ${{ secrets.NEW_RELIC_API_KEY }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+        run: |
+          set -o pipefail
+          bun "$KIT/infra/newrelic.ts" apps.json --out "$RUNNER_TEMP/observability.json" | tee "$RUNNER_TEMP/provision.log"
+          { echo '### New Relic'; echo; echo '```'; cat "$RUNNER_TEMP/provision.log"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish the apps' browser settings
+        if: steps.secrets.outputs.run == 'true' && inputs.dry-run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          new="$RUNNER_TEMP/observability.json"
+          # The same check the deploy makes: ids and NRJS- browser keys only, never anything else.
+          bun -e "import { parseSiteObservability } from '$KIT/src/observability.ts';
+            if (!parseSiteObservability(JSON.parse(await Bun.file('$new').text()))) { console.error('observability.json is not valid'); process.exit(1); }"
+          if gh release download observability -R "$REPO" -p observability.json -O "$RUNNER_TEMP/current.json" 2>/dev/null \
+            && jq -S . "$new" | cmp -s - <(jq -S . "$RUNNER_TEMP/current.json"); then
+            echo "Settings unchanged; nothing to publish."
+            exit 0
+          fi
+          if ! gh release view observability -R "$REPO" >/dev/null 2>&1; then
+            gh release create observability -R "$REPO" --prerelease --target "$GITHUB_SHA" --title "Observability settings" \
+              --notes "Each app's New Relic browser settings (public), written by the monitoring workflow and served by every production deploy as /hh-observability.json (pwa-kit docs/observability.md). Not a release." \
+              || gh release view observability -R "$REPO" >/dev/null
+          fi
+          gh release upload observability -R "$REPO" --clobber "$new"
+          echo "::notice title=Settings published::Starting ci.yml on main to deploy them (the 30-minute reconcile would otherwise)."
+          gh workflow run ci.yml -R "$REPO" --ref main

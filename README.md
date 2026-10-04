@@ -64,8 +64,8 @@ Core Web Vitals and page loads, the app version, device type, and the country an
 derives from the request; and anonymous usage counts per visit: `create household`, `invite member`, `send invite email`, `arrange apps`, `add contact`, `save food preferences`, and which tab is open. Households are counted by a
 hash of the id. No names, emails, entries, free text or precise location, and no cookie or stored
 id: nothing links one visit to the next. When the browser sends Global Privacy Control or Do Not
-Track, usage counts are skipped; errors and speed still go. Builds without the `VITE_NEWRELIC_*`
-repo variables (local, staging) send nothing. The page people see is
+Track, usage counts are skipped; errors and speed still go. Local builds, staging and
+automated browsers send nothing. The page people see is
 [huishouden-piekstra.web.app/privacy](https://huishouden-piekstra.web.app/privacy); details in pwa-kit
 [docs/observability.md](https://github.com/huishouden/pwa-kit/blob/main/docs/observability.md).
 
@@ -84,3 +84,32 @@ bun run icons    # after editing public/icon.svg
 
 Merges to `main` deploy through `.github/workflows/ci.yml` using Workload Identity
 Federation (repo variables `GCP_WIF_PROVIDER`, `GCP_DEPLOY_SA`). Pull requests only build.
+
+## Monitoring
+
+`.github/workflows/monitoring.yml` provisions New Relic for every app in `apps.json`: a Browser app
+each, a ping monitor at each app's path on this site, alerts (emailed) and the **Huishouden**
+dashboard. It runs the kit's `infra/newrelic.ts` at the version `package.json` pins, when
+`apps.json` changes on `main`, every Monday (repairing anything changed by hand) and on demand:
+
+```sh
+gh workflow run monitoring.yml -R huishouden/portal                 # provision now
+gh workflow run monitoring.yml -R huishouden/portal -f dry-run=true # only print what would change
+```
+
+The apps' browser settings (account id, app id, `NRJS-` browser key; public by design) are uploaded
+to this repo's `observability` pre-release when they change, and every production deploy serves
+them as `/hh-observability.json`; each app reads its own entry when it starts. No app repo holds New
+Relic variables, and a new app reports from its first deploy without a rebuild.
+
+Secrets on this repo: `NEW_RELIC_API_KEY` (a New Relic User key) and `ALERT_EMAIL`. Without them the
+workflow skips with a notice. The key exists only in the secret.
+
+Rotating the key:
+
+1. one.newrelic.com > your name > API keys > Create a key, type User.
+2. `gh secret set NEW_RELIC_API_KEY -R huishouden/portal` and paste it at the prompt.
+3. `gh workflow run monitoring.yml -R huishouden/portal`, then `gh run watch -R huishouden/portal`.
+4. Delete the old key in one.newrelic.com > API keys.
+
+Details: pwa-kit [docs/observability.md](https://github.com/huishouden/pwa-kit/blob/main/docs/observability.md).
