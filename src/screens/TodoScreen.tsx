@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ArrowDown, ArrowUp, Check, ExternalLink, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, ExternalLink, X } from 'lucide-react';
 import { addedText, canDo, olderThan, todoDueText, todoOverdue, todoWords, type TodoItem } from '@huishouden/pwa-kit/todos';
 import { formatList } from '@huishouden/pwa-kit/i18n';
 import { isRestricted, type Role } from '@huishouden/pwa-kit/roles';
 import { RoleNote } from '@huishouden/pwa-kit/react/roles';
-import { Chip, Dialog, cardClass, ghostButton, primaryButton, secondaryButton, selectClass } from '@huishouden/pwa-kit/react/ui';
+import { Chip, CompleteButton, CompletionList, CompletionRow, Dialog, canUndoDone, cardClass, ghostButton, primaryButton, secondaryButton, selectClass } from '@huishouden/pwa-kit/react/ui';
+import { formatTime } from '@huishouden/pwa-kit/time';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { AppIcon } from '../components/AppIcon';
 import type { HubActions } from '../hub';
@@ -24,6 +25,15 @@ interface Props {
   fail: (message: string) => void;
 }
 
+/** Something ticked off here: kept on the list as done, with Undo, for a few hours. */
+interface Recent {
+  item: TodoItem;
+  at: number;
+  undo: () => void;
+}
+
+type Entry = { open: TodoItem } | { done: Recent };
+
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /**
@@ -39,10 +49,14 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirm, setConfirm] = useState<TodoItem[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [recent, setRecent] = useState<Recent[]>([]);
   const byRepo = useMemo(() => new Map(apps.map((a) => [a.repo, a])), [apps]);
   const order = useMemo(() => apps.map((a) => a.repo), [apps]);
   const items = todos ?? [];
-  const shown = shownTodos(items, view, order, now);
+  const doneHere = recent.filter((r) => canUndoDone(r.at, now) && (!view.app || r.item.app === view.app) && !view.old);
+  const doneIds = new Set(recent.map((r) => r.item.id));
+  const shown = shownTodos(items, view, order, now).filter((i) => !doneIds.has(i.id));
+  const entries: Entry[] = [...shown.map((open) => ({ open })), ...doneHere.map((done) => ({ done }))];
   const withItems = appsWithTodos(items.filter((i) => i.status === 'open'), order);
   const oldCount = items.filter((i) => olderThan(i, now, OLD_DAYS)).length;
   const canCancelShown = cancellable(shown, role, me);
@@ -56,8 +70,13 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
     try {
       const done = await actions.runTodo(item, which);
       done.written.catch((e) => fail(message(e)));
+      const undo = () => {
+        setRecent((r) => r.filter((x) => x.item.id !== item.id));
+        void done.undo().catch((e) => fail(message(e)));
+      };
+      if (which === 'done') setRecent((r) => [...r.filter((x) => x.item.id !== item.id), { item, at: Date.now(), undo }]);
       // The button's English word names the past tense; an app writing in another language keeps it in `texts.en`.
-      notify(actedLine(item.texts?.en?.[which] ?? action.label, words.title, words[which]), () => void done.undo().catch((e) => fail(message(e))));
+      notify(actedLine(item.texts?.en?.[which] ?? action.label, words.title, words[which]), undo);
     } catch (e) {
       fail(message(e));
     }
@@ -193,29 +212,47 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
       )}
 
       {todos === undefined && <Skeleton />}
-      {todos !== undefined && shown.length === 0 && (
+      {todos !== undefined && entries.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
           {items.length === 0 ? t('todo.empty') : t('todo.emptyFilter')}
         </p>
       )}
-      {shown.length > 0 && (
-        <ul className={`${cardClass} divide-y divide-line`} aria-label={t('todo.list')}>
-          {shown.map((item) => (
-            <Row
-              key={item.id}
-              item={item}
-              app={byRepo.get(item.app)}
-              now={now}
-              mayDone={canDo(item, 'done', role, me)}
-              mayCancel={canDo(item, 'cancel', role, me)}
-              selecting={selecting}
-              checked={selected.has(item.id)}
-              onToggle={() => toggle(item.id)}
-              onDone={() => void run(item, 'done')}
-              onCancel={() => setConfirm([item])}
-            />
-          ))}
-        </ul>
+      {entries.length > 0 && (
+        <CompletionList
+          items={entries}
+          isDone={(e) => 'done' in e}
+          label={t('todo.list')}
+          allDone={t('todo.allDone')}
+          className={`${cardClass} px-4 sm:px-5`}
+        >
+          {(e) =>
+            'open' in e ? (
+              <Row
+                key={e.open.id}
+                item={e.open}
+                app={byRepo.get(e.open.app)}
+                now={now}
+                mayDone={canDo(e.open, 'done', role, me)}
+                mayCancel={canDo(e.open, 'cancel', role, me)}
+                selecting={selecting}
+                checked={selected.has(e.open.id)}
+                onToggle={() => toggle(e.open.id)}
+                onDone={() => void run(e.open, 'done')}
+                onCancel={() => setConfirm([e.open])}
+              />
+            ) : (
+              <CompletionRow
+                key={`done-${e.done.item.id}`}
+                done
+                name={todoWords(e.done.item).title}
+                title={<span data-hh-data>{todoWords(e.done.item).title}</span>}
+                status={t('todo.doneByYou', { time: formatTime(e.done.at) })}
+                onDone={() => {}}
+                onUndo={e.done.undo}
+              />
+            )
+          }
+        </CompletionList>
       )}
       {someoneElses && <RoleNote action="edit-others" />}
 
@@ -289,7 +326,7 @@ function Row({
   const words = todoWords(item);
   const meta = [item.who, words.detail].filter(Boolean).join(' · ');
   return (
-    <li aria-label={words.title} className={`flex gap-3 px-4 py-3 sm:items-center sm:gap-4 sm:px-5 ${checked ? 'bg-tint' : ''}`}>
+    <li aria-label={words.title} className={`-mx-4 flex gap-3 px-4 py-3 sm:-mx-5 sm:items-center sm:gap-4 sm:px-5 ${checked ? 'bg-tint' : ''}`}>
       {selecting && (
         <span className="flex h-11 w-8 shrink-0 items-center justify-center">
           {mayCancel && <input type="checkbox" className="h-5 w-5 accent-forest-700 dark:accent-forest-400" checked={checked} onChange={onToggle} aria-label={t('todo.selectItem', { title: words.title })} />}
@@ -323,10 +360,13 @@ function Row({
         {!selecting && (
           <div className="mt-2 flex flex-wrap items-center gap-1 sm:mt-0 sm:shrink-0 sm:justify-end">
             {mayDone && item.done && (
-              <button type="button" className={`${secondaryButton} px-3`} data-todo-action="done" aria-label={t('todo.actionOn', { action: words.done ?? item.done.label, title: words.title })} onClick={onDone}>
-                <Check size={18} aria-hidden="true" />
-                {words.done ?? item.done.label}
-              </button>
+              <CompleteButton
+                done={false}
+                name={words.title}
+                verb={words.done ?? item.done.label}
+                label={t('todo.actionOn', { action: words.done ?? item.done.label, title: words.title })}
+                onDone={onDone}
+              />
             )}
             {mayCancel && item.cancel && (
               <button type="button" className={ghostButton} data-todo-action="cancel" aria-label={t('todo.actionOn', { action: words.cancel ?? item.cancel.label, title: words.title })} onClick={onCancel}>

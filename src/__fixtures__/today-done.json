@@ -17,8 +17,8 @@
       { "id": "t1", "group": "today" }
     ],
     "done": [
-      { "id": "d2", "line": "Done by you at 8:40 AM" },
-      { "id": "d1", "line": "Done by Alex at 7:05 AM" },
+      { "id": "d2", "line": "Done by you · 8:40 AM" },
+      { "id": "d1", "line": "Done by Alex · 7:05 AM" },
       { "id": "d3", "line": "Done" }
     ]
   }

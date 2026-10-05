@@ -109,8 +109,11 @@ test("today's done items fold away at the bottom, and items flip there when an a
   const done = page.getByRole('list', { name: 'Done today' });
   await expect(done).toBeHidden();
   await summary.click();
-  await expect(done.getByRole('listitem')).toHaveText([/Take out the recycling.*Done by you at 8:15/, /Biscuit's breakfast1 cup dry food · Done by Alex at 7:05/]);
-  await expect(done.getByText('Take out the recycling')).toHaveCSS('text-decoration-line', 'line-through');
+  await expect(done.getByRole('listitem')).toHaveText([/Take out the recycling.*Done by you · 8:15/, /Biscuit's breakfast1 cup dry food · Done by Alex · 7:05/]);
+  // Done reads by its shape: the check badge and a muted title (not struck through); open rows have neither.
+  await expect(done.locator('[data-done-badge="done"]')).toHaveCount(2);
+  await expect(done.getByText('Take out the recycling')).toHaveCSS('text-decoration-line', 'none');
+  await expect(page.getByRole('region', { name: 'Today' }).locator('[data-done-badge]')).toHaveCount(0);
   // The live agenda updates within seconds of an app's write; the preview stands in for it.
   await page.evaluate((s) => window.__hubPreview!(s), member({ agenda: markedDone('a2', 'alex@example.com') }));
   await expect(page.getByText('Done today (3)')).toBeVisible();
