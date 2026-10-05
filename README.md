@@ -89,6 +89,10 @@ BASE_URL=http://localhost:4173 bun run e2e   # against `bun run preview`
 bun run icons    # after editing public/icon.svg
 ```
 
+Staging is cleaned by whoever creates the mess, not by a schedule: the e2e and evidence runs delete
+the households and users they create, and leftovers from cancelled runs are removed with the `hh`
+command line (`hh ops staging-cleanup`). No workflow here runs on a timer to do it.
+
 ## Deploy
 
 Merges to `main` deploy through `.github/workflows/ci.yml` using Workload Identity

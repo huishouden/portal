@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.20.1](https://github.com/huishouden/portal/compare/v2.20.0...v2.20.1) (2026-10-05)
+
+### Bug Fixes
+
+* **dark:** app tiles and household initials keep an edge in dark; drop the nightly staging sweep ([8aff732](https://github.com/huishouden/portal/commit/8aff7321925cccd75b766a2f8ff1a126899c0074))
+
 ## 2.20.0 (2026-10-05)
 
 ### Features
