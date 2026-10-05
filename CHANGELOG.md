@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.23.1](https://github.com/huishouden/portal/compare/v2.23.0...v2.23.1) (2026-10-05)
+
+### Performance
+
+* the hub follows a week of the agenda, all of it only on Calendar ([f52f60a](https://github.com/huishouden/portal/commit/f52f60a466f78ae38036e33c9277e588e1b6f9db))
+
 ## 2.23.0 (2026-10-05)
 
 ### Features
