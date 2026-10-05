@@ -62,8 +62,14 @@ function cacheLayout(layout: PortalLayout | undefined) {
   }
 }
 
-/** Apps publish 180 days ahead (`AGENDA_AHEAD_DAYS`); the hub reads all of it. */
-const AGENDA_DAYS = 181;
+/** Apps publish 180 days ahead (`AGENDA_AHEAD_DAYS`); the Calendar tab reads all of it. */
+export const AGENDA_DAYS = 181;
+/**
+ * Today and Apps look a week ahead, so the rest of the time the hub follows only that: a listener
+ * is billed its whole result again after 30 minutes disconnected (the kitchen tablet waking), so the
+ * narrower window is what a wake costs (pwa-kit docs/one-site.md "Budgets").
+ */
+export const AGENDA_WEEK_DAYS = 8;
 
 /** Today's date, changing at midnight (checked every minute). */
 function useToday() {
@@ -81,7 +87,7 @@ const words = (e: unknown, doing: string) => new Error(readError(e, doing));
  * The hub's live data: sign-in, the household (members, their own names and photos), its tile
  * layout (`settings/portal`) and every household contact, with the actions that change them.
  */
-export function useLiveHub(): { state: HubState; actions: HubActions } {
+export function useLiveHub(agendaDays: number = AGENDA_DAYS): { state: HubState; actions: HubActions } {
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [household, setHousehold] = useState<HouseholdState>({ status: 'loading' });
   const [profiles, setProfiles] = useState<Map<string, Profile>>(new Map());
@@ -172,15 +178,16 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
     markUnflaggedOpen(db, householdId, 'contacts', contacts).catch(() => {});
   }, [householdId, seesPrivate, contacts]);
 
-  // The agenda from a week ago (overdue items whatever their age) to as far ahead as apps publish,
-  // followed again each new day so a tablet left open keeps the right window.
+  // The agenda from a week ago (overdue items whatever their age) to `agendaDays` ahead (as far as
+  // apps publish on the Calendar tab), followed again each new day so a tablet left open keeps the
+  // right window.
   useEffect(() => {
     setAgenda(undefined);
     if (!householdId) return;
-    const { from, to } = agendaRange(Date.now(), AGENDA_DAYS, 7);
+    const { from, to } = agendaRange(Date.now(), agendaDays, 7);
     // With `me`, the items for named people only that name this member (Health's medicines).
     return watchAgenda(db, householdId, { from, to, restricted, me: email, onError: () => setAgenda([]) }, setAgenda);
-  }, [householdId, today, restricted, email]);
+  }, [householdId, today, restricted, email, agendaDays]);
 
   // Every app's open things to do; helpers and kids ask for the open ones only.
   useEffect(() => {
