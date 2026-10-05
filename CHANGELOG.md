@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.22.0 (2026-10-05)
+
+### Features
+
+* **calendar:** Health's "Book a follow-up" to-dos take Booked and Not needed here, and My calendar's hint says Health items read "Medicine for Ana" or "Appointment for Ana" (pwa-kit 0.97.0).
+
 ## [2.21.0](https://github.com/huishouden/portal/compare/v2.20.1...v2.21.0) (2026-10-05)
 
 ### Features
