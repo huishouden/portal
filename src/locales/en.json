@@ -388,7 +388,7 @@
   "myCalendar.bills": "Bills",
   "myCalendar.done": "Things already done",
   "myCalendar.healthDetail": "Health details",
-  "myCalendar.healthDetailHint": "Off: Health items only say \"Medicine for Ana\". Calendars are often shared, so turn this on only if nobody else sees yours.",
+  "myCalendar.healthDetailHint": "Off: Health items only say \"Medicine for Ana\" or \"Appointment for Ana\". Calendars are often shared, so turn this on only if nobody else sees yours.",
   "myCalendar.saveFailed": "Couldn't save that. Check the connection and try again.",
   "myCalendar.historyTitle": "Changes from Google Calendar",
   "myCalendar.historyIntro": "What you changed in Google Calendar and Huishouden changed with it.",

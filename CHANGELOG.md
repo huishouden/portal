@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.23.0 (2026-10-05)
+
+### Features
+
+* **calendar:** My calendar's Health details hint says Health items read "Medicine for Ana" or "Appointment for Ana" without details, as Health's new visits do (pwa-kit 0.101.0).
+
 ## [2.22.0](https://github.com/huishouden/portal/compare/v2.21.0...v2.22.0) (2026-10-05)
 
 ### Features

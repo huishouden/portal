@@ -388,7 +388,7 @@
   "myCalendar.bills": "Rekeningen",
   "myCalendar.done": "Dingen die al gedaan zijn",
   "myCalendar.healthDetail": "Details uit Gezondheid",
-  "myCalendar.healthDetailHint": "Uit: items uit Gezondheid zeggen alleen \"Medicijnen voor Ana\". Agenda's worden vaak gedeeld, dus zet dit alleen aan als niemand anders de jouwe ziet.",
+  "myCalendar.healthDetailHint": "Uit: items uit Gezondheid zeggen alleen \"Medicijnen voor Ana\" of \"Afspraak voor Ana\". Agenda's worden vaak gedeeld, dus zet dit alleen aan als niemand anders de jouwe ziet.",
   "myCalendar.saveFailed": "Opslaan lukte niet. Controleer de verbinding en probeer het opnieuw.",
   "myCalendar.historyTitle": "Wijzigingen uit Google Agenda",
   "myCalendar.historyIntro": "Wat je in Google Agenda wijzigde en Huishouden ook heeft aangepast.",
