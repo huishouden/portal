@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.23.1](https://github.com/huishouden/portal/compare/v2.23.0...v2.23.1) (2026-10-05)
+
+### Other
+
+* Maintenance
+
 ## 2.23.0 (2026-10-05)
 
 ### Features
