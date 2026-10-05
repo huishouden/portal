@@ -288,7 +288,7 @@ function Household({
               {p?.photoURL ? (
                 <img className="h-10 w-10 shrink-0 rounded-full object-cover" src={p.photoURL} alt="" referrerPolicy="no-referrer" />
               ) : (
-                <span aria-hidden="true" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-600 font-semibold text-white">
+                <span aria-hidden="true" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-600 font-semibold text-white ring-1 ring-tile-ring">
                   {(p?.name ?? m).charAt(0).toUpperCase()}
                 </span>
               )}
