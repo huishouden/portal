@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.20.0 (2026-10-05)
+
+### Features
+
+* Bills' logo in the Apps grid is a receipt (kit 0.92.0), so it no longer matches Spending's card.
+
 ## [2.19.0](https://github.com/huishouden/portal/compare/v2.18.0...v2.19.0) (2026-10-05)
 
 ### Features
