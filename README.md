@@ -44,7 +44,16 @@ repo names; rules in huishouden/rules), so every member sees it on every device.
 doesn't mention, such as apps added later, follow the ordered ones in registry order. Hidden apps
 stay one tap away under More apps. Signed-out visitors see the default.
 
+On tablets each tile is a card with the app's description. On phones the tiles are a home-screen
+grid (four across, three under 375px wide): the logo and name only, so every app fits on the first
+screen; a long press on a tile, or "What's each app?", opens what each one is for. A tile's corner
+shows how many of the app's things are overdue (from the agenda, as on Today). Below the tiles a
+phone folds the household into rows (Members, Home, Currency, Connected assistants, In your own
+calendar) and Food into its title, each opening in place; `/apps#household-members`, `-home` or
+`-currency` opens one section, and `/apps#household` (apps link there to set the home) opens Home.
+
 ![Arranging the apps](docs/screenshots/tiles-arrange.png)
+![The apps on a phone](docs/screenshots/phone-apps.png)
 ![Food preferences](docs/screenshots/food.png)
 
 ## Code

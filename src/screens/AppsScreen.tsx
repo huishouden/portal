@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { HouseholdApp, PortalLayout } from '../apps';
 import { Greeting } from '../components/DutchWord';
 import { FoodPanel } from '../components/FoodPanel';
@@ -5,6 +6,7 @@ import { HouseholdPanel } from '../components/HouseholdPanel';
 import { Intro } from '../components/Intro';
 import { Tiles } from '../components/Tiles';
 import { can } from '@huishouden/pwa-kit/roles';
+import { appSummaries } from '../today';
 import { isMember, myRole, type HubActions, type HubState } from '../hub';
 
 interface Props {
@@ -12,6 +14,9 @@ interface Props {
   actions: HubActions;
   apps: HouseholdApp[];
   hour: number;
+  now: number;
+  /** Opens a page outside the tabs (the AI assistant, the household in your own calendar). */
+  onOpenPage: (path: string) => void;
   signInError?: string;
   onSignIn: () => void;
   onSaveLayout: (layout: PortalLayout, previous: PortalLayout) => void;
@@ -20,14 +25,19 @@ interface Props {
 }
 
 /** The apps in the household's order, and the household itself (or, signed out, what Huishouden is). */
-export function AppsScreen({ state, actions, apps, hour, signInError, onSignIn, onSaveLayout, notify, fail }: Props) {
+export function AppsScreen({ state, actions, apps, hour, now, onOpenPage, signInError, onSignIn, onSaveLayout, notify, fail }: Props) {
   const role = myRole(state);
+  const agenda = state.auth === 'signed-in' ? state.agenda : undefined;
+  const overdue = useMemo(
+    () => Object.fromEntries((agenda ? appSummaries(agenda, apps, now) : []).filter((s) => s.overdue > 0).map((s) => [s.app.repo, s.overdue])),
+    [agenda, apps, now],
+  );
   return (
     <div className="space-y-8">
       <Greeting hour={hour} />
-      <Tiles apps={apps} layout={state.layout} canArrange={isMember(state) && can(role, 'change-settings')} onSave={onSaveLayout} />
+      <Tiles apps={apps} layout={state.layout} canArrange={isMember(state) && can(role, 'change-settings')} overdue={overdue} onSave={onSaveLayout} />
       {state.auth === 'signed-out' && <Intro onSignIn={onSignIn} error={signInError} />}
-      {state.auth === 'signed-in' && <HouseholdPanel state={state} actions={actions} notify={notify} fail={fail} />}
+      {state.auth === 'signed-in' && <HouseholdPanel state={state} actions={actions} notify={notify} fail={fail} onOpenPage={onOpenPage} />}
       {isMember(state) && <FoodPanel household={state.household} food={state.food} actions={actions} fail={fail} canEdit={can(role, 'change-settings')} />}
     </div>
   );
