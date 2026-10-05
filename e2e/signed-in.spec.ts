@@ -64,6 +64,24 @@ test('signed in on a phone, the sections are a bottom bar', async ({ page }) => 
   await expectBottomNav(page, { labels: ['Today', 'To-do', 'Calendar', 'Apps', 'More'], more: ['Contacts'] });
 });
 
+// Phones: every app on the first screen, the household folded into rows; a link opens one of them.
+test('signed in on a phone, every app fits on one screen and the household opens a section at a time', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await hh.signIn(page, 'admin', '/apps#household-members');
+  const tiles = page.getByRole('navigation', { name: 'Household apps' }).getByRole('link');
+  await expect(tiles.first()).toBeVisible({ timeout: 20_000 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  for (const tile of await tiles.all()) await expect(tile).toBeInViewport();
+  const panel = page.locator('#household');
+  await expect(panel.getByRole('button', { name: /^Members/ })).toHaveAttribute('aria-expanded', 'true', { timeout: 20_000 });
+  const { email, name } = hh.users.helper;
+  await expect(panel.getByLabel(`Role for ${email}`).or(panel.getByLabel(`Role for ${name}`))).toHaveValue('helper');
+  await panel.getByRole('button', { name: /^Currency/ }).click();
+  await expect(panel.getByRole('button', { name: /^Members/ })).toHaveAttribute('aria-expanded', 'false');
+  await expect(panel.getByRole('combobox', { name: 'Currency' })).toBeVisible();
+  await expect(panel.getByRole('link', { name: /^In your own calendar/ })).toHaveAttribute('href', '/my-calendar');
+});
+
 // The rules let the admin read every to-do and the helper the open ones (their query asks for
 // them): either way the tab loads its list, never stuck loading. Each app's own staging test runs a
 // real item's Done from here (runPortalTodo in @huishouden/pwa-kit/e2e).

@@ -112,10 +112,11 @@ export default function App() {
   }, [shown]);
 
   // Apps link here to set something in the Household panel (`/apps#household`, e.g. the home
-  // address): once the household has loaded on the Apps tab, bring the panel into view, once.
+  // address, or `#household-members`, `-home`, `-currency` for one section, which a phone opens):
+  // once the household has loaded on the Apps tab, bring the panel into view, once.
   const [anchored, setAnchored] = useState(false);
   useEffect(() => {
-    if (anchored || shown !== 'apps' || householdStatus !== 'ready' || location.hash !== '#household') return;
+    if (anchored || shown !== 'apps' || householdStatus !== 'ready' || !location.hash.startsWith('#household')) return;
     setAnchored(true);
     document.getElementById('household')?.scrollIntoView({ block: 'start' });
   }, [anchored, shown, householdStatus]);
@@ -205,6 +206,8 @@ export default function App() {
             actions={actions}
             apps={visibleApps}
             hour={hour}
+            now={now}
+            onOpenPage={(path) => PAGES[path] && openPage(path, PAGES[path])}
             signInError={signInError}
             onSignIn={signIn}
             onSaveLayout={saveLayout}

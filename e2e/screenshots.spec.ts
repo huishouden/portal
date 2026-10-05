@@ -194,6 +194,28 @@ test('phone: arranging the apps', async ({ page }) => {
   });
 });
 
+test('phone: apps', async ({ page }) => {
+  await phone(page);
+  await captureScreenshot(page, 'phone-apps', { fixedTime, prepare: onApps(member()) });
+});
+
+test('phone: apps, dark', async ({ page }) => {
+  await phone(page);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await captureScreenshot(page, 'phone-apps-dark', { fixedTime, prepare: onApps(member()) });
+});
+
+test('phone: the household, a section open', async ({ page }) => {
+  await phone(page);
+  await captureScreenshot(page, 'phone-household', {
+    fixedTime,
+    prepare: onApps(member(), async (p) => {
+      await p.locator('#household').getByRole('button', { name: /^Members/ }).click();
+      await p.locator('#household').scrollIntoViewIfNeeded();
+    }),
+  });
+});
+
 test('today', ({ page }) =>
   captureScreenshot(page, 'today', {
     fixedTime,
