@@ -17,7 +17,7 @@ const SECTIONS = [
   { title: 'privacy.sendTitle', items: ['privacy.sendErrors', 'privacy.sendSpeed', 'privacy.sendUsage', 'privacy.sendRegion'] },
   { title: 'privacy.neverTitle', paragraphs: ['privacy.neverBody'] },
   { title: 'privacy.gpcTitle', paragraphs: ['privacy.gpcBody'] },
-  { title: 'privacy.providersTitle', items: ['privacy.providerFirebase', 'privacy.providerNewRelic', 'privacy.providerCloudflare', 'privacy.providerGoogle', 'privacy.providerOsm'] },
+  { title: 'privacy.providersTitle', items: ['privacy.providerFirebase', 'privacy.providerNewRelic', 'privacy.providerCloudflare', 'privacy.providerGoogle', 'privacy.providerOsm', 'privacy.providerNlm'] },
 ] as const;
 
 /** What the apps collect and why, in plain words. Linked from every app's account menu. */

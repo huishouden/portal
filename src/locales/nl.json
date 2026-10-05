@@ -29,6 +29,7 @@
   "privacy.providerCloudflare": "Cloudflare: het aanbieden van de bestanden van de apps en het versturen van de meldingen die je aanzet.",
   "privacy.providerGoogle": "Google (Gmail, Agenda, Contacten): alleen als je het toestaat, vanuit je browser.",
   "privacy.providerOsm": "OpenStreetMap: adressen en plekken opzoeken en het kaartje tekenen, als je zoekt of om je locatie vraagt. Het krijgt wat je zocht, niet wie je bent.",
+  "privacy.providerNlm": "U.S. National Library of Medicine (Clinical Tables): namen van aandoeningen en hun ICD-10-codes voorstellen in Gezondheid, terwijl je er een typt. Het krijgt alleen de getypte woorden, nooit een naam, je huishouden of wie je bent, en Gezondheid werkt ook zonder (typ de naam helemaal).",
   "privacy.code": "De code van de apps is openbaar, inclusief {link}.",
   "privacy.codeLink": "precies wat de meldingen bevatten",
   "dutch.say": "Uitspraak: {say}",

@@ -29,6 +29,7 @@
   "privacy.providerCloudflare": "Cloudflare: serving the apps' files, and sending the notifications you turn on.",
   "privacy.providerGoogle": "Google (Gmail, Calendar, Contacts): only when you allow it, from your browser.",
   "privacy.providerOsm": "OpenStreetMap: looking up addresses and places and drawing the small map, when you search or ask for your location. It receives what you searched for, not who you are.",
+  "privacy.providerNlm": "U.S. National Library of Medicine (Clinical Tables): suggesting condition names and their ICD-10 codes in Health, as you type one. It receives only the words typed, never a name, your household or who you are, and Health works without it (type the name in full).",
   "privacy.code": "The apps' code is public, including {link}.",
   "privacy.codeLink": "exactly what the reports contain",
   "dutch.say": "Say it: {say}",
