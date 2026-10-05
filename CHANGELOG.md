@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.2](https://github.com/huishouden/portal/compare/v2.16.1...v2.16.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **today, todo:** done and not done look different, from the kit's completion pattern ([#99](https://github.com/huishouden/portal/issues/99)) ([5beeef4](https://github.com/huishouden/portal/commit/5beeef4339ec174f2bdef2f0c734ef74d45bcd0e))
+
 ## [2.16.1](https://github.com/huishouden/portal/compare/v2.16.0...v2.16.1) (2026-10-05)
 
 
