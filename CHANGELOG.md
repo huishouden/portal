@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.23.2](https://github.com/huishouden/portal/compare/v2.23.1...v2.23.2) (2026-10-05)
+
+### Bug Fixes
+
+* Rebuild against the re-tagged kit ([30a69fa](https://github.com/huishouden/portal/commit/30a69fa65fddfce3554ec8e2211b666d1f7607b0))
+
 ## [2.23.1](https://github.com/huishouden/portal/compare/v2.23.0...v2.23.1) (2026-10-05)
 
 ### Performance
