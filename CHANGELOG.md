@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.22.0](https://github.com/huishouden/portal/compare/v2.21.0...v2.22.0) (2026-10-05)
+
+### Features
+
+* hashed assets from the suite's asset CDN (pwa-kit 0.100.0) ([012361c](https://github.com/huishouden/portal/commit/012361cc3e4871b327e489f466cc3438eec09c9a))
+
 ## [2.21.0](https://github.com/huishouden/portal/compare/v2.20.1...v2.21.0) (2026-10-05)
 
 ### Features
