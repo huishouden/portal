@@ -13,9 +13,6 @@ on:
   push:
     branches: [main]
     paths: [apps.json, .github/workflows/monitoring.yml]
-  schedule:
-    # Weekly: puts back anything changed or deleted by hand.
-    - cron: '23 6 * * 1'
   workflow_dispatch:
     inputs:
       dry-run:
@@ -110,5 +107,5 @@ jobs:
               || gh release view observability -R "$REPO" >/dev/null
           fi
           gh release upload observability -R "$REPO" --clobber "$new"
-          echo "::notice title=Settings published::Starting ci.yml on main to deploy them (the 30-minute reconcile would otherwise)."
+          echo "::notice title=Settings published::Starting ci.yml on main to deploy them."
           gh workflow run ci.yml -R "$REPO" --ref main
