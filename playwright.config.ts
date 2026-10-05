@@ -1,13 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Smoke tests against a deployed site: BASE_URL defaults to production.
+// Smoke tests against a deployed site: BASE_URL defaults to the staging suite, never production (Hosting's 10 GB a month, pwa-kit docs/one-site.md "Bandwidth").
 export default defineConfig({
   testDir: 'e2e',
   timeout: 45_000,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://huishouden-piekstra.web.app',
+    baseURL: process.env.BASE_URL ?? 'https://huishouden-staging.web.app',
     trace: 'retain-on-failure',
   },
   projects: [
