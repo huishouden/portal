@@ -60,9 +60,9 @@ its actions then change only that state in the tab, never Firestore.
 Household data lives in the household's own Firestore documents, visible only to its members.
 To catch problems early, the app sends reports to New Relic (free tier) through
 `@huishouden/pwa-kit/observability`: errors (emails, ids, query strings and long numbers removed),
-Core Web Vitals and page loads, the app version, device type, and the country and region New Relic
-derives from the request; and anonymous usage counts per visit: `create household`, `invite member`, `send invite email`, `arrange apps`, `add contact`, `save food preferences`, and which tab is open. Households are counted by a
-hash of the id. No names, emails, entries, free text or precise location, and no cookie or stored
+Core Web Vitals and page loads, the app version, device type, and the approximate location (country,
+region, city, the network's map point) New Relic derives from the network address, kept 8 days; and anonymous usage counts per visit: `create household`, `invite member`, `send invite email`, `arrange apps`, `add contact`, `save food preferences`, and which tab is open. Households are counted by a
+hash of the id. No names, emails, entries, free text or device location, and no cookie or stored
 id: nothing links one visit to the next. When the browser sends Global Privacy Control or Do Not
 Track, usage counts are skipped; errors and speed still go. Local builds, staging and
 automated browsers send nothing. The page people see is
