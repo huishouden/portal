@@ -26,7 +26,7 @@
   "privacy.providersTitle": "Wie de diensten levert",
   "privacy.providerFirebase": "Google Firebase: inloggen, de gegevens van je huishouden en het hosten van de apps.",
   "privacy.providerNewRelic": "New Relic: de fout-, snelheids- en gebruiksmeldingen, na 8 dagen verwijderd.",
-  "privacy.providerCloudflare": "Cloudflare: het versturen van de meldingen die je aanzet.",
+  "privacy.providerCloudflare": "Cloudflare: het aanbieden van de bestanden van de apps en het versturen van de meldingen die je aanzet.",
   "privacy.providerGoogle": "Google (Gmail, Agenda, Contacten): alleen als je het toestaat, vanuit je browser.",
   "privacy.providerOsm": "OpenStreetMap: adressen en plekken opzoeken en het kaartje tekenen, als je zoekt of om je locatie vraagt. Het krijgt wat je zocht, niet wie je bent.",
   "privacy.code": "De code van de apps is openbaar, inclusief {link}.",
