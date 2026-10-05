@@ -20,7 +20,7 @@
   "privacy.sendUsage": "Anonymous usage counts: which screens and features are used, counted per visit.",
   "privacy.sendRegion": "Roughly where you are, worked out from your internet connection's address: country, region and city, and your internet provider's network with its approximate point on a map. This is often a nearby city rather than your own, and never your device's location. Your device type and browser.",
   "privacy.neverTitle": "What they never send",
-  "privacy.neverBody": "Your name, email address, your household or anything in it, anything you type, or your device's location. No cookies or stored ids are used for these reports, so nothing links one visit to the next, and nothing is used for advertising.",
+  "privacy.neverBody": "In these reports, never your name, email address, your household or anything in it, anything you type, or your device's location. No cookies or stored ids are used for these reports, so nothing links one visit to the next, and nothing is used for advertising.",
   "privacy.gpcTitle": "If your browser asks not to be tracked",
   "privacy.gpcBody": "When your browser sends Global Privacy Control (or Do Not Track), the apps don't send usage counts. Error and speed reports still go, with the rough location above: they keep the apps working and contain nothing you entered.",
   "privacy.providersTitle": "Who provides the services",

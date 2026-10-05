@@ -20,7 +20,7 @@
   "privacy.sendUsage": "Conteos de uso anónimos: qué pantallas y funciones se usan, contados por visita.",
   "privacy.sendRegion": "Más o menos dónde estás, según la dirección de tu conexión a internet: país, región y ciudad, y la red de tu proveedor de internet con su punto aproximado en un mapa. Suele ser una ciudad cercana más que la tuya, y nunca la ubicación de tu dispositivo. Tu tipo de dispositivo y navegador.",
   "privacy.neverTitle": "Lo que nunca envían",
-  "privacy.neverBody": "Tu nombre, tu correo electrónico, tu hogar o cualquier cosa en él, nada de lo que escribes ni la ubicación de tu dispositivo. Estos informes no usan cookies ni identificadores guardados, así que nada relaciona una visita con la siguiente, y nada se usa para publicidad.",
+  "privacy.neverBody": "En estos informes, nunca tu nombre, tu correo electrónico, tu hogar o cualquier cosa en él, nada de lo que escribes ni la ubicación de tu dispositivo. Estos informes no usan cookies ni identificadores guardados, así que nada relaciona una visita con la siguiente, y nada se usa para publicidad.",
   "privacy.gpcTitle": "Si tu navegador pide que no te rastreen",
   "privacy.gpcBody": "Cuando tu navegador envía Global Privacy Control (o Do Not Track), las apps no envían conteos de uso. Los informes de errores y velocidad se siguen enviando, con la ubicación aproximada de arriba: mantienen las apps funcionando y no contienen nada de lo que ingresas.",
   "privacy.providersTitle": "Quién presta los servicios",
