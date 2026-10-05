@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.17.0](https://github.com/huishouden/portal/compare/v2.16.2...v2.17.0) (2026-10-05)
+
+
+### Features
+
+* **calendar:** Continue in this tab, when Google's window is blocked or out of sight ([#98](https://github.com/huishouden/portal/issues/98)) ([42a6939](https://github.com/huishouden/portal/commit/42a6939894f18a833c98ea14fb40fc58cd92511e))
+
 ## [2.16.2](https://github.com/huishouden/portal/compare/v2.16.1...v2.16.2) (2026-10-05)
 
 
