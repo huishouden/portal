@@ -76,7 +76,9 @@ export const calendarApi = {
   makeFeed: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/feed', { household, ...identity(user) }, f),
   rotateFeed: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/feed/rotate', { household, ...identity(user) }, f),
   revokeFeed: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/feed/revoke', { household }, f),
-  connectGoogle: (user: User, household: string, code: string, f?: typeof fetch) => calendarCall(user, '/api/google/connect', { household, code, ...identity(user) }, f),
+  /** `redirectUri`: the page Google sent the code to ("Continue in this tab"); without it, the popup's. */
+  connectGoogle: (user: User, household: string, code: string, redirectUri?: string, f?: typeof fetch) =>
+    calendarCall(user, '/api/google/connect', { household, code, ...(redirectUri ? { redirectUri } : {}), ...identity(user) }, f),
   syncNow: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/google/sync', { household }, f),
   disconnectGoogle: (user: User, household: string, deleteCalendar: boolean, f?: typeof fetch) => calendarCall(user, '/api/google/disconnect', { household, deleteCalendar }, f),
   clearNotice: (user: User, household: string, f?: typeof fetch) => calendarCall(user, '/api/notice/clear', { household }, f),
