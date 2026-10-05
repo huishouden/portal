@@ -254,7 +254,7 @@
     "path": "/bills/",
     "redirect": true,
     "webApp": "Bills",
-    "glyph": "card"
+    "glyph": "receipt"
   },
   {
     "name": "Spending",
