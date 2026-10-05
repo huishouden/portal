@@ -16,6 +16,7 @@ import { useT } from '../i18n';
 export function ConnectScreen({ user, householdId, onSignIn, signingIn }: { user: User | null | undefined; householdId?: string; onSignIn: () => void; signingIn: boolean }) {
   const t = useT();
   const heading = useRef<HTMLHeadingElement>(null);
+  const allowButton = useRef<HTMLButtonElement>(null);
   const params = useMemo(() => parseConnectParams(location.search), []);
   const cliAsked = useMemo(() => new URLSearchParams(location.search).get('service') === CLI_SERVICE, []);
   const allowed = params !== null && connectAllowed(params);
@@ -44,6 +45,8 @@ export function ConnectScreen({ user, householdId, onSignIn, signingIn }: { user
     } catch {
       setError(t('connect.failed'));
       setBusy(false);
+      // Back where they were, so a keyboard or screen reader user can try again at once.
+      requestAnimationFrame(() => allowButton.current?.focus());
     }
   };
 
@@ -71,16 +74,19 @@ export function ConnectScreen({ user, householdId, onSignIn, signingIn }: { user
             params!.redirectHost && <p className="font-medium">{t('connect.host', { host: params!.redirectHost })}</p>
           )}
           <p className="text-muted">{cli ? t('connect.cliRevokeLater') : t('connect.revokeLater')}</p>
+          <p role="status" className="sr-only">
+            {busy ? t('connect.connecting') : ''}
+          </p>
           {error && (
             <p role="alert" className="text-error">
               {error}
             </p>
           )}
           <div className="flex flex-wrap gap-3 pt-2">
-            <button type="button" className={primaryButton} disabled={busy} onClick={() => void allow()}>
+            <button ref={allowButton} type="button" className={primaryButton} aria-disabled={busy} onClick={() => !busy && void allow()}>
               {busy ? t('connect.connecting') : t('connect.allow')}
             </button>
-            <button type="button" className={secondaryButton} disabled={busy} onClick={() => location.assign(declineUrl(params!))}>
+            <button type="button" className={secondaryButton} aria-disabled={busy} onClick={() => !busy && location.assign(declineUrl(params!))}>
               {t('connect.decline')}
             </button>
           </div>

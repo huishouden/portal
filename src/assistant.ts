@@ -45,6 +45,9 @@ export function connectAllowed(params: ConnectParams, connector: string = CONNEC
   return serviceAllowed(params.service, connector ? [connector] : []);
 }
 
+/** A hand-off that hasn't answered by then has failed: the page says so and Allow works again. */
+const HANDOFF_TIMEOUT_MS = 20_000;
+
 /** The port `hh` listens on, shown on the confirmation. */
 export const cliPort = (params: ConnectParams): string => (params.redirect ? new URL(params.redirect).port : '');
 
@@ -76,20 +79,22 @@ export async function saveLangAndZone(db: Firestore, householdId: string, email:
  * and sends them back to their assistant).
  */
 export async function handOff(params: ConnectParams, user: User, fetchImpl: typeof fetch = fetch, connector: string = CONNECTOR_URL): Promise<string> {
+  // Checked here too, not only by the page: nothing is posted anywhere this build doesn't know.
+  if (!connectAllowed(params, connector)) throw new Error('hand-off refused');
+  const signal = AbortSignal.timeout(HANDOFF_TIMEOUT_MS);
   if (isCliSignIn(params)) {
-    if (!connectAllowed(params, connector)) throw new Error('hand-off refused');
     // The connector keeps it under a one-time code bound to hh's challenge; only the code goes to hh.
     const cli: CliHandoffRequest = { state: params.state, refreshToken: user.refreshToken, codeChallenge: params.codeChallenge!, redirect: params.redirect!, lang: getLang(), ...(timeZone() ? { timeZone: timeZone() } : {}) };
-    const res = await fetchImpl(`${connector}${CLI_HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cli) });
+    const res = await fetchImpl(`${connector}${CLI_HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cli), signal });
     if (!res.ok) throw new Error(`hand-off ${res.status}`);
     const { code } = (await res.json()) as { code: string };
     return `${params.redirect}?state=${encodeURIComponent(params.state)}&code=${encodeURIComponent(code)}`;
   }
   const body: HandoffRequest = { state: params.state, refreshToken: user.refreshToken, lang: getLang(), ...(timeZone() ? { timeZone: timeZone() } : {}) };
-  const res = await fetchImpl(`${params.service}${HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await fetchImpl(`${new URL(connector).origin}${HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal });
   if (!res.ok) throw new Error(`hand-off ${res.status}`);
   const { code } = (await res.json()) as { code: string };
-  return `${params.service}${CALLBACK_PATH}?state=${encodeURIComponent(params.state)}&code=${encodeURIComponent(code)}`;
+  return `${new URL(connector).origin}${CALLBACK_PATH}?state=${encodeURIComponent(params.state)}&code=${encodeURIComponent(code)}`;
 }
 
 /** Declining: the connector's callback without a code tells the assistant the person said no; `hh` hears `error=access_denied`. */

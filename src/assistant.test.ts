@@ -61,6 +61,15 @@ describe('signing in the hh command line', () => {
     expect(next).not.toContain('refresh-token-secret');
   });
 
+  test('handOff itself posts nothing to a service this build does not know', async () => {
+    let fetched = 0;
+    const fetchImpl = (async () => (fetched++, new Response('{}'))) as unknown as typeof fetch;
+    const user = { refreshToken: 'refresh-token-secret' } as User;
+    await expect(handOff({ service: 'https://evil.example', state: STATE, client: 'Claude' }, user, fetchImpl, CONNECTOR)).rejects.toThrow('refused');
+    await expect(handOff((await cliParams())!, user, fetchImpl, '')).rejects.toThrow('refused');
+    expect(fetched).toBe(0);
+  });
+
   test('declining tells hh at its own address', async () => {
     expect(declineUrl((await cliParams())!)).toBe(`${REDIRECT}?state=${STATE}&error=access_denied`);
   });
