@@ -27,16 +27,9 @@ jobs:
   pwa:
     uses: huishouden/pwa-kit/.github/workflows/pwa.yml@v0
     permissions:
-      contents: write # README screenshots, PR evidence branch, the hosting release asset
+      contents: write # the hosting release asset, the version's tag and release
       id-token: write
-      pull-requests: write # before/after comment on PRs
     with:
       base: /
       staging-ref: ${{ inputs.staging-ref }}
       staging-sweep: ${{ github.event_name == 'schedule' }}
-
-  release:
-    uses: huishouden/pwa-kit/.github/workflows/release.yml@v0
-    permissions:
-      contents: write
-      pull-requests: write
