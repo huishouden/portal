@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.19.0](https://github.com/huishouden/portal/compare/v2.18.0...v2.19.0) (2026-10-05)
+
+### Features
+
+* **apps:** on phones, the apps are a home-screen grid and the household folds into rows (#105) ([8d9f982](https://github.com/huishouden/portal/commit/8d9f98294cce903a18ad32b3e19c312556030f9a))
+
+### Other
+
+* the suite's address from the kit (SUITE_ORIGIN) (#88) ([a0b1a69](https://github.com/huishouden/portal/commit/a0b1a69ae40b5360448029b5b72c4d9a895f60fe))
+
 ## [2.18.0](https://github.com/huishouden/portal/compare/v2.17.0...v2.18.0) (2026-10-05)
 
 
