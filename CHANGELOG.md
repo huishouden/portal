@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.1](https://github.com/huishouden/portal/compare/v2.16.0...v2.16.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* **household:** /apps#household brings the Household panel into view, for apps that link to set the home ([#96](https://github.com/huishouden/portal/issues/96)) ([5a803f8](https://github.com/huishouden/portal/commit/5a803f84211be24a6a601803a96e72925d9d6470))
+
 ## [2.16.0](https://github.com/huishouden/portal/compare/v2.15.4...v2.16.0) (2026-10-04)
 
 
