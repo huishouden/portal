@@ -388,7 +388,7 @@
   "myCalendar.bills": "Facturas",
   "myCalendar.done": "Cosas ya hechas",
   "myCalendar.healthDetail": "Detalles de Salud",
-  "myCalendar.healthDetailHint": "Desactivado: los elementos de Salud solo dicen \"Medicina para Ana\". Los calendarios se suelen compartir, así que actívalo solo si nadie más ve el tuyo.",
+  "myCalendar.healthDetailHint": "Desactivado: los elementos de Salud solo dicen \"Medicina para Ana\" o \"Cita para Ana\". Los calendarios se suelen compartir, así que actívalo solo si nadie más ve el tuyo.",
   "myCalendar.saveFailed": "No se pudo guardar. Revisa la conexión e inténtalo de nuevo.",
   "myCalendar.historyTitle": "Cambios desde Google Calendar",
   "myCalendar.historyIntro": "Lo que cambiaste en Google Calendar y Huishouden cambió también.",
