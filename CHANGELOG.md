@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.23.3](https://github.com/huishouden/portal/compare/v2.23.2...v2.23.3) (2026-10-05)
+
+### Changes
+
+* Pet's outings on the To-do list: Pooped and Pee only on a scheduled outing write Pet's `petOutings` (pwa-kit 0.105.0 lets Pet's to-do actions write it).
+
 ## [2.23.2](https://github.com/huishouden/portal/compare/v2.23.1...v2.23.2) (2026-10-05)
 
 ### Bug Fixes
