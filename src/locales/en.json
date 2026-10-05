@@ -26,7 +26,7 @@
   "privacy.providersTitle": "Who provides the services",
   "privacy.providerFirebase": "Google Firebase: sign-in, your household's data, and hosting the apps.",
   "privacy.providerNewRelic": "New Relic: the error, speed and usage reports, deleted after 8 days.",
-  "privacy.providerCloudflare": "Cloudflare: sending the notifications you turn on.",
+  "privacy.providerCloudflare": "Cloudflare: serving the apps' files, and sending the notifications you turn on.",
   "privacy.providerGoogle": "Google (Gmail, Calendar, Contacts): only when you allow it, from your browser.",
   "privacy.providerOsm": "OpenStreetMap: looking up addresses and places and drawing the small map, when you search or ask for your location. It receives what you searched for, not who you are.",
   "privacy.code": "The apps' code is public, including {link}.",

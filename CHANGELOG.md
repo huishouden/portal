@@ -1,10 +1,10 @@
 # Changelog
 
-## 2.22.0 (2026-10-05)
+## [2.22.0](https://github.com/huishouden/portal/compare/v2.21.0...v2.22.0) (2026-10-05)
 
 ### Features
 
-* **calendar:** Health's "Book a follow-up" to-dos take Booked and Not needed here, and My calendar's hint says Health items read "Medicine for Ana" or "Appointment for Ana" (pwa-kit 0.97.0).
+* hashed build files (`assets/*`) load from the suite's asset CDN (Cloudflare Worker `huishouden-assets`, pwa-kit 0.100.0); if the CDN fails the page falls back once to the site's own copy; `HH_ASSET_CDN=off` rolls the suite back ([012361c](https://github.com/huishouden/portal/commit/012361cc3e4871b327e489f466cc3438eec09c9a))
 
 ## [2.21.0](https://github.com/huishouden/portal/compare/v2.20.1...v2.21.0) (2026-10-05)
 

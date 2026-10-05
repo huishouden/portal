@@ -97,6 +97,9 @@ command line (`hh ops staging-cleanup`). No workflow here runs on a timer to do 
 
 Merges to `main` deploy through `.github/workflows/ci.yml` using Workload Identity
 Federation (repo variables `GCP_WIF_PROVIDER`, `GCP_DEPLOY_SA`). Pull requests only build.
+The deploy also uploads the suite's hashed build files to the asset CDN (the Cloudflare Worker
+`huishouden-assets`) with the repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`;
+the variable `HH_ASSET_CDN=off` turns that off for the suite (pwa-kit docs/one-site.md "Asset CDN").
 
 ## Monitoring
 
