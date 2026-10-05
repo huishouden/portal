@@ -148,7 +148,7 @@ export function useLiveHub(): { state: HubState; actions: HubActions } {
     saveMyProfile(db, householdId, user).catch(() => {});
     const stops = [
       watchProfiles(db, householdId, setProfiles),
-      watchContacts(db, householdId, setContacts, { restricted, by: email, onError: () => setContacts([]) }),
+      watchContacts(db, householdId, setContacts, { restricted, by: email, backfillPositions: true, onError: () => setContacts([]) }),
       watchFood(db, householdId, setFood),
       onSnapshot(
         doc(db, 'households', householdId, 'settings', 'portal'),
