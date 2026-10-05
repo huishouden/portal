@@ -1,5 +1,6 @@
 import type { TodoAction, TodoItem } from '@huishouden/pwa-kit/todos';
 import type { Role } from '@huishouden/pwa-kit/roles';
+import { SUITE_ORIGIN } from '@huishouden/pwa-kit/site';
 
 // An invented household's to-do list, as the apps would publish it: one or two items per app, some
 // added long ago, one summary line. The clock in tests and screenshots is 9:00 on October 1, 2026.
@@ -11,7 +12,7 @@ const JO = 'jo@example.com';
 const EVERYONE: Role[] = ['admin', 'member', 'helper', 'kid'];
 const STAFF: Role[] = ['admin', 'member'];
 const t = (s: string) => new Date(s).getTime();
-const site = 'https://huishouden-piekstra.web.app';
+const site = SUITE_ORIGIN;
 
 const act = (label: string, roles: Role[], col: string, id: string, data: object, owner = false): TodoAction => ({
   label,

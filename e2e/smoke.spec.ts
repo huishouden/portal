@@ -8,7 +8,8 @@ type RegistryEntry = { repo: string; site: string; path?: string; redirect?: boo
 const registry: RegistryEntry[] = JSON.parse(readFileSync(new URL('../apps.json', import.meta.url), 'utf8'));
 const tileApps = registry.filter((app) => app.tile !== false);
 // Tiles open a moved app at its path on this site (resolved against the page), others at their own site.
-const BASE = process.env.BASE_URL ?? 'https://huishouden-piekstra.web.app/';
+// Playwright's default BASE_URL too (playwright.config.ts): the staging suite, never production.
+const BASE = process.env.BASE_URL ?? 'https://huishouden-staging.web.app/';
 // (Same rule as appHref in src/apps.ts, which Playwright can't import: it imports apps.json.)
 const appHref = (app: RegistryEntry) => (app.path && app.redirect ? app.path : `https://${app.site}.web.app/`);
 const urlOf = (app: RegistryEntry) => new URL(appHref(app), BASE).href;

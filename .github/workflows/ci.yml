@@ -32,7 +32,6 @@ jobs:
       pull-requests: write # before/after comment on PRs
     with:
       base: /
-      site-url: https://huishouden-piekstra.web.app/
       staging-ref: ${{ inputs.staging-ref }}
       staging-sweep: ${{ github.event_name == 'schedule' }}
 
