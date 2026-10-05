@@ -1,7 +1,7 @@
 import { type AgendaItem, type TodayEntry, type TodayGroup } from '@huishouden/pwa-kit/agenda';
 import { longDate, toYmd } from '@huishouden/pwa-kit/time';
-import { cardClass, overline } from '@huishouden/pwa-kit/react/ui';
-import { ChevronDown, CircleCheck } from 'lucide-react';
+import { DoneBadge, cardClass, overline } from '@huishouden/pwa-kit/react/ui';
+import { ChevronDown } from 'lucide-react';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { AppIcon } from '../components/AppIcon';
 import { Greeting } from '../components/DutchWord';
@@ -64,7 +64,7 @@ export function TodayScreen({ agenda: stored, apps, now, me = '', profiles = {} 
           {done.length > 0 && (
             <details className="group">
               <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-lg text-muted hover:text-link [&::-webkit-details-marker]:hidden">
-                <CircleCheck size={20} className="text-link" aria-hidden="true" />
+                <DoneBadge />
                 <span className={overline}>{t('today.doneToday', { count: done.length })}</span>
                 <ChevronDown size={18} className="transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
               </summary>
@@ -152,9 +152,9 @@ function DoneRow({ item, app, line }: { item: AgendaItem; app?: HouseholdApp; li
   return (
     <li>
       <a href={suiteLink(item.url)} className="flex min-h-16 items-center gap-3 px-4 py-3 hover:bg-tint sm:gap-4 sm:px-5">
-        <CircleCheck size={28} className="shrink-0 text-link" aria-hidden="true" />
+        <DoneBadge />
         <span className="min-w-0 flex-1">
-          <span data-hh-data className="block text-lg font-medium text-muted line-through decoration-stone-400 [overflow-wrap:break-word]">{item.title}</span>
+          <span data-hh-data className="block text-lg font-semibold text-muted [overflow-wrap:break-word]">{item.title}</span>
           <span className="block text-base text-muted [overflow-wrap:break-word]">{meta}</span>
         </span>
         <span className="sr-only">

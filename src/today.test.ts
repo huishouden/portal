@@ -53,9 +53,9 @@ describe('who did it, in Spanish and Dutch', () => {
 
   it('reads as a whole sentence', async () => {
     await setLangForTests('es', ['es-MX']);
-    expect(doneLine(item, now, 'sam@example.com', profiles)).toMatch(/^Hecho por Alex a las 8:12/);
-    expect(doneLine({ ...item, by: 'sam@example.com' }, now, 'sam@example.com', profiles)).toMatch(/^Hecho por ti a las/);
+    expect(doneLine(item, now, 'sam@example.com', profiles)).toMatch(/^Hecho por Alex · 8:12/);
+    expect(doneLine({ ...item, by: 'sam@example.com' }, now, 'sam@example.com', profiles)).toMatch(/^Hecho por ti · /);
     await setLangForTests('nl', ['nl-NL']);
-    expect(doneLine(item, now, 'sam@example.com', profiles)).toBe('Gedaan door Alex om 8:12');
+    expect(doneLine(item, now, 'sam@example.com', profiles)).toBe('Gedaan door Alex · 8:12');
   });
 });

@@ -12,7 +12,7 @@ const open = async (page: Page, state = member()) => {
   await showHub(page, state);
 };
 const list = (page: Page) => page.getByRole('list', { name: 'To-do list' });
-const titles = (page: Page) => list(page).getByRole('listitem').evaluateAll((li) => li.map((l) => l.getAttribute('aria-label')));
+const titles = (page: Page) => list(page).getByRole('listitem').evaluateAll((li) => li.map((l) => l.getAttribute('aria-label')).filter(Boolean));
 const row = (page: Page, title: string) => page.getByRole('listitem', { name: title, exact: true });
 
 test('lists every app’s things newest first, sorts by date added either way, due and app', async ({ page }) => {
@@ -53,11 +53,25 @@ test('filters by app and to things added over 30 days ago', async ({ page }) => 
 
 test('Done takes an item off with Undo; Cancel asks first, in the app’s words, then offers Undo', async ({ page }) => {
   await open(page);
-  await row(page, 'Fix the porch light').locator('[data-todo-action="done"]').click();
+  // Not done: an outlined button with the app's verb. Done: no such button, a done row with its own Undo.
+  const doneButton = page.getByRole('button', { name: 'Done: Fix the porch light' });
+  await expect(doneButton).toHaveAttribute('data-complete', 'open');
+  await expect(doneButton).not.toHaveAttribute('aria-pressed');
+  await doneButton.click();
   await expect(row(page, 'Fix the porch light')).toHaveCount(0);
+  await expect(doneButton).toHaveCount(0);
+  const doneRow = list(page).locator('li[data-completion="done"]');
+  await expect(doneRow).toContainText('Fix the porch light');
+  await expect(doneRow).toContainText(/Done by you · \d/);
   await expect(page.getByText('Done: Fix the porch light')).toBeVisible();
-  await page.getByRole('button', { name: 'Undo' }).click();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(row(page, 'Fix the porch light')).toBeVisible();
+  await expect(doneRow).toHaveCount(0);
+  // The row's own Undo, after the toast has gone.
+  await doneButton.click();
+  await page.getByRole('button', { name: 'Undo done for Fix the porch light' }).click();
+  await expect(row(page, 'Fix the porch light')).toBeVisible();
+  await expect(doneButton).toBeVisible();
 
   await page.getByRole('button', { name: 'Pause: Change HVAC filter' }).click();
   const dialog = page.getByRole('dialog', { name: 'Pause “Change HVAC filter”?' });
@@ -68,7 +82,7 @@ test('Done takes an item off with Undo; Cancel asks first, in the app’s words,
   await page.getByRole('dialog').locator('[data-todo-confirm]').click();
   await expect(row(page, 'Change HVAC filter')).toHaveCount(0);
   await expect(page.getByText('Paused: Change HVAC filter')).toBeVisible();
-  await page.getByRole('button', { name: 'Undo' }).click();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(row(page, 'Change HVAC filter')).toBeVisible();
 });
 
@@ -85,7 +99,7 @@ test('clears out old things in one go, with Undo for all of them', async ({ page
   await dialog.locator('[data-todo-confirm]').click();
   await expect(page.getByText('Cancelled 2 things.')).toBeVisible();
   expect(await titles(page)).toEqual(['Pack a phone charger', 'Heartworm chew', 'Change HVAC filter']);
-  await page.getByRole('button', { name: 'Undo' }).click();
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
   await expect(row(page, 'Fix the porch light')).toBeVisible();
   await expect(row(page, 'Renew registration')).toBeVisible();
 });
@@ -93,7 +107,7 @@ test('clears out old things in one go, with Undo for all of them', async ({ page
 test('a helper sees no money, ticks things off, and cancels only what they added', async ({ page }) => {
   await open(page, helper());
   await expect(row(page, 'Water bill')).toHaveCount(0);
-  await expect(row(page, 'Fix the porch light').locator('[data-todo-action="done"]')).toBeVisible();
+  await expect(row(page, 'Fix the porch light').getByRole('button', { name: 'Done: Fix the porch light' })).toBeVisible();
   await expect(row(page, 'Fix the porch light').locator('[data-todo-action="cancel"]')).toHaveCount(0);
   await expect(row(page, 'Return library books').locator('[data-todo-action="cancel"]')).toBeVisible();
   await expect(page.getByText('Only admins and members can change or delete what someone else added.')).toBeVisible();
