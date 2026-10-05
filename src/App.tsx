@@ -4,7 +4,7 @@ import type { User } from 'firebase/auth';
 import { AppBar } from '@huishouden/pwa-kit/react/app-bar';
 import { SectionTabs, Toast, useToast, type Tab } from '@huishouden/pwa-kit/react/ui';
 import { APPS, arrangeTiles, type PortalLayout } from './apps';
-import { useLiveHub } from './data/live';
+import { AGENDA_DAYS, AGENDA_WEEK_DAYS, useLiveHub } from './data/live';
 import { usePreview } from './data/preview';
 import { can, MONEY_APPS } from '@huishouden/pwa-kit/roles';
 import { isMember, myRole, type HubState } from './hub';
@@ -60,13 +60,15 @@ const tabFromPath = (): TabId | undefined => {
 
 export default function App() {
   const t = useT();
-  const live = useLiveHub();
+  const [chosen, setChosen] = useState<TabId | undefined>(tabFromPath);
+  // The whole published agenda only while the Calendar tab is chosen (a page opened over it keeps
+  // it); a week otherwise (Today, Apps).
+  const live = useLiveHub(chosen === 'calendar' ? AGENDA_DAYS : AGENDA_WEEK_DAYS);
   const preview = usePreview();
   const { state, actions } = preview ?? live;
   const { toast, notify, fail, clear } = useToast();
   const [signingIn, setSigningIn] = useState(false);
   const [signInError, setSignInError] = useState<string>();
-  const [chosen, setChosen] = useState<TabId | undefined>(tabFromPath);
   const [page, setPage] = useState<Page | null>(pageFromPath);
   // Privacy and the assistant pages replace the tabs' content.
   const onPage = page !== null;
