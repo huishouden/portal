@@ -66,8 +66,15 @@ test('Continue in this tab: Google’s page here, back to the page, and connecte
     });
   });
   await connect(page);
+  // Back on the page, its first status answers only after the connect: it must not undo it.
+  await page.route('**/api/status?**', async (route) => {
+    await new Promise((r) => setTimeout(r, 1500));
+    await route.fallback();
+  });
   await page.getByRole('button', { name: 'Continue in this tab' }).click();
   await expect(page.getByText('e2e-calendar@example.com')).toBeVisible({ timeout: 20_000 });
+  await page.waitForTimeout(2000);
+  await expect(page.getByText('e2e-calendar@example.com')).toBeVisible();
   expect(sent).toHaveLength(1);
   expect(sent[0]).toMatchObject({ code: '4/0-redirect-code', redirectUri: new URL('my-calendar', page.url()).href });
   // The one-time code is gone from the address.

@@ -77,11 +77,16 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
     };
   }, [title]);
 
+  // Bumped by every answer that changes the status, so a status asked for before it can't undo it
+  // (back from Google's page, the connect can finish before the page's first status arrives).
+  const statusVersion = useRef(0);
   const load = useCallback(async () => {
     if (!user || !householdId || !CALENDAR_URL) return;
     setLoadError(null);
+    const asked = statusVersion.current;
     try {
-      setStatus(await calendarApi.status(user, householdId));
+      const fresh = await calendarApi.status(user, householdId);
+      if (statusVersion.current === asked) setStatus(fresh);
     } catch (e) {
       setLoadError(e instanceof CalendarCallError ? e.code : 'failed');
     }
@@ -130,7 +135,9 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
 
   /** The code to the Worker; `redirectUri` when it came back to this page ("Continue in this tab"). */
   const finishConnect = async (code: string, redirectUri?: string) => {
-    setStatus(await calendarApi.connectGoogle(user!, householdId!, code, redirectUri));
+    const connected = await calendarApi.connectGoogle(user!, householdId!, code, redirectUri);
+    statusVersion.current++;
+    setStatus(connected);
     notify(t('myCalendar.connected'));
   };
 
