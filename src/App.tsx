@@ -111,6 +111,15 @@ export default function App() {
     trackView(shown);
   }, [shown]);
 
+  // Apps link here to set something in the Household panel (`/apps#household`, e.g. the home
+  // address): once the household has loaded on the Apps tab, bring the panel into view, once.
+  const [anchored, setAnchored] = useState(false);
+  useEffect(() => {
+    if (anchored || shown !== 'apps' || householdStatus !== 'ready' || location.hash !== '#household') return;
+    setAnchored(true);
+    document.getElementById('household')?.scrollIntoView({ block: 'start' });
+  }, [anchored, shown, householdStatus]);
+
   const choose = (id: string) => {
     setChosen(id as TabId);
     setPage(null);
