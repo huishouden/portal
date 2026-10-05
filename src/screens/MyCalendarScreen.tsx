@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { User } from 'firebase/auth';
 import { CalendarCheck, CalendarPlus, RefreshCw, Undo2 } from 'lucide-react';
 import { Checkbox, Dialog, ErrorNotice, GoogleWindowWait, cardClass, deleteButton, ghostButton, linkClass, overline, primaryButton, secondaryButton } from '@huishouden/pwa-kit/react/ui';
-import { googleAuthCode } from '@huishouden/pwa-kit/google-token';
-import { accessDenied, googleWindowMessage } from '@huishouden/pwa-kit/feedback';
+import { googleAuthCode, googleAuthCodeRedirect, googleAuthCodeReturn } from '@huishouden/pwa-kit/google-token';
+import { accessDenied, googleWindowMessage, popupBlocked } from '@huishouden/pwa-kit/feedback';
 import { formatAgo } from '@huishouden/pwa-kit/time';
 import { MONEY_APPS, can, type Role } from '@huishouden/pwa-kit/roles';
 import { DEFAULT_CALENDAR_SETTINGS, type CalendarSettings } from '@huishouden/pwa-kit/calendar-export';
@@ -27,6 +27,9 @@ interface Props {
   notify: (message: string, undo?: () => void) => void;
   fail: (message: string) => void;
 }
+
+/** This page's address, as the OAuth client and the calendar Worker list it for "Continue in this tab". */
+const MY_CALENDAR_PAGE = typeof location === 'undefined' ? '' : new URL('my-calendar', `${location.origin}${import.meta.env.BASE_URL}`).href;
 
 /** Apps that put things on the agenda (and so can be left out of a calendar). */
 const DATED = ['home', 'baby', 'pet', 'car', 'health', 'tasks', 'bills'];
@@ -62,6 +65,8 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
   const [confirm, setConfirm] = useState<'rotate' | 'revoke' | 'disconnect' | null>(null);
   const [deleteCalendar, setDeleteCalendar] = useState(true);
   const [awaitingGoogle, setAwaitingGoogle] = useState(false);
+  const [blocked, setBlocked] = useState(false);
+  const returned = useRef(false);
 
   useEffect(() => {
     const before = document.title;
@@ -98,7 +103,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
 
   const errorText = (e: unknown) => {
     if (accessDenied(e)) return t('myCalendar.googleDenied');
-    const google = googleWindowMessage(e, 'Google Calendar');
+    const google = googleWindowMessage(e, 'Google Calendar', { continueHere: true });
     if (google) return google;
     const code = e instanceof CalendarCallError ? e.code : '';
     if (code === 'network') return t('myCalendar.offline');
@@ -123,21 +128,52 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
 
   const askGoogle = () => googleAuthCode(auth, [CALENDAR_SCOPE], { deniedMessage: t('myCalendar.googleDenied') });
 
+  /** The code to the Worker; `redirectUri` when it came back to this page ("Continue in this tab"). */
+  const finishConnect = async (code: string, redirectUri?: string) => {
+    setStatus(await calendarApi.connectGoogle(user!, householdId!, code, redirectUri));
+    notify(t('myCalendar.connected'));
+  };
+
   const connectGoogle = async () => {
     if (!user || !householdId) return;
     setBusy('connect');
+    setBlocked(false);
     try {
       // Straight from the tap: anything awaited before Google's window opens gets it blocked.
       setAwaitingGoogle(true);
       const { code } = await askGoogle().finally(() => setAwaitingGoogle(false));
-      setStatus(await calendarApi.connectGoogle(user, householdId, code));
-      notify(t('myCalendar.connected'));
+      await finishConnect(code);
     } catch (e) {
+      setBlocked(popupBlocked(e));
       fail(errorText(e));
     } finally {
       setBusy(null);
     }
   };
+
+  /** "Continue in this tab": Google's page here instead of a window, back to this page. */
+  const continueHere = () => {
+    googleAuthCodeRedirect(auth, [CALENDAR_SCOPE], { redirectUri: MY_CALENDAR_PAGE }).catch((e: unknown) => fail(errorText(e)));
+  };
+
+  // Back from Google's page in this tab: finish connecting, once, as soon as the person is known.
+  useEffect(() => {
+    if (!user || !householdId || returned.current) return;
+    returned.current = true;
+    let answer;
+    try {
+      answer = googleAuthCodeReturn(auth, { deniedMessage: t('myCalendar.googleDenied') });
+    } catch (e) {
+      fail(errorText(e));
+      return;
+    }
+    if (!answer) return;
+    const { code, redirectUri } = answer;
+    setBusy('connect');
+    finishConnect(code, redirectUri)
+      .catch((e: unknown) => fail(errorText(e)))
+      .finally(() => setBusy(null));
+  }, [user, householdId]);
 
   const save = (next: CalendarSettings) => {
     if (!householdId || !me) return;
@@ -195,7 +231,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
                   <CalendarPlus className="size-5" aria-hidden />
                   {busy === 'connect' ? t('myCalendar.connecting') : t('myCalendar.connect')}
                 </button>
-                <GoogleWindowWait waiting={awaitingGoogle} onShow={() => void askGoogle().catch(() => undefined)} />
+                <GoogleWindowWait waiting={awaitingGoogle} blocked={blocked} onShow={() => void askGoogle().catch(() => undefined)} onContinueHere={continueHere} />
                 <p className="text-sm text-muted">{t('myCalendar.googleScope')}</p>
               </>
             ) : (
