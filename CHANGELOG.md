@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.18.0](https://github.com/huishouden/portal/compare/v2.17.0...v2.18.0) (2026-10-05)
+
+
+### Features
+
+* **contacts:** contacts saved before positions get one in the background (kit 0.88.0) ([#102](https://github.com/huishouden/portal/issues/102)) ([f56f2c7](https://github.com/huishouden/portal/commit/f56f2c79d6ae123d9ff0e643a872d90cb7556d9d))
+
+
+### Bug Fixes
+
+* **privacy:** say New Relic keeps an approximate location, for 8 days ([#89](https://github.com/huishouden/portal/issues/89)) ([8dad56e](https://github.com/huishouden/portal/commit/8dad56e280eaf4470af888e8de5427d55ecc4c00))
+
 ## [2.17.0](https://github.com/huishouden/portal/compare/v2.16.2...v2.17.0) (2026-10-05)
 
 
