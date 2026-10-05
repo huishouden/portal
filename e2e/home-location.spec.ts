@@ -65,3 +65,11 @@ test('contacts with a place on the map say how far they are from home', async ({
   await showHub(page, member({ household: { ...household, home: HOME }, contacts: [vet, ...contacts.slice(1)] }));
   await expect(page.getByRole('region', { name: vet.name })).toContainText('2.3 mi from home');
 });
+
+test('apps link to /apps#household to set the home: the panel comes into view', async ({ page }) => {
+  await stubOpenStreetMap(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/apps#household', { waitUntil: 'networkidle' });
+  await showHub(page, member());
+  await expect(page.locator('#household')).toBeInViewport();
+});
