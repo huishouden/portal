@@ -216,6 +216,15 @@ test('a connect link for anything but the connector is refused', async ({ page }
   await expect(page.getByRole('heading', { name: "This link can't be used" })).toBeVisible();
 });
 
+test('an hh sign-in link to anything but an exact loopback address is refused', async ({ page }) => {
+  const challenge = 'a'.repeat(43);
+  for (const redirect of ['http://localhost:49152/callback', 'https://evil.example/callback', 'http://127.0.0.1:80/callback']) {
+    await page.goto(`/connect?${new URLSearchParams({ service: 'hh', redirect, state: 'state-0123456789abcdef', code_challenge: challenge })}`, { waitUntil: 'networkidle' });
+    await expect(page.getByRole('heading', { name: "This link can't be used" })).toBeVisible();
+    await expect(page.getByText('Run hh login again in your terminal.')).toBeVisible();
+  }
+});
+
 // The household in the person's own calendar (huishouden/calendar): its page, linked from the
 // account menu and the Calendar tab. Signed out it explains and asks to sign in.
 test('the own-calendar page loads and asks a signed-out visitor to sign in', async ({ page }) => {

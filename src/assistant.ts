@@ -1,7 +1,7 @@
 import { collection, doc, onSnapshot, query, where, type Firestore, type Unsubscribe } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { deleteDoc, setDoc } from '@huishouden/pwa-kit/firestore';
-import { CALLBACK_PATH, HANDOFF_PATH, type ConnectParams, type HandoffRequest } from '@huishouden/pwa-kit/signin-handoff';
+import { CALLBACK_PATH, CLI_HANDOFF_PATH, CLI_SERVICE, HANDOFF_PATH, isLoopbackRedirect, isPkceChallenge, type CliHandoffRequest, type ConnectParams, type HandoffRequest } from '@huishouden/pwa-kit/signin-handoff';
 import { getLang } from '@huishouden/pwa-kit/i18n';
 
 /**
@@ -32,6 +32,25 @@ export function serviceAllowed(service: string, allowed: readonly string[] = CON
   }
 }
 
+/** The `hh` command line's sign-in: the portal hands it over through the connector (`/cli/hand-off`). */
+export const isCliSignIn = (params: ConnectParams): boolean => params.service === CLI_SERVICE && params.purpose === 'cli';
+
+/**
+ * Whether the portal may hand this sign-in over at all: to the connector this build knows, or to
+ * `hh` on this computer, only at an exact loopback address with a PKCE challenge, and only when this
+ * build knows the connector that keeps the hand-off.
+ */
+export function connectAllowed(params: ConnectParams, connector: string = CONNECTOR_URL): boolean {
+  if (isCliSignIn(params)) return !!connector && isLoopbackRedirect(params.redirect ?? '') && isPkceChallenge(params.codeChallenge);
+  return serviceAllowed(params.service, connector ? [connector] : []);
+}
+
+/** A hand-off that hasn't answered by then has failed: the page says so and Allow works again. */
+const HANDOFF_TIMEOUT_MS = 20_000;
+
+/** The port `hh` listens on, shown on the confirmation. */
+export const cliPort = (params: ConnectParams): string => (params.redirect ? new URL(params.redirect).port : '');
+
 const timeZone = () => {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -59,16 +78,28 @@ export async function saveLangAndZone(db: Firestore, householdId: string, email:
  * then returns where the browser goes next (the connector's callback, which finishes the sign-in
  * and sends them back to their assistant).
  */
-export async function handOff(params: ConnectParams, user: User, fetchImpl: typeof fetch = fetch): Promise<string> {
+export async function handOff(params: ConnectParams, user: User, fetchImpl: typeof fetch = fetch, connector: string = CONNECTOR_URL): Promise<string> {
+  // Checked here too, not only by the page: nothing is posted anywhere this build doesn't know.
+  if (!connectAllowed(params, connector)) throw new Error('hand-off refused');
+  const signal = AbortSignal.timeout(HANDOFF_TIMEOUT_MS);
+  if (isCliSignIn(params)) {
+    // The connector keeps it under a one-time code bound to hh's challenge; only the code goes to hh.
+    const cli: CliHandoffRequest = { state: params.state, refreshToken: user.refreshToken, codeChallenge: params.codeChallenge!, redirect: params.redirect!, lang: getLang(), ...(timeZone() ? { timeZone: timeZone() } : {}) };
+    const res = await fetchImpl(`${connector}${CLI_HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cli), signal });
+    if (!res.ok) throw new Error(`hand-off ${res.status}`);
+    const { code } = (await res.json()) as { code: string };
+    return `${params.redirect}?state=${encodeURIComponent(params.state)}&code=${encodeURIComponent(code)}`;
+  }
   const body: HandoffRequest = { state: params.state, refreshToken: user.refreshToken, lang: getLang(), ...(timeZone() ? { timeZone: timeZone() } : {}) };
-  const res = await fetchImpl(`${params.service}${HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await fetchImpl(`${new URL(connector).origin}${HANDOFF_PATH}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal });
   if (!res.ok) throw new Error(`hand-off ${res.status}`);
   const { code } = (await res.json()) as { code: string };
-  return `${params.service}${CALLBACK_PATH}?state=${encodeURIComponent(params.state)}&code=${encodeURIComponent(code)}`;
+  return `${new URL(connector).origin}${CALLBACK_PATH}?state=${encodeURIComponent(params.state)}&code=${encodeURIComponent(code)}`;
 }
 
-/** Declining: the connector's callback without a code tells the assistant the person said no. */
-export const declineUrl = (params: ConnectParams) => `${params.service}${CALLBACK_PATH}?state=${encodeURIComponent(params.state)}`;
+/** Declining: the connector's callback without a code tells the assistant the person said no; `hh` hears `error=access_denied`. */
+export const declineUrl = (params: ConnectParams) =>
+  isCliSignIn(params) ? `${params.redirect}?state=${encodeURIComponent(params.state)}&error=access_denied` : `${params.service}${CALLBACK_PATH}?state=${encodeURIComponent(params.state)}`;
 
 export interface Connection {
   id: string;

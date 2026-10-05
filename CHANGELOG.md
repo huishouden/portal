@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.21.0](https://github.com/huishouden/portal/compare/v2.20.1...v2.21.0) (2026-10-05)
+
+### Features
+
+* /connect signs in the hh command line on this computer ([ef60b48](https://github.com/huishouden/portal/commit/ef60b48c29b1e80d17bcafc5543741b8a8f7400e))
+
+### Bug Fixes
+
+* **connect:** review findings; pwa-kit 0.95.0 ([65b791f](https://github.com/huishouden/portal/commit/65b791f0a7100464ce59a7cf700df7cca7b44dd1))
+
 ## [2.20.1](https://github.com/huishouden/portal/compare/v2.20.0...v2.20.1) (2026-10-05)
 
 ### Bug Fixes
