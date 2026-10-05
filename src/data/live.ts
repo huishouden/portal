@@ -181,8 +181,17 @@ export function useLiveHub(agendaDays: number = AGENDA_DAYS): { state: HubState;
   // The agenda from a week ago (overdue items whatever their age) to `agendaDays` ahead (as far as
   // apps publish on the Calendar tab), followed again each new day so a tablet left open keeps the
   // right window.
-  useEffect(() => {
+  // A new window (a new day, the Calendar tab opening or closing) keeps showing the last answer
+  // until the new listener's first one, rather than blanking the screen; a new household or member
+  // starts empty. Firestore resumes a window this page followed in the last 30 minutes from the
+  // cache, billing only what changed.
+  const agendaFor = `${householdId ?? ''}|${email ?? ''}|${restricted}`;
+  const [agendaShownFor, setAgendaShownFor] = useState(agendaFor);
+  if (agendaShownFor !== agendaFor) {
+    setAgendaShownFor(agendaFor);
     setAgenda(undefined);
+  }
+  useEffect(() => {
     if (!householdId) return;
     const { from, to } = agendaRange(Date.now(), agendaDays, 7);
     // With `me`, the items for named people only that name this member (Health's medicines).
