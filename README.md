@@ -100,6 +100,7 @@ Federation (repo variables `GCP_WIF_PROVIDER`, `GCP_DEPLOY_SA`). Pull requests o
 The deploy also uploads the suite's hashed build files to the asset CDN (the Cloudflare Worker
 `huishouden-assets`) with the repo secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`;
 the variable `HH_ASSET_CDN=off` turns that off for the suite (pwa-kit docs/one-site.md "Asset CDN").
+Every six hours a scheduled reconcile run also redeploys the site if an app published a build the asset CDN or the live site has not picked up yet (apps hold no Cloudflare token); otherwise it is a no-op.
 
 ## Monitoring
 
