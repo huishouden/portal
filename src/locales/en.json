@@ -416,6 +416,5 @@
   "notifications.title": "Notifications",
   "notifications.intro": "Turn notifications on once per phone or tablet, and every Huishouden app can remind you there. Then choose which apps remind you.",
   "notifications.signIn": "Sign in to manage your notifications.",
-  "notifications.noHousehold": "Notifications are per household. Join or start one first.",
-  "notifications.back": "Back to Huishouden"
+  "notifications.noHousehold": "Notifications are per household. Join or start one first."
 }
