@@ -408,6 +408,6 @@ test('notifications', ({ page }) =>
         history.pushState(null, '', '/notifications');
         dispatchEvent(new PopStateEvent('popstate'));
       });
-      await expect(p.getByRole('heading', { name: 'Notifications' })).toBeVisible();
+      await expect(p.getByRole('heading', { name: 'Notifications', level: 1 })).toBeVisible();
     }),
   }));

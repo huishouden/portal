@@ -236,6 +236,6 @@ test('the own-calendar page loads and asks a signed-out visitor to sign in', asy
 // Notifications (account menu; each app's "Manage in Huishouden"): signed out it asks to sign in.
 test('the notifications page loads and asks a signed-out visitor to sign in', async ({ page }) => {
   await expectCleanLoad(page, '/notifications');
-  await expect(page.getByRole('heading', { name: 'Notifications' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Notifications', level: 1 })).toBeVisible();
   await expect(page.getByText('Sign in to manage your notifications.')).toBeVisible();
 });
