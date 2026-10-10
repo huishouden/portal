@@ -399,3 +399,15 @@ test('in your own calendar', ({ page }) =>
       await expect(p.getByRole('heading', { name: 'In your own calendar' })).toBeVisible();
     }),
   }));
+
+test('notifications', ({ page }) =>
+  captureScreenshot(page, 'notifications', {
+    fixedTime,
+    prepare: preview(member(), async (p) => {
+      await p.evaluate(() => {
+        history.pushState(null, '', '/notifications');
+        dispatchEvent(new PopStateEvent('popstate'));
+      });
+      await expect(p.getByRole('heading', { name: 'Notifications' })).toBeVisible();
+    }),
+  }));

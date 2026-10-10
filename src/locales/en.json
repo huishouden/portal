@@ -412,5 +412,10 @@
   "myCalendar.errorGoogle": "Google Calendar didn't take the last update. It tries again in a few minutes.",
   "myCalendar.source": "How it works and its limits:",
   "myCalendar.sourceLink": "huishouden/calendar on GitHub",
-  "calendar.ownCalendar": "Show in my own calendar"
+  "calendar.ownCalendar": "Show in my own calendar",
+  "notifications.title": "Notifications",
+  "notifications.intro": "Turn notifications on once per phone or tablet, and every Huishouden app can remind you there. Then choose which apps remind you.",
+  "notifications.signIn": "Sign in to manage your notifications.",
+  "notifications.noHousehold": "Notifications are per household. Join or start one first.",
+  "notifications.back": "Back to Huishouden"
 }

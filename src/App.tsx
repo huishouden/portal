@@ -16,9 +16,12 @@ import { clearSharedContact, readSharedContact, type ParsedContact } from '@huis
 import { TodayScreen } from './screens/TodayScreen';
 import { TodoScreen } from './screens/TodoScreen';
 import { PrivacyScreen } from './screens/PrivacyScreen';
-import { ASSISTANT_PATH, CALENDAR_SETTINGS_PATH, PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
+import { ASSISTANT_PATH, CALENDAR_SETTINGS_PATH, NOTIFICATIONS_PATH, PRIVACY_PATH } from '@huishouden/pwa-kit/app-bar';
 import { CONNECT_PATH } from '@huishouden/pwa-kit/signin-handoff';
 import { AssistantScreen } from './screens/AssistantScreen';
+import { NotificationsScreen, VAPID_PUBLIC_KEY } from './screens/NotificationsScreen';
+import { PushSuiteUpgrade } from '@huishouden/pwa-kit/react/push';
+import { db } from './firebase';
 import { ConnectScreen } from './screens/ConnectScreen';
 import { MyCalendarScreen } from './screens/MyCalendarScreen';
 import { auth } from './firebase';
@@ -49,8 +52,8 @@ function tabsFor(state: HubState): Tab[] {
 }
 
 /** Pages outside the tabs: Privacy, the household in the person's own calendar, and using Huishouden from an AI assistant (its page and its sign-in). */
-type Page = 'privacy' | 'assistant' | 'connect' | 'my-calendar';
-const PAGES: Record<string, Page> = { [PRIVACY_PATH]: 'privacy', [ASSISTANT_PATH]: 'assistant', [CONNECT_PATH]: 'connect', [CALENDAR_SETTINGS_PATH]: 'my-calendar' };
+type Page = 'privacy' | 'assistant' | 'connect' | 'my-calendar' | 'notifications';
+const PAGES: Record<string, Page> = { [PRIVACY_PATH]: 'privacy', [ASSISTANT_PATH]: 'assistant', [CONNECT_PATH]: 'connect', [CALENDAR_SETTINGS_PATH]: 'my-calendar', [NOTIFICATIONS_PATH]: 'notifications' };
 const pageFromPath = (): Page | null => PAGES[location.pathname.replace(/\/$/, '')] ?? null;
 
 const tabFromPath = (): TabId | undefined => {
@@ -194,6 +197,16 @@ export default function App() {
             fail={fail}
           />
         )}
+        {page === 'notifications' && (
+          <NotificationsScreen
+            user={state.auth === 'starting' ? undefined : signedIn ? (auth.currentUser ?? previewUser) : null}
+            householdId={signedIn?.household.status === 'ready' ? signedIn.household.id : undefined}
+            me={signedIn?.me}
+            role={role}
+            apps={ordered}
+            onSignIn={() => void signIn()}
+          />
+        )}
         {page === 'connect' && (
           <ConnectScreen
             user={state.auth === 'starting' ? undefined : signedIn ? auth.currentUser : null}
@@ -258,6 +271,10 @@ export default function App() {
           {t('privacy.link')}
         </a>
       </footer>
+      {/* A device that notifies under an older per-app subscription moves to the suite's, without asking. */}
+      {signedIn?.household.status === 'ready' && signedIn.me && !preview && (
+        <PushSuiteUpgrade db={db} householdId={signedIn.household.id} user={{ email: signedIn.me }} vapidKey={VAPID_PUBLIC_KEY} />
+      )}
       <Toast toast={toast} onDone={clear} />
     </div>
   );

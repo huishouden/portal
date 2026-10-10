@@ -412,5 +412,10 @@
   "myCalendar.errorGoogle": "Google Calendar no aceptó la última actualización. Lo intenta de nuevo en unos minutos.",
   "myCalendar.source": "Cómo funciona y sus límites:",
   "myCalendar.sourceLink": "huishouden/calendar en GitHub",
-  "calendar.ownCalendar": "Ver en mi propio calendario"
+  "calendar.ownCalendar": "Ver en mi propio calendario",
+  "notifications.title": "Notificaciones",
+  "notifications.intro": "Activa las notificaciones una vez por teléfono o tableta y todas las apps de Huishouden podrán recordarte allí. Después elige qué apps te recuerdan.",
+  "notifications.signIn": "Inicia sesión para gestionar tus notificaciones.",
+  "notifications.noHousehold": "Las notificaciones son por hogar. Primero únete a uno o crea uno.",
+  "notifications.back": "Volver a Huishouden"
 }
