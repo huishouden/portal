@@ -3,10 +3,6 @@ name: ci
 on:
   push:
     branches: [main]
-  schedule:
-    # Reconcile: uploads to the asset CDN the builds an app published since (apps hold no
-    # Cloudflare token) and redeploys the site only when it is behind. A no-op otherwise.
-    - cron: '23 */6 * * *'
   workflow_dispatch:
     inputs:
       reconcile:
@@ -37,7 +33,7 @@ jobs:
     with:
       base: /
       staging-ref: ${{ inputs.staging-ref }}
-      reconcile: ${{ github.event_name == 'schedule' || inputs.reconcile == true }}
+      reconcile: ${{ inputs.reconcile == true }}
     # The asset CDN's upload (pwa-kit docs/one-site.md "Asset CDN"); only these two secrets.
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
