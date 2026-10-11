@@ -162,10 +162,11 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
             autoComplete="off"
             onChange={(e) => setName(e.target.value)}
           />
-          <button type="submit" className={primaryButton} disabled={creating}>
+          {/* aria-disabled, not disabled: the button keeps focus (and the section's live region announces "Starting…"); submit ignores taps while creating. */}
+          <button type="submit" className={`${primaryButton} ${creating ? 'opacity-60' : ''}`} aria-disabled={creating}>
             {creating ? t('household.starting') : t('household.startShort')}
           </button>
-          <button type="button" className={ghostButton} disabled={creating} onClick={() => setNaming(false)}>
+          <button type="button" className={`${ghostButton} ${creating ? 'opacity-60' : ''}`} aria-disabled={creating} onClick={() => !creating && setNaming(false)}>
             {t('common.cancel')}
           </button>
         </div>
