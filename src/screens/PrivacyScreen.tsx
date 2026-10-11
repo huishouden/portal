@@ -14,6 +14,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 const SECTIONS = [
   { title: 'privacy.dataTitle', paragraphs: ['privacy.dataBody'] },
   { title: 'privacy.homeTitle', paragraphs: ['privacy.homeBody'] },
+  { title: 'privacy.langTitle', paragraphs: ['privacy.langBody'] },
   { title: 'privacy.sendTitle', items: ['privacy.sendErrors', 'privacy.sendSpeed', 'privacy.sendUsage', 'privacy.sendRegion'] },
   { title: 'privacy.neverTitle', paragraphs: ['privacy.neverBody'] },
   { title: 'privacy.gpcTitle', paragraphs: ['privacy.gpcBody'] },

@@ -14,6 +14,8 @@
   "privacy.dataBody": "Wat je toevoegt (lijsten, logboeken, rekeningen, contacten, herinneringen) wordt bewaard in de eigen ruimte van je huishouden en is alleen zichtbaar voor de leden van je huishouden. Het wordt nooit verkocht of gebruikt voor reclame. Apps die je Gmail of Agenda lezen, doen dat pas nadat je het toestaat, vanuit je eigen browser.",
   "privacy.homeTitle": "Je thuisadres",
   "privacy.homeBody": "Als je huishouden een thuisadres instelt, wordt het bewaard in de gegevens van je huishouden en kan iedereen in het huishouden het zien, ook helpers zoals een oppas. Apps gebruiken het om plekken in de buurt te vinden, te zeggen hoe ver iets van huis is en herinneringen op thuistijd te houden. Je kunt ook alleen de buurt bewaren (‘Alleen bij benadering’) of het adres altijd weer verwijderen. Het wordt nooit meegestuurd met fout-, snelheids- of gebruiksrapporten.",
+  "privacy.langTitle": "Je taal",
+  "privacy.langBody": "De taal die je in het menu van een app kiest, wordt bewaard in de gegevens van je huishouden, zodat elke app hem op al je apparaten toont en wat de apps van andere leden voor je publiceren (herinneringen, taken, agenda-items) erin wordt geschreven. Leden van je huishouden kunnen zien welke taal elk lid gebruikt. De eerste keer dat je een app opent, wordt hij ingesteld op de taal van je apparaat.",
   "privacy.sendTitle": "Wat de apps versturen om problemen op te lossen",
   "privacy.sendErrors": "Fouten: wanneer er iets misgaat, welke app en versie, en wat er misging, zonder adressen en id's.",
   "privacy.sendSpeed": "Snelheid: hoe lang schermen nodig hebben om te laden en te reageren.",
