@@ -70,12 +70,15 @@ export function HouseholdPanel({ state, actions, notify, fail, onOpenPage }: Pro
         </>
       )}
       {h.status === 'none' && (
-        <NoHousehold me={state.me} suggestedName={h.suggestedName} create={(name) =>
-            run(async () => {
+        <NoHousehold me={state.me} suggestedName={h.suggestedName} create={async (name) => {
+            let ok = false;
+            await run(async () => {
               await actions.createHousehold(name);
               setCreated(true);
-            })
-          }
+              ok = true;
+            });
+            return ok;
+          }}
         />
       )}
       {h.status === 'ready' && <Household key={h.id} me={state.me} household={h} actions={actions} run={run} focusInvite={created} onOpenPage={onOpenPage} />}
@@ -89,10 +92,13 @@ export function HouseholdPanel({ state, actions, notify, fail, onOpenPage }: Pro
   );
 }
 
-function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName: string; create: (name: string) => Promise<void> }) {
+function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName: string; create: (name: string) => Promise<boolean> }) {
   const t = useT();
   const [naming, setNaming] = useState(false);
   const [creating, setCreating] = useState(false);
+  // Set synchronously: two taps in one frame both see `creating` false, and `creating` must stay true
+  // after a success until the household arrives, or the button comes back before the page changes.
+  const tapped = useRef(false);
   const [name, setName] = useState(suggestedName);
   const input = useRef<HTMLInputElement>(null);
   const startButton = useRef<HTMLButtonElement>(null);
@@ -129,10 +135,13 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
-    if (!trimmed || creating) return;
+    if (!trimmed || creating || tapped.current) return;
+    tapped.current = true;
     setCreating(true);
-    await create(trimmed.slice(0, MAX_NAME));
-    setCreating(false);
+    if (!(await create(trimmed.slice(0, MAX_NAME)))) {
+      tapped.current = false;
+      setCreating(false);
+    }
   };
 
   return (
@@ -153,10 +162,11 @@ function NoHousehold({ me, suggestedName, create }: { me: string; suggestedName:
             autoComplete="off"
             onChange={(e) => setName(e.target.value)}
           />
-          <button type="submit" className={primaryButton} disabled={creating}>
+          {/* aria-disabled, not disabled: the button keeps focus (and the section's live region announces "Starting…"); submit ignores taps while creating. */}
+          <button type="submit" className={`${primaryButton} ${creating ? 'opacity-60' : ''}`} aria-disabled={creating}>
             {creating ? t('household.starting') : t('household.startShort')}
           </button>
-          <button type="button" className={ghostButton} disabled={creating} onClick={() => setNaming(false)}>
+          <button type="button" className={`${ghostButton} ${creating ? 'opacity-60' : ''}`} aria-disabled={creating} onClick={() => !creating && setNaming(false)}>
             {t('common.cancel')}
           </button>
         </div>

@@ -259,7 +259,7 @@ export function useLiveHub(agendaDays: number = AGENDA_DAYS): { state: HubState;
       signOut: signOutEverywhere,
       async createHousehold(name) {
         if (!email) return;
-        await createHousehold(db, email, name.slice(0, MAX_NAME)).catch((e) => {
+        await createHousehold(db, email, name.slice(0, MAX_NAME), auth.currentUser).catch((e) => {
           throw words(e, t('error.createHousehold'));
         });
         track('create household');
