@@ -83,7 +83,7 @@ automated browsers send nothing. The page people see is
 
 ```sh
 bun install
-bun run env:pull # the public Firebase web config, into .env.local
+bun run env:pull # writes .env.local from the repo's STAGING_VITE_* variables (staging project, never production)
 bun run dev      # http://localhost:3001
 bun run lint && bun run test && bun run build
 BASE_URL=http://localhost:4173 bun run e2e   # against `bun run preview`
