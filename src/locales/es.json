@@ -14,6 +14,8 @@
   "privacy.dataBody": "Lo que agregas (listas, registros, facturas, contactos, recordatorios) se guarda en el espacio propio de tu hogar y solo lo ven los miembros de tu hogar. Nunca se vende ni se usa para publicidad. Las apps que leen tu Gmail o tu Calendar lo hacen solo después de que lo permitas, desde tu propio navegador.",
   "privacy.homeTitle": "La dirección de tu casa",
   "privacy.homeBody": "Si tu hogar guarda una dirección de casa, se guarda en los datos de tu hogar y todos sus miembros pueden verla, incluidos los ayudantes como una niñera. Las apps la usan para buscar lugares cercanos, para decir a qué distancia de casa está un lugar y para mantener los recordatorios en la hora de casa. Puedes guardar solo el barrio («Solo aproximada») o eliminarla cuando quieras. Nunca se envía con los informes de errores, velocidad o uso.",
+  "privacy.langTitle": "Tu idioma",
+  "privacy.langBody": "El idioma que eliges en el menú de cualquier app se guarda en los datos de tu hogar, para que todas las apps lo muestren en cada uno de tus dispositivos y para que lo que publican las apps de los demás miembros para ti (recordatorios, pendientes, elementos del calendario) se escriba en él. Los miembros de tu hogar pueden ver qué idioma usa cada miembro. La primera vez que abres una app, se toma del idioma de tu dispositivo.",
   "privacy.sendTitle": "Lo que envían las apps para ayudar a resolver problemas",
   "privacy.sendErrors": "Errores: cuando algo falla, qué app y versión, y qué falló, sin direcciones ni identificadores.",
   "privacy.sendSpeed": "Velocidad: cuánto tardan las pantallas en cargar y responder.",
