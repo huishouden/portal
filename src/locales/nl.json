@@ -413,5 +413,9 @@
   "myCalendar.errorGoogle": "Google Agenda nam de laatste update niet aan. Over een paar minuten wordt het opnieuw geprobeerd.",
   "myCalendar.source": "Hoe het werkt en wat de grenzen zijn:",
   "myCalendar.sourceLink": "huishouden/calendar op GitHub",
-  "calendar.ownCalendar": "In mijn eigen agenda tonen"
+  "calendar.ownCalendar": "In mijn eigen agenda tonen",
+  "notifications.title": "Meldingen",
+  "notifications.intro": "Zet meldingen één keer aan per telefoon of tablet, en elke Huishouden-app kan je daar herinneren. Kies daarna welke apps je herinneren.",
+  "notifications.signIn": "Log in om je meldingen te beheren.",
+  "notifications.noHousehold": "Meldingen horen bij een huishouden. Sluit je eerst aan bij een huishouden of begin er een."
 }

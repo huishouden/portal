@@ -15,6 +15,8 @@ export default defineConfig({
     pwaApp({
       base: '/',
       otherApps,
+      // The portal's worker (scope /) owns the one push subscription of the device for every app (pwa-kit STANDARD.md "Notifications").
+      push: true,
       name: 'Huishouden',
       description: "Your household's apps, together in one place",
       // Contacts → Share → Huishouden on Android: a contact card becomes a household contact.
