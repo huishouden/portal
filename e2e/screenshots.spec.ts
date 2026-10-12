@@ -402,6 +402,23 @@ test('in your own calendar', ({ page }) =>
     }),
   }));
 
+test('what your calendar shows', ({ page }) =>
+  captureScreenshot(page, 'my-calendar-shows', {
+    fixedTime,
+    prepare: preview(member(), async (p) => {
+      await p.route('**/api/status**', (r) => r.fulfill({ json: calendarStatus }));
+      await p.evaluate(() => {
+        history.pushState(null, '', '/my-calendar');
+        dispatchEvent(new PopStateEvent('popstate'));
+      });
+      const shows = p.getByRole('heading', { name: 'What your calendar shows' });
+      await expect(shows).toBeVisible();
+      // One Bills control, in the Apps list.
+      await expect(p.getByRole('checkbox', { name: 'Bills' })).toHaveCount(1);
+      await shows.scrollIntoViewIfNeeded();
+    }),
+  }));
+
 test('notifications', ({ page }) =>
   captureScreenshot(page, 'notifications', {
     fixedTime,
