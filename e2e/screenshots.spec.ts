@@ -397,6 +397,26 @@ test('in your own calendar', ({ page }) =>
         dispatchEvent(new PopStateEvent('popstate'));
       });
       await expect(p.getByRole('heading', { name: 'In your own calendar' })).toBeVisible();
+      // One Bills control (the Apps list), not a second one under "Also".
+      await expect(p.getByRole('checkbox', { name: 'Bills' })).toHaveCount(1);
+    }),
+  }));
+
+test('what your calendar shows', ({ page }) =>
+  captureScreenshot(page, 'my-calendar-shows', {
+    fixedTime,
+    prepare: preview(member(), async (p) => {
+      await p.route('**/api/status**', (r) => r.fulfill({ json: calendarStatus }));
+      await p.evaluate(() => {
+        history.pushState(null, '', '/my-calendar');
+        dispatchEvent(new PopStateEvent('popstate'));
+      });
+      const shows = p.getByRole('heading', { name: 'What your calendar shows' });
+      await expect(shows).toBeVisible();
+      // One Bills control, in the Apps list.
+      await expect(p.getByRole('checkbox', { name: 'Bills' })).toHaveCount(1);
+      // Centre the Apps and Also lists, so both are in the picture.
+      await p.getByText('Also', { exact: true }).evaluate((el) => el.scrollIntoView({ block: 'center' }));
     }),
   }));
 
