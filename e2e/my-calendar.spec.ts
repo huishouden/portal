@@ -68,6 +68,13 @@ test('a member who isn’t the carer sees bills but no Health', staging, async (
   const ics = await feedText(page, await feedLink(page, 'member'));
   expect(ics).toContain('E2E power bill');
   expect(ics).not.toContain('E2E Nan');
+  // Bills is one checkbox, in the Apps list; unticking it takes the bill out of the feed.
+  const bills = page.getByRole('checkbox', { name: 'Bills' });
+  await expect(bills).toHaveCount(1);
+  await bills.uncheck();
+  const url = await page.getByLabel('Your calendar link').inputValue();
+  await expect.poll(async () => (await feedText(page, url)).includes('E2E power bill'), { timeout: 20_000 }).toBe(false);
+  await bills.check();
 });
 
 test('the admin in Health’s audience: "Medicine for E2E Nan" with no detail until they ask; then a new link, then none', staging, async ({ page }) => {

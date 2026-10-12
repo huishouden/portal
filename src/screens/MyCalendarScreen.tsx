@@ -338,11 +338,6 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
             <Checkbox checked={shown.todos} onChange={(todos) => save({ ...shown, todos })}>
               {t('myCalendar.todos')}
             </Checkbox>
-            {staff && (
-              <Checkbox checked={shown.bills} onChange={(bills) => save({ ...shown, bills })}>
-                {t('myCalendar.bills')}
-              </Checkbox>
-            )}
             <Checkbox checked={shown.done} onChange={(done) => save({ ...shown, done })}>
               {t('myCalendar.done')}
             </Checkbox>

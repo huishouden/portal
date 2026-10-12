@@ -397,6 +397,8 @@ test('in your own calendar', ({ page }) =>
         dispatchEvent(new PopStateEvent('popstate'));
       });
       await expect(p.getByRole('heading', { name: 'In your own calendar' })).toBeVisible();
+      // One Bills control (the Apps list), not a second one under "Also".
+      await expect(p.getByRole('checkbox', { name: 'Bills' })).toHaveCount(1);
     }),
   }));
 
