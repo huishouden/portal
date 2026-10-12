@@ -1,4 +1,4 @@
-import { type AgendaItem, type TodayEntry, type TodayGroup } from '@huishouden/pwa-kit/agenda';
+import { mergeAgenda, type AgendaItem, type TodayEntry, type TodayGroup } from '@huishouden/pwa-kit/agenda';
 import { longDate, toYmd } from '@huishouden/pwa-kit/time';
 import { DoneBadge, cardClass, overline } from '@huishouden/pwa-kit/react/ui';
 import { ChevronDown } from 'lucide-react';
@@ -30,7 +30,8 @@ const HEADINGS = { overdue: 'today.overdue', today: 'today.today', soon: 'today.
  */
 export function TodayScreen({ agenda: stored, apps, now, me = '', profiles = {} }: Props) {
   const t = useT();
-  const agenda = stored?.map(inMyLanguage);
+  // Things that happen together (garbage and recycling, two pets' meals) as one row (@huishouden/pwa-kit/merge).
+  const agenda = stored && mergeAgenda(stored).map(inMyLanguage);
   const today = toYmd(now);
   const byRepo = new Map(apps.map((a) => [a.repo, a]));
   const { open, done } = agenda ? todayBoard(agenda, now) : { open: [], done: [] };
