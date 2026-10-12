@@ -59,6 +59,12 @@ export const agenda: AgendaItem[] = [
   // Done this morning: they show folded away under "Done today", with who and when.
   item({ id: 'd1', app: 'pet', ref: 'feed:breakfast', kind: 'feeding', title: "Biscuit's breakfast", who: 'Biscuit', detail: '1 cup dry food', start: local('2026-10-01T07:00'), status: 'done', updatedAt: local('2026-10-01T07:05'), by: 'alex@example.com' }),
   item({ id: 'd2', app: 'tasks', ref: 'task:recycling', kind: 'task', title: 'Take out the recycling', start: local('2026-10-01T00:00'), allDay: true, status: 'done', updatedAt: local('2026-10-01T08:15') }),
+  // Garbage and recycling on the same Monday, and putting both out the night before: one row each
+  // (@huishouden/pwa-kit/merge).
+  item({ id: 'p1', app: 'home', ref: 'event:garbage', kind: 'other', title: 'Garbage pickup', detail: 'Every Monday', start: local('2026-10-05T00:00'), allDay: true, merge: { key: 'collection', part: 'garbage', title: '{parts} pickup' } }),
+  item({ id: 'p2', app: 'home', ref: 'event:recycling', kind: 'other', title: 'Recycling pickup', detail: 'Every other Monday', start: local('2026-10-05T00:00'), allDay: true, merge: { key: 'collection', part: 'recycling', title: '{parts} pickup' } }),
+  item({ id: 'p3', app: 'home', ref: 'prep:garbage', kind: 'task', title: 'Take the garbage out', start: local('2026-10-04T19:00'), end: local('2026-10-04T23:59'), status: 'upcoming', merge: { key: 'collection:prep', part: 'garbage', title: 'Take the {parts} out' } }),
+  item({ id: 'p4', app: 'home', ref: 'prep:recycling', kind: 'task', title: 'Put the recycling out', start: local('2026-10-04T19:00'), end: local('2026-10-04T23:59'), status: 'upcoming', merge: { key: 'collection:prep', part: 'recycling', title: 'Take the {parts} out' } }),
   // An ongoing course: on the calendar, not on Today.
   item({ id: 'm1', app: 'pet', ref: 'med:course', kind: 'medicine', title: 'Antibiotic course', who: 'Biscuit', start: local('2026-09-28T00:00'), end: local('2026-10-05T00:00'), allDay: true }),
 ];

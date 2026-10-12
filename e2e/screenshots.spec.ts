@@ -256,6 +256,19 @@ test('calendar', ({ page }) =>
     }),
   }));
 
+test('calendar: garbage and recycling on the same Monday, one event', ({ page }) =>
+  captureScreenshot(page, 'calendar-merged', {
+    fixedTime,
+    prepare: preview(member(), async (p) => {
+      await tab(p, 'Calendar');
+      const monday = p.getByRole('region', { name: 'Monday, October 5' });
+      await monday.scrollIntoViewIfNeeded();
+      await expect(monday.getByText('Garbage and recycling pickup')).toBeVisible();
+      await expect(monday.getByText('Garbage pickup', { exact: true })).toHaveCount(0);
+      await expect(p.getByRole('region', { name: 'Sunday, October 4' }).getByText('Take the garbage and recycling out')).toBeVisible();
+    }),
+  }));
+
 test('phone: calendar', async ({ page }) => {
   await phone(page);
   await captureScreenshot(page, 'phone-calendar', {

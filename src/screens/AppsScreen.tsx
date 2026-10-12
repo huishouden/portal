@@ -6,6 +6,7 @@ import { HouseholdPanel } from '../components/HouseholdPanel';
 import { Intro } from '../components/Intro';
 import { Tiles } from '../components/Tiles';
 import { can } from '@huishouden/pwa-kit/roles';
+import { mergeAgenda } from '@huishouden/pwa-kit/agenda';
 import { appSummaries } from '../today';
 import { isMember, myRole, type HubActions, type HubState } from '../hub';
 
@@ -29,7 +30,7 @@ export function AppsScreen({ state, actions, apps, hour, now, onOpenPage, signIn
   const role = myRole(state);
   const agenda = state.auth === 'signed-in' ? state.agenda : undefined;
   const overdue = useMemo(
-    () => Object.fromEntries((agenda ? appSummaries(agenda, apps, now) : []).filter((s) => s.overdue > 0).map((s) => [s.app.repo, s.overdue])),
+    () => Object.fromEntries((agenda ? appSummaries(mergeAgenda(agenda), apps, now) : []).filter((s) => s.overdue > 0).map((s) => [s.app.repo, s.overdue])),
     [agenda, apps, now],
   );
   return (

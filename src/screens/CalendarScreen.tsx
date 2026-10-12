@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { agendaDays, agendaStatus, agendaTime, type AgendaItem } from '@huishouden/pwa-kit/agenda';
+import { agendaDays, agendaStatus, agendaTime, mergeAgenda, type AgendaItem } from '@huishouden/pwa-kit/agenda';
 import { dueText, toYmd } from '@huishouden/pwa-kit/time';
 import { CalendarPlus } from 'lucide-react';
 import { Chip, cardClass, overline, secondaryButton } from '@huishouden/pwa-kit/react/ui';
@@ -22,7 +22,8 @@ export function CalendarScreen({ agenda, apps, now, onOwnCalendar }: Props) {
   const [only, setOnly] = useState<string | null>(null);
   const today = toYmd(now);
   const byRepo = new Map(apps.map((a) => [a.repo, a]));
-  const items = (agenda ?? []).map(inMyLanguage);
+  // Things that happen together (garbage and recycling, two pets' meals) as one row (@huishouden/pwa-kit/merge).
+  const items = mergeAgenda(agenda ?? []).map(inMyLanguage);
   const withItems = apps.filter((a) => items.some((i) => i.app === a.repo));
   const shown = only ? items.filter((i) => i.app === only) : items;
   const overdue = shown.filter((i) => agendaStatus(i, now) === 'overdue');
