@@ -35,8 +35,10 @@ test('the start screen (Today), signed in as an admin', async ({ page }) => {
       await hh.signIn(page, 'admin');
       await expect(page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: 'Today' })).toBeVisible({ timeout: 20_000 });
     },
-    { max: 19, label: 'portal, Today' },
+    { max: 19, min: 19, label: 'portal, Today' },
   );
+  // What the helper must not see is on the admin's screen, so its absence there measures the role.
+  await expect(page.getByText('Electricity bill').first()).toBeVisible();
 });
 
 // The always-on screen is often a helper's: restricted queries (private == false), no money.
@@ -47,8 +49,10 @@ test('the start screen (Today), signed in as a helper: nothing private read', as
       await hh.signIn(page, 'helper');
       await expect(page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: 'Today' })).toBeVisible({ timeout: 20_000 });
     },
-    { max: 17, label: 'portal, Today, helper' },
+    { max: 17, min: 17, label: 'portal, Today, helper' },
   );
+  // The helper's agenda did load (a refused listener would also show nothing, and read less: `min`);
+  // the private to-do isn't on Today, and its read is what the helper's two fewer reads leave out.
+  await expect(page.getByText('Vet visit').first()).toBeVisible();
   await expect(page.getByText('Electricity bill')).toHaveCount(0);
-  await expect(page.getByText('Plan the surprise party')).toHaveCount(0);
 });
