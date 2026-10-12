@@ -415,7 +415,8 @@ test('what your calendar shows', ({ page }) =>
       await expect(shows).toBeVisible();
       // One Bills control, in the Apps list.
       await expect(p.getByRole('checkbox', { name: 'Bills' })).toHaveCount(1);
-      await shows.scrollIntoViewIfNeeded();
+      // Centre the Apps and Also lists, so both are in the picture.
+      await p.getByText('Also', { exact: true }).evaluate((el) => el.scrollIntoView({ block: 'center' }));
     }),
   }));
 
