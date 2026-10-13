@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { agendaDays, agendaStatus, agendaTime, mergeAgenda, type AgendaItem } from '@huishouden/pwa-kit/agenda';
 import { dueText, toYmd } from '@huishouden/pwa-kit/time';
 import { CalendarPlus } from 'lucide-react';
-import { Chip, cardClass, overline, secondaryButton } from '@huishouden/pwa-kit/react/ui';
+import { Chip, cardClass, overline, secondaryButton, ScreenSkeleton } from '@huishouden/pwa-kit/react/ui';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { ItemIcon, inMyLanguage, itemMeta, kindWord } from '../components/ItemIcon';
 import { t, useT } from '../i18n';
@@ -56,7 +56,7 @@ export function CalendarScreen({ agenda, apps, now, onOwnCalendar }: Props) {
           ))}
         </div>
       )}
-      {agenda === undefined && <p className="text-lg text-muted">{t('calendar.loading')}</p>}
+      {agenda === undefined && <ScreenSkeleton label={t('calendar.loading')} />}
       {agenda !== undefined && overdue.length === 0 && days.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
           {t('calendar.empty')}

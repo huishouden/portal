@@ -4,7 +4,7 @@ import { addedText, canDo, olderThan, todoDueText, todoOverdue, todoWords, type 
 import { formatList } from '@huishouden/pwa-kit/i18n';
 import { isRestricted, type Role } from '@huishouden/pwa-kit/roles';
 import { RoleNote } from '@huishouden/pwa-kit/react/roles';
-import { Chip, CompleteButton, CompletionList, CompletionRow, Dialog, canUndoDone, cardClass, ghostButton, primaryButton, secondaryButton, selectClass } from '@huishouden/pwa-kit/react/ui';
+import { Chip, CompleteButton, CompletionList, CompletionRow, Dialog, canUndoDone, cardClass, ghostButton, primaryButton, secondaryButton, selectClass, ScreenSkeleton } from '@huishouden/pwa-kit/react/ui';
 import { formatTime } from '@huishouden/pwa-kit/time';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { AppIcon } from '../components/AppIcon';
@@ -211,7 +211,7 @@ export function TodoScreen({ todos, apps, now, me, role, actions, notify, fail }
         </div>
       )}
 
-      {todos === undefined && <Skeleton />}
+      {todos === undefined && <ScreenSkeleton label={t('todo.loading')} />}
       {todos !== undefined && entries.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
           {items.length === 0 ? t('todo.empty') : t('todo.emptyFilter')}
@@ -428,23 +428,3 @@ function ConfirmCancel({ items, appName, onClose, onConfirm }: { items: TodoItem
   );
 }
 
-const pulse = 'animate-pulse rounded bg-sunken motion-reduce:animate-none';
-
-function Skeleton() {
-  return (
-    <section aria-busy="true" aria-label={t('common.loading')}>
-      <p className="sr-only">{t('todo.loading')}</p>
-      <ul className={`${cardClass} divide-y divide-line`} aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <li key={i} className="flex min-h-20 items-center gap-3 px-4 py-3 sm:px-5">
-            <span className={`h-9 w-9 shrink-0 ${pulse} rounded-xl`} />
-            <span className="flex-1 space-y-2">
-              <span className={`block h-6 w-2/3 ${pulse}`} />
-              <span className={`block h-4 w-1/3 ${pulse}`} />
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}

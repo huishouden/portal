@@ -3,7 +3,7 @@ import { LayoutGrid, UserPlus } from 'lucide-react';
 import { groupContacts, type Contact, type ParsedContact } from '@huishouden/pwa-kit/contacts';
 import { ContactCard, ContactDialog } from '@huishouden/pwa-kit/react/contacts';
 import { can, type Role } from '@huishouden/pwa-kit/roles';
-import { Checkbox, Chip, Dialog, cardClass, ghostButton, primaryButton } from '@huishouden/pwa-kit/react/ui';
+import { Checkbox, Chip, Dialog, cardClass, ghostButton, primaryButton, ScreenSkeleton } from '@huishouden/pwa-kit/react/ui';
 import { auth } from '../firebase';
 import { contactRoleLabel, type HouseholdApp } from '../apps';
 import type { HubActions } from '../hub';
@@ -92,7 +92,7 @@ export function ContactsScreen({ contacts, apps, actions, notify, fail, me, role
         </div>
       )}
 
-      {contacts === undefined && <p className="text-lg text-muted">{t('contacts.loading')}</p>}
+      {contacts === undefined && <ScreenSkeleton label={t('contacts.loading')} />}
       {contacts !== undefined && list.length === 0 && (
         <p className={`${cardClass} p-6 text-lg text-muted`}>
           {t('contacts.empty')}

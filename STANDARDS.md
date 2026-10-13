@@ -39,7 +39,8 @@ judged rather than copied.
 
 - Manifest: `display: standalone`, `start_url` and `scope` `/`, icons at 192 and 512 plus a
   512 maskable icon. Generate PNGs from one SVG (`bun run icons` in this repo).
-- Service worker: `registerType: 'autoUpdate'`, so installed copies update on the next launch.
+- Service worker: the kit's (`pwaApp`), started with `startUpdates` in main.tsx: a new version
+  installs in the background and never reloads a page in use (pwa-kit STANDARD.md "Updates").
 - **`navigateFallbackDenylist: [/^\/__\//]`**. Firebase serves its sign-in popup at
   `/__/auth/handler`; without this the service worker answers it with the cached app and
   "Sign in with Google" opens the app instead of Google.

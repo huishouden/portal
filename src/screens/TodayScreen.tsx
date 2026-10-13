@@ -1,6 +1,6 @@
 import { mergeAgenda, type AgendaItem, type TodayEntry, type TodayGroup } from '@huishouden/pwa-kit/agenda';
 import { longDate, toYmd } from '@huishouden/pwa-kit/time';
-import { DoneBadge, cardClass, overline } from '@huishouden/pwa-kit/react/ui';
+import { DoneBadge, cardClass, overline, ScreenSkeleton } from '@huishouden/pwa-kit/react/ui';
 import { ChevronDown } from 'lucide-react';
 import { suiteLink, type HouseholdApp } from '../apps';
 import { AppIcon } from '../components/AppIcon';
@@ -48,7 +48,7 @@ export function TodayScreen({ agenda: stored, apps, now, me = '', profiles = {} 
       </div>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6" aria-live="polite">
-          {agenda === undefined && <Skeleton />}
+          {agenda === undefined && <ScreenSkeleton label={t('today.loading')} />}
           {agenda !== undefined && groups.length === 0 && (
             <p className={`${cardClass} p-6 text-xl text-muted`}>{t('today.empty')}</p>
           )}
@@ -104,28 +104,6 @@ export function TodayScreen({ agenda: stored, apps, now, me = '', profiles = {} 
   );
 }
 
-const pulse = 'animate-pulse rounded bg-sunken motion-reduce:animate-none';
-
-/** Rows the size of real ones while the day loads, so nothing jumps when it arrives. */
-function Skeleton() {
-  return (
-    <section aria-busy="true" aria-label={t('common.loading')}>
-      <p className="sr-only">{t('today.loading')}</p>
-      <div className="mb-2 h-4 w-24 rounded bg-stone-200 dark:bg-forest-700" aria-hidden="true" />
-      <ul className={`${cardClass} divide-y divide-line`} aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <li key={i} className="flex min-h-20 items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4">
-            <span className={`h-11 w-11 shrink-0 ${pulse} rounded-xl`} />
-            <span className="flex-1 space-y-2">
-              <span className={`block h-6 w-2/3 ${pulse}`} />
-              <span className={`block h-5 w-1/3 ${pulse}`} />
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
 
 function TodayRow({ entry: { item, group, when }, app }: { entry: TodayEntry; app?: HouseholdApp }) {
   const meta = itemMeta(item);
