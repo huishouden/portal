@@ -210,7 +210,7 @@ export function MyCalendarScreen({ user, householdId, me, role, apps, notify, fa
   const google = status?.google;
 
   return (
-    <article className={`${cardClass} mx-auto max-w-[720px] space-y-8 p-6 text-base leading-relaxed text-ink sm:p-8`}>
+    <article className={`${cardClass} mx-auto w-full max-w-[720px] space-y-8 p-6 text-base leading-relaxed text-ink sm:p-8`}>
       <header className="space-y-2">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold text-ink outline-none">
           {title}

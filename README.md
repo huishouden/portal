@@ -56,6 +56,7 @@ calendar) and Food into its title, each opening in place; `/apps#household-membe
 ![Arranging the apps](docs/screenshots/tiles-arrange.png)
 ![The apps on a phone](docs/screenshots/phone-apps.png)
 ![Food preferences](docs/screenshots/food.png)
+![While the hub opens on a device that remembers a member: the app bar and tabs already in place over a placeholder](docs/screenshots/opening.png)
 
 ## Code
 

@@ -38,7 +38,7 @@ export function PrivacyScreen() {
   // The sentence is translated whole; the link sits where the language puts it.
   const [before, after = ''] = t('privacy.code', { link: '\u0000' }).split('\u0000');
   return (
-    <article className={`${cardClass} mx-auto max-w-[720px] space-y-6 p-6 text-base leading-relaxed text-ink sm:p-8`}>
+    <article className={`${cardClass} mx-auto w-full max-w-[720px] space-y-6 p-6 text-base leading-relaxed text-ink sm:p-8`}>
       <header className="space-y-2">
         <h1 ref={heading} tabIndex={-1} className="text-3xl font-semibold text-ink outline-none">
           {t('privacy.title')}

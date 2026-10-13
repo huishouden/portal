@@ -1,8 +1,9 @@
 import { CalendarDays, Contact as ContactIcon, LayoutGrid, ListChecks, Sun } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { AppBar } from '@huishouden/pwa-kit/react/app-bar';
-import { SectionTabs, Toast, useToast, type Tab } from '@huishouden/pwa-kit/react/ui';
+import { AppFrame, AppOpening, type AppFrameProps } from '@huishouden/pwa-kit/react/frame';
+import { Toast, useToast, type Tab } from '@huishouden/pwa-kit/react/ui';
+import { trackView } from '@huishouden/pwa-kit/observability';
 import { APPS, arrangeTiles, type PortalLayout } from './apps';
 import { AGENDA_DAYS, AGENDA_WEEK_DAYS, useLiveHub } from './data/live';
 import { usePreview } from './data/preview';
@@ -25,7 +26,6 @@ import { db } from './firebase';
 import { ConnectScreen } from './screens/ConnectScreen';
 import { MyCalendarScreen } from './screens/MyCalendarScreen';
 import { auth } from './firebase';
-import { trackView } from '@huishouden/pwa-kit/observability';
 import { useNow } from './now';
 import { t, useT } from './i18n';
 
@@ -112,9 +112,6 @@ export default function App() {
   }, []);
 
   const shown = page ?? tab;
-  useEffect(() => {
-    trackView(shown);
-  }, [shown]);
 
   // Apps link here to set something in the Household panel (`/apps#household`, e.g. the home
   // address, or `#household-members`, `-home`, `-currency` for one section, which a phone opens):
@@ -169,13 +166,46 @@ export default function App() {
   // A preview (screenshots, smoke tests) has no Firebase user; calls it makes go nowhere real.
   const previewUser = preview ? ({ getIdToken: async () => 'preview', refreshToken: 'preview' } as unknown as User) : null;
 
+  // The kit's frame, the same while the hub opens and once it has: the tabs a member gets (also
+  // while a remembered member's sign-in restores), the page outside the tabs shown with none chosen.
+  const frame: AppFrameProps = {
+    // i18n-ignore: the suite's name, never translated
+    app: 'Huishouden',
+    glyph: 'home',
+    portalUrl: '/',
+    version: VERSION,
+    user,
+    signingIn,
+    onSignIn: signIn,
+    onSignOut: () => void actions.signOut(),
+    tabs,
+    tab: onPage ? '' : tab,
+    onTab: choose,
+  };
+  const footer = (
+    <footer className="mx-auto w-full max-w-[1200px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-sm text-muted sm:px-6">
+      <a
+        className="inline-flex min-h-11 items-center font-medium text-link underline-offset-4 hover:underline"
+        href={PRIVACY_PATH}
+        onClick={(e) => {
+          e.preventDefault();
+          history.pushState(null, '', PRIVACY_PATH);
+          setPage('privacy');
+          window.scrollTo(0, 0);
+        }}
+      >
+        {t('privacy.link')}
+      </a>
+    </footer>
+  );
+
+  // While sign-in restores or the household loads (a page such as Privacy needs neither): the kit's
+  // opening frame over its placeholder, never the introduction or a half-drawn hub.
+  const opening = state.auth === 'starting' ? 'session' : state.auth === 'signed-in' && state.household.status === 'loading' ? 'household' : null;
+  if (opening && !onPage) return <AppOpening {...frame} phase={opening} after={footer} />;
+
   return (
-    <div className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
-      {/* i18n-ignore: the suite's name, never translated */}
-      <AppBar app="Huishouden" glyph="home" portalUrl="/" version={VERSION} user={user} signingIn={signingIn} onSignIn={signIn} onSignOut={() => void actions.signOut()}>
-        <SectionTabs tabs={tabs} tab={onPage ? '' : tab} onTab={choose} />
-      </AppBar>
-      <main className="mx-auto w-full max-w-[1200px] px-4 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-8">
+    <AppFrame {...frame} onView={trackView} view={shown} after={footer}>
         {page === 'privacy' && <PrivacyScreen />}
         {page === 'assistant' && (
           <AssistantScreen
@@ -256,26 +286,11 @@ export default function App() {
             onSharedOpened={() => setSharedCards(null)}
           />
         )}
-      </main>
-      <footer className="mx-auto w-full max-w-[1200px] px-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-sm text-muted sm:px-6">
-        <a
-          className="inline-flex min-h-11 items-center font-medium text-link underline-offset-4 hover:underline"
-          href={PRIVACY_PATH}
-          onClick={(e) => {
-            e.preventDefault();
-            history.pushState(null, '', PRIVACY_PATH);
-            setPage('privacy');
-            window.scrollTo(0, 0);
-          }}
-        >
-          {t('privacy.link')}
-        </a>
-      </footer>
       {/* A device that notifies under an older per-app subscription moves to the suite's, without asking. */}
       {signedIn?.household.status === 'ready' && signedIn.me && !preview && (
         <PushSuiteUpgrade db={db} householdId={signedIn.household.id} user={{ email: signedIn.me }} vapidKey={VAPID_PUBLIC_KEY} />
       )}
       <Toast toast={toast} onDone={clear} />
-    </div>
+    </AppFrame>
   );
 }

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { captureScreenshot } from '@huishouden/pwa-kit/e2e';
+import { captureOpening, captureScreenshot } from '@huishouden/pwa-kit/e2e';
+import { MEMBER_HINT } from '../src/memberHint';
 import type { HubState } from '../src/hub';
 import { helper, me, member, noHousehold, restoring, showHub } from './fixtures/hub';
 
@@ -27,6 +28,13 @@ const onApps = (state: HubState, then?: (p: Page) => Promise<void>) =>
   });
 
 test('home', ({ page }) => captureScreenshot(page, 'home', { fixedTime }));
+
+// The frame while the hub opens on a device that remembers a member (sign-in restoring), held there:
+// the kit's AppOpening with the member's tabs.
+test('opening', async ({ page }) => {
+  await page.addInitScript((key) => localStorage.setItem(key, JSON.stringify({ household: 'h1' })), MEMBER_HINT);
+  await captureOpening(page, 'opening', { path: '/today', fixedTime });
+});
 
 test('phone: home', async ({ page }) => {
   await phone(page);
@@ -243,7 +251,7 @@ test('phone: today while sign-in restores', async ({ page }) => {
   await phone(page);
   await captureScreenshot(page, 'phone-today-restoring', {
     fixedTime,
-    prepare: preview(restoring, (p) => expect(p.getByText("Loading the household's day.")).toBeAttached()),
+    prepare: preview(restoring, (p) => expect(p.getByText('Opening Huishouden.')).toBeAttached()),
   });
 });
 

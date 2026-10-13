@@ -132,7 +132,9 @@ test('a device that remembers a member lays out Today while sign-in restores, an
   await page.evaluate((s) => window.__hubPreview!(s), restoring);
   const tabs = page.getByRole('navigation', { name: 'Sections' });
   await expect(tabs.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByText("Loading the household's day.")).toBeAttached();
+  // The kit's opening frame (AppOpening) over its placeholder, saying what it waits for.
+  await expect(page.locator('[data-hh-frame="opening"] [data-hh-skeleton]')).toBeVisible();
+  await expect(page.getByText('Opening Huishouden.')).toBeAttached();
   await expect(page.locator('#household')).toHaveCount(0);
 });
 
