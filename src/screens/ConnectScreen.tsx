@@ -51,7 +51,7 @@ export function ConnectScreen({ user, householdId, onSignIn, signingIn }: { user
   };
 
   return (
-    <article className={`${cardClass} mx-auto max-w-[560px] space-y-4 p-6 text-base leading-relaxed text-ink sm:p-8`}>
+    <article className={`${cardClass} mx-auto w-full max-w-[560px] space-y-4 p-6 text-base leading-relaxed text-ink sm:p-8`}>
       <h1 ref={heading} tabIndex={-1} className="text-2xl font-semibold text-ink outline-none">
         {title}
       </h1>
