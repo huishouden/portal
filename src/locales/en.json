@@ -35,6 +35,7 @@
   "privacy.providerOsm": "OpenStreetMap: looking up addresses and places and drawing the small map, when you search or ask for your location. It receives what you searched for, not who you are.",
   "privacy.providerOff": "Open Food Facts: looking up a product by its barcode number, when you add an item by photo and your phone reads a barcode. It receives only the number, never the photo or who you are.",
   "privacy.providerNlm": "U.S. National Library of Medicine (Clinical Tables): suggesting condition names and their ICD-10 codes in Health, as you type one. It receives only the words typed, never a name, your household or who you are, and Health works without it (type the name in full).",
+  "privacy.providerFda": "U.S. Food and Drug Administration (openFDA's NDC list): naming the exact medicine when you scan a label in Health or Pet and the label shows its NDC code. It receives only that code, never the photo, a name, your household or who you are, and the scan works without it.",
   "privacy.code": "The apps' code is public, including {link}.",
   "privacy.codeLink": "exactly what the reports contain",
   "dutch.say": "Say it: {say}",
