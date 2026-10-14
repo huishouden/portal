@@ -37,6 +37,19 @@ Members of a household get four tabs; everyone else sees Apps, with what Huishou
 ![Calendar](docs/screenshots/calendar.png)
 ![Contacts](docs/screenshots/contacts.png)
 
+## Sharing Huishouden
+
+Signed in, every app's account menu (the kit's app bar) has **Share Huishouden**, for telling
+someone who sees you using it: the phone's share sheet with a one-line pitch and the bare site
+address (no parameters, nothing about you or your household), the link copied with a toast where
+there is no share sheet, and a QR code button for someone standing next to you. It is not an
+invitation: they land here signed out, where the Apps screen explains Huishouden and that starting a
+household makes one of their own, separate from anyone else's. The link preview (Messages,
+WhatsApp) shows "Huishouden", the description from `vite.config.ts` and `public/og.png`.
+
+![Share Huishouden in the account menu](docs/screenshots/share-menu.png)
+![The QR code of the site address](docs/screenshots/share-qr.png)
+
 ## Tiles
 
 A household's members can arrange its tiles (Arrange, under the tiles): move apps earlier or later,
