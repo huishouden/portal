@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   pwa:
-    uses: huishouden/pwa-kit/.github/workflows/pwa.yml@c17c1fd5232ac124b75eab89e028d59adfda2c12 # v0.122.0
+    uses: huishouden/pwa-kit/.github/workflows/pwa.yml@09ceb62dcbe9415a1c81b9f279ab1391c41769cb # v0.123.0
     permissions:
       contents: write # the hosting release asset, the version's tag and release
       id-token: write
