@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { captureOpening, captureScreenshot } from '@huishouden/pwa-kit/e2e';
+import { captureOpening, captureScreenshot, showShareScene } from '@huishouden/pwa-kit/e2e';
 import { MEMBER_HINT } from '../src/memberHint';
 import type { HubState } from '../src/hub';
 import { helper, me, member, noHousehold, restoring, showHub } from './fixtures/hub';
@@ -66,6 +66,16 @@ test('account menu', ({ page }) =>
       await expect(p.getByText(me, { exact: true }).first()).toBeVisible();
     }),
   }));
+
+// Share Huishouden (the kit's account menu): the item, the copy fallback's toast, the QR view.
+test('share: the menu item', ({ page }) =>
+  captureScreenshot(page, 'share-menu', { fixedTime, prepare: preview(member(), (p) => showShareScene(p, 'menu')) }));
+
+test('share: link copied', ({ page }) =>
+  captureScreenshot(page, 'share-copied', { fixedTime, prepare: preview(member(), (p) => showShareScene(p, 'copied')) }));
+
+test('share: QR code', ({ page }) =>
+  captureScreenshot(page, 'share-qr', { fixedTime, prepare: preview(member(), (p) => showShareScene(p, 'qr')) }));
 
 test('ai assistant', ({ page }) =>
   captureScreenshot(page, 'assistant', {

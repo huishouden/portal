@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { expectBottomNav, useTestHousehold } from '@huishouden/pwa-kit/e2e';
+import { expectBottomNav, expectShareHuishouden, useTestHousehold } from '@huishouden/pwa-kit/e2e';
 
 // Signed in as the invented people of a household of this run's own (pwa-kit STANDARD.md
 // "Staging"), against the real rules: on the emulators (app-tests, `bun run e2e:emulator`), and on
@@ -56,6 +56,13 @@ test('signed in on the portal, each moved app opens signed in', { tag: '@staging
     await page.goto(app.path!.slice(1));
     await expect(signedIn, app.repo).toBeVisible({ timeout: 20_000 });
   }
+});
+
+// Share Huishouden from the account menu: the share sheet (stubbed), the copy fallback and the QR
+// code, all of the bare site address (the kit's expectShareHuishouden).
+test('a member shares Huishouden itself from the account menu', async ({ page }) => {
+  await hh.signIn(page, 'member');
+  await expectShareHuishouden(page);
 });
 
 test('signed in on a phone, the sections are a bottom bar', async ({ page }) => {

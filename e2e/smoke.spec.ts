@@ -58,13 +58,28 @@ test('signed out, the hub explains Huishouden and how to start', async ({ page }
   const intro = page.locator('#household');
   await expect(intro.getByRole('heading', { name: 'Simple shared apps for running a home together' })).toBeVisible();
   await expect(intro.getByText("It's free.", { exact: false })).toBeVisible();
-  await expect(intro.getByText("A household's information is visible only to its members.")).toBeVisible();
+  // Someone who followed a shared link starts a household of their own, not the sharer's.
+  await expect(intro.getByText("Starting a household makes one of your own, private and separate from anyone else's.", { exact: false })).toBeVisible();
   await expect(intro.getByRole('listitem')).toHaveText([
     'Sign in with your Google account.',
-    'Start a household, or join the one you were invited to.',
+    'Start your own household, or join the one you were invited to.',
     'Open any app. Add it to your home screen to keep it close.',
   ]);
   await expect(page.getByRole('navigation', { name: 'Sections' })).toHaveCount(0);
+});
+
+// What a shared link shows in Messages or WhatsApp: the name, what it is, the logo image.
+test('a shared link previews as Huishouden, saying what it is', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const meta = (key: string) => page.locator(`meta[property="${key}"]`).getAttribute('content');
+  expect(await meta('og:title')).toBe('Huishouden');
+  expect(await meta('og:description')).toMatch(/^Free apps for running a home together: groceries, tasks, calendar, .*Start your own household\.$/);
+  expect(new URL((await meta('og:url'))!).pathname).toBe('/');
+  expect(new URL((await meta('og:image'))!).pathname).toBe('/og.png');
+  // The image as this site serves it (never fetched from production): a 1200×630 PNG.
+  const png = await (await page.request.get('og.png')).body();
+  expect(png.subarray(1, 4).toString()).toBe('PNG');
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
 });
 
 test('the Dutch greeting explains itself', async ({ page }) => {

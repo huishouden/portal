@@ -18,7 +18,7 @@ export default defineConfig({
       // The portal's worker (scope /) owns the one push subscription of the device for every app (pwa-kit STANDARD.md "Notifications").
       push: true,
       name: 'Huishouden',
-      description: "Your household's apps, together in one place",
+      description: 'Free apps for running a home together: groceries, tasks, calendar, pets, baby and health, sharing one calendar. Start your own household.',
       // Contacts → Share → Huishouden on Android: a contact card becomes a household contact.
       shareTarget: { contacts: true },
       themeColor: '#1b4332',
