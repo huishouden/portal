@@ -35,7 +35,7 @@
   "privacy.providerOsm": "OpenStreetMap: adressen en plekken opzoeken en het kaartje tekenen, als je zoekt of om je locatie vraagt. Het krijgt wat je zocht, niet wie je bent.",
   "privacy.providerOff": "Open Food Facts: een product opzoeken aan de hand van het nummer van de streepjescode, als je een artikel met een foto toevoegt en je telefoon een streepjescode leest. Het krijgt alleen het nummer, nooit de foto of wie je bent.",
   "privacy.providerNlm": "U.S. National Library of Medicine (Clinical Tables): namen van aandoeningen en hun ICD-10-codes voorstellen in Gezondheid, terwijl je er een typt. Het krijgt alleen de getypte woorden, nooit een naam, je huishouden of wie je bent, en Gezondheid werkt ook zonder (typ de naam helemaal).",
-  "privacy.providerFda": "U.S. Food and Drug Administration (de NDC-lijst van openFDA): het precieze medicijn noemen als je in Gezondheid of Huisdier een etiket scant en het etiket zijn NDC-code toont. Het krijgt alleen die code, nooit de foto, een naam, je huishouden of wie je bent, en het scannen werkt ook zonder.",
+  "privacy.providerFda": "U.S. Food and Drug Administration (de NDC-lijst van openFDA): het precieze medicijn noemen als je in Gezondheid of Huisdier een etiket scant en het etiket zijn NDC-code toont. Het krijgt alleen die code, of de naam van het medicijn als de code maar half gelezen is, nooit de foto, een naam, je huishouden of wie je bent, en het scannen werkt ook zonder.",
   "privacy.code": "De code van de apps is openbaar, inclusief {link}.",
   "privacy.codeLink": "precies wat de meldingen bevatten",
   "dutch.say": "Uitspraak: {say}",
