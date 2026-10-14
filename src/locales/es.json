@@ -35,7 +35,7 @@
   "privacy.providerOsm": "OpenStreetMap: buscar direcciones y lugares y dibujar el mapa pequeño, cuando buscas o pides tu ubicación. Recibe lo que buscaste, no quién eres.",
   "privacy.providerOff": "Open Food Facts: buscar un producto por el número de su código de barras, cuando añades un artículo con una foto y tu teléfono lee un código de barras. Recibe solo el número, nunca la foto ni quién eres.",
   "privacy.providerNlm": "Biblioteca Nacional de Medicina de EE. UU. (Clinical Tables): sugerir nombres de afecciones y sus códigos CIE-10 en Salud, mientras escribes una. Recibe solo las palabras escritas, nunca un nombre, tu hogar ni quién eres, y Salud funciona sin ella (escribe el nombre completo).",
-  "privacy.providerFda": "Administración de Alimentos y Medicamentos de EE. UU. (lista NDC de openFDA): nombrar el medicamento exacto cuando escaneas una etiqueta en Salud o Mascota y la etiqueta muestra su código NDC. Recibe solo ese código, nunca la foto, un nombre, tu hogar ni quién eres, y el escaneo funciona sin ella.",
+  "privacy.providerFda": "Administración de Alimentos y Medicamentos de EE. UU. (lista NDC de openFDA): nombrar el medicamento exacto cuando escaneas una etiqueta en Salud o Mascota y la etiqueta muestra su código NDC. Recibe solo ese código, o el nombre del medicamento si el código se leyó a medias, nunca la foto, un nombre, tu hogar ni quién eres, y el escaneo funciona sin ella.",
   "privacy.code": "El código de las apps es público, incluido {link}.",
   "privacy.codeLink": "exactamente qué contienen los informes",
   "dutch.say": "Se pronuncia: {say}",
