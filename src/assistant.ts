@@ -1,4 +1,4 @@
-import { collection, doc, onSnapshot, query, where, type Firestore, type Unsubscribe } from 'firebase/firestore';
+import { collection, deleteField, doc, onSnapshot, query, where, type Firestore, type Unsubscribe } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import { deleteDoc, setDoc } from '@huishouden/pwa-kit/firestore';
 import { CALLBACK_PATH, CLI_HANDOFF_PATH, CLI_SERVICE, HANDOFF_PATH, isLoopbackRedirect, isPkceChallenge, type CliHandoffRequest, type ConnectParams, type HandoffRequest } from '@huishouden/pwa-kit/signin-handoff';
@@ -60,15 +60,16 @@ const timeZone = () => {
 };
 
 /**
- * The person's language and time zone in their profile, so the assistant answers their way.
- * Merged, so the name and photo stay.
+ * The person's time zone in their profile, so the assistant counts days their way. Merged, so the
+ * name and photo stay. Their language is the household's (`households/{id}.langs`, which every
+ * app keeps); a `lang` left on the profile from before is removed.
  */
-export async function saveLangAndZone(db: Firestore, householdId: string, email: string): Promise<void> {
+export async function saveTimeZone(db: Firestore, householdId: string, email: string): Promise<void> {
   const zone = timeZone();
   await setDoc(
     // The profile document is the member's own (rules: only they write it).
     doc(db, 'households', householdId, 'profiles', email),
-    { lang: getLang(), ...(zone ? { timeZone: zone } : {}), updatedAt: Date.now() },
+    { lang: deleteField(), ...(zone ? { timeZone: zone } : {}), updatedAt: Date.now() },
     { merge: true },
   );
 }

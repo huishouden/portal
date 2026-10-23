@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { cardClass, primaryButton, secondaryButton } from '@huishouden/pwa-kit/react/ui';
 import { CLI_SERVICE, parseConnectParams } from '@huishouden/pwa-kit/signin-handoff';
-import { cliPort, connectAllowed, declineUrl, handOff, isCliSignIn, saveLangAndZone } from '../assistant';
+import { cliPort, connectAllowed, declineUrl, handOff, isCliSignIn, saveTimeZone } from '../assistant';
 import { auth, db } from '../firebase';
 import { useT } from '../i18n';
 
@@ -40,7 +40,7 @@ export function ConnectScreen({ user, householdId, onSignIn, signingIn }: { user
     setBusy(true);
     setError(undefined);
     try {
-      if (householdId) await saveLangAndZone(db, householdId, current.email.toLowerCase()).catch(() => {});
+      if (householdId) await saveTimeZone(db, householdId, current.email.toLowerCase()).catch(() => {});
       location.assign(await handOff(params, current));
     } catch {
       setError(t('connect.failed'));
