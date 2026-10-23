@@ -7,6 +7,14 @@ import { helper, me, member, noHousehold, restoring, showHub } from './fixtures/
 // README images, refreshed by CI after each deploy (only committed when they change). Signed-in
 // screens show invented data handed to the app (window.__hubPreview); nothing reaches Firestore.
 const fixedTime = '2026-10-01T09:00:00';
+
+// captureScreenshot loads each scene with `waitUntil: 'networkidle'`. Firebase Auth's sign-in iframe
+// loads gapi, which pings apis.google.com/js/gen_204; that redirects to
+// www.google.com/images/cleardot.gif, and in about one load in 60 that request never finishes, so
+// network idle never comes and the scene times out in page.goto. Answering the ping here leaves
+// network idle waiting only on what the page draws with.
+test.beforeEach(({ page }) => page.route('https://apis.google.com/js/gen_204*', (route) => route.fulfill({ status: 204 })));
+
 const phone = (page: Page) => page.setViewportSize({ width: 390, height: 844 });
 /** Opens a section: in the app bar or the phone's bottom bar, or under More on a phone. */
 const tab = async (p: Page, name: string) => {
