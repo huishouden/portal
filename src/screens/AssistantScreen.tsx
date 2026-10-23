@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { User } from 'firebase/auth';
 import { cardClass, ghostButton, linkClass, overline, secondaryButton } from '@huishouden/pwa-kit/react/ui';
 import { formatAgo } from '@huishouden/pwa-kit/time';
-import { geminiSettings, mcpUrl, revoke, saveLangAndZone, watchAudit, watchConnections, type AuditEntry, type Connection } from '../assistant';
+import { geminiSettings, mcpUrl, revoke, saveTimeZone, watchAudit, watchConnections, type AuditEntry, type Connection } from '../assistant';
 import { auth, db } from '../firebase';
 import { useT } from '../i18n';
 import { CopyField } from '../components/CopyField';
@@ -61,8 +61,8 @@ export function AssistantScreen({ user, householdId, me, notify, fail }: { user:
 
   useEffect(() => {
     if (!householdId || !me) return;
-    // The assistant answers in this language and counts days in this time zone.
-    void saveLangAndZone(db, householdId, me).catch(() => {});
+    // The assistant counts days in this time zone.
+    void saveTimeZone(db, householdId, me).catch(() => {});
     return watchConnections(db, householdId, me, setConnections, () => setConnections([]));
   }, [householdId, me]);
 
